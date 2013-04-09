@@ -1,0 +1,75 @@
+{% block css %}
+{% endblock %}
+
+{% block script %}
+    <!--script type="text/javascript" src="/static/assets/pagedown/Markdown.Converter.js"></script-->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.js"></script>
+    {% if user.is_admin() %}
+    <script type="text/javascript" src="/static/assets/pagedown/Markdown.Editor.js"></script>
+    {% endif %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var converter = new Markdown.Converter();
+            var md2html = converter.makeHtml;
+
+            var page_content = $("#wmd-input");
+            var page = $("#wmd-preview");
+
+            var show_page = function(){
+                page.html(md2html(page_content.val()));
+                $("pre>code", page).parent().addClass("prettyprint");
+                prettyPrint();
+            };
+
+            show_page();
+
+            {% if user.is_admin() %}
+            var page_editor = $("#page_editor");
+            var md_editor = new Markdown.Editor(converter);
+            md_editor.run();
+
+            md_editor.hooks.chain("onPreviewRefresh", function () {
+                show_page();
+            });
+
+
+            $("#save_page").click(function(){
+                $.json_action(page_editor.attr("data-target"),
+                        $.json_options($("input,select,textarea", page_editor).not("[type=submit]")),
+                        function(resp){
+                            show_page();
+                            page_editor.hide();
+                        },function(err){
+                            bootbox.alert(err);
+                        }
+                );
+            });
+            $("#cancel").click(function(){
+                page_editor.hide();
+            });
+
+            // change top bar button
+            var $btn_edit = $("#new-post");
+            $btn_edit.html('<i class="icon-pencil icon-white"></i>{{ _("Edit Page") }}');
+            $btn_edit.click(function(){
+                page_editor.show();
+            });
+            {% endif %}
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div id="wmd-preview" class="wmd-panel"></div>
+        <div id="page_editor" class="hide wmd-panel" data-target="category/update">
+            <input type="hidden" name="id" value="{{ category.id }}"/>
+            <div id="wmd-button-bar" class="wmd-button-bar"></div>
+            <textarea rows="16" class="span10" id="wmd-input" name="content">{{ category.content|default("")|safe }}</textarea>
+            <button id="save_page" class="btn btn-primary">{{ _("Save") }}</button>
+            <button id="cancel" class="btn">{{ _("Cancel") }}</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

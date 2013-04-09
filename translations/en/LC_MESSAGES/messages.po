@@ -1,0 +1,433 @@
+# English translations for PROJECT.
+# Copyright (C) 2013 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2013-04-06 11:44+0800\n"
+"PO-Revision-Date: 2013-03-24 14:53+0800\n"
+"Last-Translator: Gully Chen <deepgully@gmail.com>\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: ../ajax.py:30
+#, python-format
+msgid "can not find user %(id)s"
+msgstr ""
+
+#: ../ajax.py:31
+msgid "unauthorized"
+msgstr ""
+
+#: ../ajax.py:32
+#, python-format
+msgid "no category %(id)s"
+msgstr ""
+
+#: ../ajax.py:33
+#, python-format
+msgid "error in get posts of category %(id)s"
+msgstr ""
+
+#: ../ajax.py:34
+#, python-format
+msgid "no post %(id)s"
+msgstr ""
+
+#: ../ajax.py:35
+#, python-format
+msgid "no photo %(id)s"
+msgstr ""
+
+#: ../ajax.py:36
+#, python-format
+msgid "no comment %(id)s"
+msgstr ""
+
+#: ../ajax.py:37
+#, python-format
+msgid "no tag %(name)s"
+msgstr ""
+
+#: ../ajax.py:45
+#, python-format
+msgid "unsupported method [ %(name)s]"
+msgstr ""
+
+#: ../ajax.py:132
+msgid "email is required"
+msgstr ""
+
+#: ../ajax.py:135
+msgid "password is required"
+msgstr ""
+
+#: ../ajax.py:189
+msgid "can not delete owner"
+msgstr ""
+
+#: ../ajax.py:212
+msgid "pls input id or url"
+msgstr ""
+
+#: ../ajax.py:347
+msgid "can not delete Home category"
+msgstr ""
+
+#: ../index.py:49
+msgid "Page not found"
+msgstr ""
+
+#: ../index.py:128
+msgid "Please input valid email and password"
+msgstr ""
+
+#: ../utils.py:44
+msgid "Please login to access this page"
+msgstr ""
+
+#: ../model/model_bae.py:664 ../model/model_gae.py:619
+msgid "Comment Deleted"
+msgstr ""
+
+#: ../templates/__comment.html:70
+msgid "Comments"
+msgstr ""
+
+#: ../templates/__comment.html:71 ../templates/_list.html:341
+#: ../templates/_photo.html:368 ../templates/_timeline.html:336
+#: ../templates/base.html:132 ../templates/tags.html:318
+msgid "loading"
+msgstr ""
+
+#: ../templates/__comment.html:75 ../templates/__comment.html:111
+msgid "Reply"
+msgstr ""
+
+#: ../templates/__comment.html:81 ../templates/_list.html:317
+#: ../templates/_photo.html:388 ../templates/_timeline.html:326
+#: ../templates/post.html:131 ../templates/tags.html:296
+msgid "Comment"
+msgstr ""
+
+#: ../templates/__comment.html:82 ../templates/_editor.html:369
+msgid "Preview"
+msgstr ""
+
+#: ../templates/__comment.html:86
+msgid "Your Name"
+msgstr ""
+
+#: ../templates/__comment.html:87 ../templates/_editor.html:403
+msgid "Submit"
+msgstr ""
+
+#: ../templates/__comment.html:94
+msgid "comment here, support markdown syntax"
+msgstr ""
+
+#: ../templates/__comment.html:106 ../templates/_list.html:312
+#: ../templates/_photo.html:383 ../templates/_photo.html:406
+#: ../templates/_timeline.html:321 ../templates/post.html:126
+#: ../templates/tags.html:291
+msgid "Like"
+msgstr ""
+
+#: ../templates/__comment.html:109 ../templates/_list.html:315
+#: ../templates/_photo.html:386 ../templates/_photo.html:409
+#: ../templates/_timeline.html:324 ../templates/post.html:129
+#: ../templates/tags.html:294
+msgid "Unlike"
+msgstr ""
+
+#: ../templates/__comment.html:113 ../templates/_list.html:293
+#: ../templates/_photo.html:396 ../templates/_timeline.html:305
+#: ../templates/admin.html:287 ../templates/admin.html:392
+#: ../templates/post.html:95 ../templates/tags.html:272
+msgid "Delete"
+msgstr ""
+
+#: ../templates/__comment.html:114
+msgid "Restore"
+msgstr ""
+
+#: ../templates/__comment.html:295 ../templates/_editor.html:145
+#: ../templates/admin.html:23
+msgid "please input valid"
+msgstr ""
+
+#: ../templates/__comment.html:300 ../templates/_editor.html:152
+#: ../templates/admin.html:28
+msgid "Saving"
+msgstr ""
+
+#: ../templates/__comment.html:309
+msgid "Comment Saved"
+msgstr ""
+
+#: ../templates/__post_script.html:119
+msgid "Delete post, r u sure?"
+msgstr ""
+
+#: ../templates/_editor.html:59 ../templates/_timeline.html:290
+#: ../templates/base.html:101
+msgid "New Post"
+msgstr ""
+
+#: ../templates/_editor.html:61 ../templates/_photo.html:336
+msgid "New Album"
+msgstr ""
+
+#: ../templates/_editor.html:98
+msgid "Edit Album"
+msgstr ""
+
+#: ../templates/_editor.html:100 ../templates/_editor.html:336
+msgid "Edit Post"
+msgstr ""
+
+#: ../templates/_editor.html:104
+msgid "Loading"
+msgstr ""
+
+#: ../templates/_editor.html:164
+msgid "Post Saved"
+msgstr ""
+
+#: ../templates/_editor.html:213
+msgid "Photo Deleted"
+msgstr ""
+
+#: ../templates/_editor.html:311
+msgid "Photo Description Saved"
+msgstr ""
+
+#: ../templates/_editor.html:348
+msgid "Post Title"
+msgstr ""
+
+#: ../templates/_editor.html:353
+msgid "Add Photo"
+msgstr ""
+
+#: ../templates/_editor.html:362
+msgid "Photo Description"
+msgstr ""
+
+#: ../templates/_editor.html:368 ../templates/_list.html:292
+#: ../templates/_photo.html:395 ../templates/_timeline.html:304
+#: ../templates/admin.html:286 ../templates/admin.html:391
+#: ../templates/post.html:94 ../templates/tags.html:271
+msgid "Edit"
+msgstr ""
+
+#: ../templates/_editor.html:381 ../templates/_editor.html:383
+#: ../templates/base.html:89
+msgid "Tags"
+msgstr ""
+
+#: ../templates/_editor.html:395 ../templates/_editor.html:396
+#: ../templates/_list.html:283 ../templates/_list.html:331
+#: ../templates/_photo.html:357 ../templates/_timeline.html:311
+msgid "Sticky"
+msgstr ""
+
+#: ../templates/_editor.html:399 ../templates/_editor.html:400
+msgid "Publish"
+msgstr ""
+
+#: ../templates/_editor.html:402 ../templates/_text.html:71
+#: ../templates/admin.html:289 ../templates/admin.html:394
+msgid "Cancel"
+msgstr ""
+
+#: ../templates/_list.html:42 ../templates/_list.html:175
+#: ../templates/_photo.html:218 ../templates/_timeline.html:25
+#: ../templates/post.html:86
+msgid "Hidden"
+msgstr ""
+
+#: ../templates/_list.html:310 ../templates/_photo.html:381
+#: ../templates/_timeline.html:319 ../templates/post.html:122
+#: ../templates/tags.html:289
+msgid "Share"
+msgstr ""
+
+#: ../templates/_list.html:340 ../templates/_photo.html:367
+#: ../templates/_timeline.html:337 ../templates/tags.html:317
+msgid "More"
+msgstr ""
+
+#: ../templates/_photo.html:353
+msgid "Albums"
+msgstr ""
+
+#: ../templates/_photo.html:416
+msgid "Hot Photos"
+msgstr ""
+
+#: ../templates/_text.html:53
+msgid "Edit Page"
+msgstr ""
+
+#: ../templates/_text.html:70 ../templates/admin.html:288
+#: ../templates/admin.html:393
+msgid "Save"
+msgstr ""
+
+#: ../templates/admin.html:34
+msgid "Saved"
+msgstr ""
+
+#: ../templates/admin.html:81
+msgid "Are you sure to delete this item?"
+msgstr ""
+
+#: ../templates/admin.html:83
+msgid "Deleting"
+msgstr ""
+
+#: ../templates/admin.html:91
+msgid "Deleted"
+msgstr ""
+
+#: ../templates/admin.html:156
+msgid "Site Settings"
+msgstr ""
+
+#: ../templates/admin.html:157
+msgid "Users"
+msgstr ""
+
+#: ../templates/admin.html:158
+msgid "Categories"
+msgstr ""
+
+#: ../templates/admin.html:161
+msgid "Personal"
+msgstr ""
+
+#: ../templates/admin.html:165
+msgid "Reset Password"
+msgstr ""
+
+#: ../templates/admin.html:177
+msgid "Save Settings"
+msgstr ""
+
+#: ../templates/admin.html:186
+msgid "Site Title"
+msgstr ""
+
+#: ../templates/admin.html:193
+msgid "Site Subtitle"
+msgstr ""
+
+#: ../templates/admin.html:200
+msgid "Copyright"
+msgstr ""
+
+#: ../templates/admin.html:207
+msgid "Google Analytics ID"
+msgstr ""
+
+#: ../templates/admin.html:217
+msgid "New User"
+msgstr ""
+
+#: ../templates/admin.html:223 ../templates/admin.html:304
+msgid "Name"
+msgstr ""
+
+#: ../templates/admin.html:224
+msgid "Active?"
+msgstr ""
+
+#: ../templates/admin.html:225
+msgid "Role"
+msgstr ""
+
+#: ../templates/admin.html:226 ../templates/admin.html:309
+msgid "Action"
+msgstr ""
+
+#: ../templates/admin.html:257 ../templates/admin.html:349
+msgid "New"
+msgstr ""
+
+#: ../templates/admin.html:298
+msgid "New Category"
+msgstr ""
+
+#: ../templates/admin.html:305
+msgid "Sort"
+msgstr ""
+
+#: ../templates/admin.html:306
+msgid "Post per Page"
+msgstr ""
+
+#: ../templates/admin.html:307
+msgid "Order"
+msgstr ""
+
+#: ../templates/admin.html:308
+msgid "Template"
+msgstr ""
+
+#: ../templates/admin.html:415
+msgid "Nickname"
+msgstr ""
+
+#: ../templates/admin.html:422
+msgid "Avatar"
+msgstr ""
+
+#: ../templates/admin.html:438 ../templates/login.html:49
+msgid "Password"
+msgstr ""
+
+#: ../templates/base.html:105
+msgid "Admin"
+msgstr ""
+
+#: ../templates/base.html:109
+msgid "Logout"
+msgstr ""
+
+#: ../templates/base.html:113 ../templates/login.html:30
+#: ../templates/login.html:60
+msgid "Login"
+msgstr ""
+
+#: ../templates/base.html:127
+msgid "Powered by"
+msgstr ""
+
+#: ../templates/error.html:4
+msgid "Error"
+msgstr ""
+
+#: ../templates/login.html:12
+msgid "A email will send to your email address to reset your password"
+msgstr ""
+
+#: ../templates/login.html:18
+msgid "password reset mail sent, pls check your email"
+msgstr ""
+
+#: ../templates/login.html:52
+msgid "Forgot Password?"
+msgstr ""
+
+#: ../templates/login.html:58
+msgid "Remember me"
+msgstr ""
+

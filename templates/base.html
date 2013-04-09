@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ settings.title|default("ME@deepgully") }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ME@deepgully">
+    <meta name="author" content="deepgully">
+
+    <!-- CSS styles -->
+    <!--link href="/static/assets/bootstrap/css/bootstrap.css" rel="stylesheet"/-->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!--link href="/static/assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"-->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <link href="/static/styles/default.css" rel="stylesheet"/>
+    {% block css %}
+    {% endblock %}
+
+    <!-- Script -->
+    <!--script type="text/javascript" src="/static/assets/jquery-1.9.0.min.js"></script-->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/assets/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="/static/assets/jquery.json-2.4.min.js"></script>
+    <!--script type="text/javascript" src="/static/assets/bootstrap/js/bootstrap.min.js"></script-->
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/assets/bootstrap/bootbox.min.js"></script>
+
+    <script type="text/javascript" src="/static/js/main.js"></script>
+    <script type="text/javascript">
+        /* Document Ready */
+        $(document).ready(function() {
+            var $nav_bar_top = $(".navbar-fixed-top");
+            var resize_holder = function(){
+                if ($nav_bar_top.css("position") === "fixed"){
+                    $(".headerholder").height($nav_bar_top.height()+5);
+                } else {
+                    $(".headerholder").height(0);
+                }
+            };
+
+            $(window).resize(function() {
+                resize_holder();
+            });
+
+            resize_holder();
+
+            $("#tags_cloud_btn").popover({
+                "html": true,
+                "placement": "bottom",
+                "content": function(){
+                    return $("#tags_cloud").html();
+                }
+            });
+
+            $.json_action("tags/hot",{},
+                function(resp){
+                    var tags_cloud = $("#tags_cloud>div");
+                    tags_cloud.empty();
+                    $.each(resp.tags, function(index, tag){
+                        tags_cloud.append('<a href="/tags/{0}">{0}({1})</a>'.format(tag.name, tag.post_count));
+                    });
+                },function(err){
+                    bootbox.alert(err);
+            });
+        });
+    </script>
+    {% block script %}
+    {% endblock %}
+</head>
+
+<body>
+<div class="container">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="/">{{ settings.title|default("ME@deepgully")|safe }}</a>
+                <ul class="nav category">
+                    {% for _category in settings.categories %}
+                        <li class="{% if category and category.url == _category.url %}active{% endif %}">
+                            <a href="/{{ _category.url }}">{{ _category.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <span class="subtitle pull-left">{{ settings.subtitle }}</span>
+                <ul class="nav pull-right">
+                    <li class="{% if tag %}active{% endif %}">
+                        <a href="javascript:;" id="tags_cloud_btn" rel="popover">
+                            <i class="icon-tags icon-white"></i> {{ _("Tags") }}</a>
+                    </li>
+                    {% if user.is_user() %}
+                        <li>
+                            <a href="/admin" id="nav_avatar">
+                            <img src="{{ user.avatar_url }}" class="avatar24"/>
+                            <span>{{ user.nickname }}</span>
+                            </a>
+                        </li>
+                        {% if user.is_admin() %}
+                            {% if category %}
+                            <li>
+                                <a id="new-post" href="javascript:;"><i class="icon-pencil icon-white"></i> {{ _("New Post") }}</a>
+                            </li>
+                            {% endif %}
+                            <li class="{% if not category and not tag %}active{% endif %}">
+                                <a href="/admin"><i class="icon-wrench icon-white"></i> {{ _("Admin") }}</a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a href="/logout"><i class="icon-off icon-white"></i> {{ _("Logout") }}</a>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="/login"><i class="icon-user icon-white"></i>{{ _("Login") }}</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="headerholder"></div>
+    {% block body %}
+    {% endblock %}
+    <div class="footer">
+        <hr/>
+        <p><i class="icon-heart"></i>
+            <span class=""> {{ settings.title|safe }} {{ settings.copyright|safe }}.</span>
+            {{ _("Powered by") }}<a href="http://github.com/deepgully/me/"><code>ME@deepgully v{{ settings.version }}</code></a>.
+        </p>
+    </div>
+    <div id="tags_cloud" class="hide">
+        <div class="tags_cloud tags">
+            <img class="loading" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        </div>
+    </div>
+</div>
+{% if settings.ga_tracking_id %}
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', '{{ settings.ga_tracking_id }}']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+{% endif %}
+</body>
+</html>

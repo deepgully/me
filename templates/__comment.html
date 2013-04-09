@@ -1,0 +1,376 @@
+<style type="text/css">
+.comment-box {
+
+}
+.comment-title {
+    font-size: 1.4em;
+    font-weight: bold;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.threads {
+    list-style: none;
+    margin: 0;
+    font-size: 0.95em;
+    padding: 0 10px 20px 10px;
+}
+
+.threads .thread {
+    border-top: 2px #eee solid;
+    min-width: 160px;
+}
+
+.threads .command {
+    padding: 5px;
+}
+
+.threads .user_name {
+    font-size: 0.95em;
+    font-weight: bold;
+}
+
+.threads .date {
+    color: #999;
+}
+
+.threads .comment-content {
+    padding: 5px 10px 5px 10px;
+}
+
+.threads .deleted {
+    text-decoration:line-through;
+}
+
+.comment-input {
+    font-size: 0.9em;
+    padding: 10px;
+}
+.comment-input .nav {
+    margin-bottom: 4px;
+}
+.comment-input textarea {
+    width: 90%;
+    max-width: 90%;
+    margin: 0;
+}
+.comment-input .preview {
+    padding: 10px;
+    background-color: #fff;
+}
+.comment-input .message {
+    margin-top: 8px;
+}
+</style>
+
+<div id="comments-template" class="comment-box hide">
+    <div class="comment-title" title="Click to Collapse">
+        <span class="comment-count"></span> {{ _("Comments") }}  <span class="caret"></span>
+        <img class="loading" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        <div class="pull-right">
+            <button class="btn btn-success btn-small reply-post">
+                <i class="icon-share-alt icon-white"></i>
+                {{ _("Reply") }}
+            </button>
+        </div>
+    </div>
+    <div class="comment-input">
+        <ul class="nav nav-tabs">
+            <li class="active"><a name="content" data-toggle="tab" href="#">{{ _("Comment") }}</a></li>
+            <li class=""><a name="preview" data-toggle="tab" href="#">{{ _("Preview") }}</a></li>
+            <li class="message"><span class="label hide"></span></li>
+            <li class="pull-right">
+                <div class="input-append">
+                    <input type="text" class="input-small" name="author" placeholder="{{ _("Your Name") }}" required
+                           {% if user and user.is_user() %}value="{{ user.nickname }}"{% endif %}/>
+                    <button class="btn" type="button" id="submit_comment">{{ _("Submit") }}</button>
+                </div>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active content">
+                <textarea rows="1" name="content"
+                          placeholder="{{ _("comment here, support markdown syntax") }}" required></textarea>
+            </div>
+            <div class="tab-pane preview">
+            </div>
+        </div>
+    </div>
+    <li id="thread_template" class="hide thread">
+        <div class="command">
+            <i class="icon-user"></i><span class="user_name"></span>
+            <i class="icon-time"></i><abbr class="date timeago" title=""></abbr>
+            <div class="pull-right">
+                <button class="stats btn btn-mini" stats_type="Comment" name="like_count" oper="increase"
+                    title="{{ _("Like") }}"><i class="icon-thumbs-up"></i>
+                </button>
+                <button class="stats btn btn-mini" stats_type="Comment" name="unlike_count" oper="increase"
+                    title="{{ _("Unlike") }}"><i class="icon-thumbs-down"></i>
+                </button>
+                <a class="reply-comment" href="javascript:;"><i class="icon-share-alt"></i>{{ _("Reply") }}</a>
+                {% if user.is_admin() %}
+                <button class="delete-comment btn btn-mini" ><i class="icon-trash"></i>{{ _("Delete") }}</button>
+                <button class="restore-comment btn btn-mini" ><i class="icon-repeat"></i>{{ _("Restore") }}</button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="comment-content">
+        </div>
+    </li>
+    <ul class="threads">
+    </ul>
+</div>
+<script type="text/javascript" src="/static/assets/timeago/jquery.timeago.js"></script>
+<script type="text/javascript" src="/static/assets/timeago/jquery.timeago.{{ g.locale }}.js"></script>
+<script type="text/javascript" src="/static/assets/bootstrap/jqBootstrapValidation.min.js"></script>
+<script type="text/javascript">
+function Comment(md2html) {
+    var self = this;
+
+    var post_id, parent_id;
+
+    var $box, $threads, $preview;
+    var $input_content, $input_name, $form_inputs;
+
+
+    this.show_comments = function($container, post_id){
+
+        this.post_id = post_id;
+        this.parent_id = -1;
+
+        init_elems($container);
+
+        var $loading = $(".loading", $box);
+        $loading.show();
+        $.json_action("post/comments", {id: $.toJSON(post_id)},
+            function(resp){
+                $(".comment-count", $box).html(resp.comments.length);
+                $threads.empty();
+                $loading.fadeOut(1000);
+                setTimeout(function(){
+                    build_comments(resp.comments)
+                }, 1000);
+
+            },function(err){
+                $(".threads", $box).html(err);
+                $loading.hide();
+            });
+    };
+
+    var build_comments = function(comments){
+        $.each(comments, function(index, comment){
+            insert_comment(comment);
+        });
+        $.each(comments, function(index, comment){
+            adjust_comment(comment);
+        });
+    };
+
+    var insert_comment = function(comment){
+        var $comment = $("#thread_template", $box).clone();
+        $comment.attr("id", "comment_"+comment.id);
+        $(".user_name", $comment).html(comment.author);
+        $(".date", $comment).text(comment.created_date.to_date().format());
+        $('.timeago', $comment).attr("title", comment.created_date.to_date().format());
+        $('.timeago', $comment).timeago();
+        $(".stats[name=like_count]", $comment).html('<i class="icon-thumbs-up"></i>{0}'.format(comment.stats.like_count));
+        $(".stats[name=unlike_count]", $comment).html('<i class="icon-thumbs-down"></i>{0}'.format(comment.stats.unlike_count));
+
+        $(".comment-content", $comment).html(md2html(comment.content));
+        $("pre>code", $comment).parent().addClass("prettyprint");
+        $threads.append($comment);
+        prettyPrint();
+        if (comment.deleted){
+            $(".comment-content:first", $comment).addClass("deleted");
+            {% if user.is_admin() %}
+                $(".delete-comment", $comment).hide();
+                $(".restore-comment", $comment).show();
+            {% endif %}
+        } else {
+            {% if user.is_admin() %}
+                $(".delete-comment", $comment).show();
+                $(".restore-comment", $comment).hide();
+            {% endif %}
+        }
+
+        $(".reply-comment", $comment).click(function(){
+            self.parent_id = comment.id;
+            self.show_message("");
+            $(".comment-content:first", $comment).after($(".comment-input", $box));
+            show_tab("content");
+            $input_content.focus();
+        });
+
+        $(".stats", $comment).click(function(){
+            var $this = $(this);
+            var $icon = $this.find("i").clone();
+            $.json_action("stats",{
+                stats_type: $.toJSON($this.attr("stats_type")),
+                id: $.toJSON(comment.id),
+                oper: $.toJSON($this.attr("oper")),
+                name: $.toJSON($this.attr("name"))
+            },function(resp){
+                $this.empty();
+                $this.append($icon);
+                $this.append(resp.stats[$this.attr("name")]);
+            },function(err){
+                bootbox.alert(err);
+            });
+            $this.unbind("click");
+        });
+
+        {% if user.is_admin() %}
+            $(".delete-comment", $comment).click(function(){
+                $.json_action("comment/delete",
+                        {id: $.toJSON(comment.id)},
+                        function(resp){
+                            $(".comment-content:first", $comment).html(md2html(resp.comment.content))
+                                    .addClass("deleted");
+                            $(".delete-comment:first", $comment).hide();
+                            $(".restore-comment:first", $comment).show();
+                        },function(err){
+                            self.show_message(err, true);
+                        }
+                );
+            });
+            $(".restore-comment", $comment).click(function(){
+                $.json_action("comment/update",
+                        {id: $.toJSON(comment.id),
+                         deleted: $.toJSON(false)},
+                        function(resp){
+                            $(".comment-content:first", $comment).html(md2html(resp.comment.content))
+                                    .removeClass("deleted");
+                            $(".delete-comment:first", $comment).show();
+                            $(".restore-comment:first", $comment).hide();
+                        },function(err){
+                            self.show_message(err, true);
+                        }
+                );
+            });
+        {% endif %}
+
+    };
+
+    var adjust_comment = function(comment, scrollto){
+        var $comment = $("#comment_"+comment.id, $box);
+        var $parent = $("#comment_"+comment.parent_id, $box);
+        if ($parent.length>0){
+            $parent.append($comment);
+            $comment.css("margin-left", "40px");
+        }
+
+        $comment.show();
+        scrollto && $comment.scrollto(100);
+    };
+
+    var hilite_comment = function(comment){
+        var $comment = $("#comment_"+comment.id, $box);
+        $comment.css({"background-color": "LightYellow"});
+    }
+
+    var clean_input = function(){
+        $input_content.val("");
+        $preview.html("");
+    };
+
+    var show_privew = function(){
+        $preview.html(md2html($input_content.val()));
+    };
+
+    var show_message = function(msg,error){
+        if (!msg) {
+            $(".message", $box).hide();
+        } else {
+            $(".message", $box).show()
+            $(".message span", $box).text(msg).attr("class", "label label-"+(error ? "warning" : "success"));
+        }
+    };
+    self.show_message = show_message;
+
+    var submit_comment = function(){
+        var hasErrors = $form_inputs.jqBootstrapValidation("hasErrors");
+        if (hasErrors){
+            var errors = $form_inputs.jqBootstrapValidation("collectErrors");
+            var msg = "{{ _("please input valid") }} ";
+            for(var name in errors) {  msg += '[{0}] '.format(name); }
+            self.show_message(msg, true);
+            return;
+        }
+        self.show_message("{{ _("Saving") }}...", true);
+
+        var options = $.json_options($form_inputs);
+        options.post_id = $.toJSON(self.post_id);
+        options.parent_id = $.toJSON(self.parent_id);
+
+        $.json_action("comment/create",
+                options,
+                function(resp){
+                    self.show_message("{{ _("Comment Saved") }}", false);
+                    $threads.show();
+                    insert_comment(resp.comment);
+                    adjust_comment(resp.comment, true);
+                    hilite_comment(resp.comment);
+                    clean_input();
+                },function(err){
+                    self.show_message(err, true);
+                }
+        );
+    };
+
+    var init_elems = function($container){
+        $box = $container;
+        var template = $("#comments-template").clone();
+        template.removeAttr("id").show();
+        $box.html(template);
+
+        $form_inputs = $("input,select,textarea,checkbox", $box).not("[type=submit]");
+        $form_inputs.jqBootstrapValidation();
+
+        $threads = $(".threads", $box);
+        $input_content = $('.comment-input textarea[name="content"]', $box);
+        $input_name = $('.comment-input input[name="author"]', $box);
+        $preview = $('.comment-input .preview', $box);
+
+        $(".reply-post", $box).click(function(){
+            self.parent_id = -1;
+            $(".comment-title", $box).after($(".comment-input", $box));
+            show_tab("content");
+            $input_content.focus();
+        });
+
+        $(".comment-title", $box).click(function(){
+            $threads.toggle();
+        });
+
+        $input_content.focusin(function(){
+            var $this = $(this);
+            $(this).attr("rows", 6);
+        });
+
+        $('a[data-toggle="tab"]', $box).click(function (e) {
+            e.preventDefault();
+            var active_tab = $(e.target).attr("name");
+            if ( active_tab === "preview"){
+                show_privew();
+            }
+            show_tab(active_tab);
+        });
+
+        $("#submit_comment", $box).click(function(){
+            submit_comment();
+        });
+    };
+
+    var show_tab = function(name){
+        $(".tab-content .tab-pane", $box).removeClass("active");
+        $(".tab-content .{0}".format(name), $box).addClass("active");
+
+        $('a[data-toggle="tab"]', $box).parent("li").removeClass("active");
+        $('a[data-toggle="tab"][name="{0}"]'.format(name), $box).parent("li").addClass("active");
+    };
+
+    return self;
+};
+</script>

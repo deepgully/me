@@ -1,0 +1,177 @@
+{% block css %}
+{% endblock %}
+
+{% block script %}
+<!--script type="text/javascript" src="/static/assets/pagedown/Markdown.Converter.js"></script-->
+<!--script type="text/javascript" src="/static/assets/pagedown/Markdown.Sanitizer.js"></script-->
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Sanitizer.js"></script>
+<script type="text/javascript">
+    var editor = null;
+    var md_converter = Markdown.getSanitizingConverter();
+    var md2html = md_converter.makeHtml;
+
+    var get_post_id = function($post){
+        return $post.attr("id").replace(/^post_/, "");
+    };
+    var get_post_date = function($post){
+        var post_id = get_post_id($post);
+        return $("#post_date_"+post_id).attr("value").toString().to_date();
+    };
+    var bind_img = function($post, min_width, min_height){
+        var width = $(window).width()/2 <= 240 ? $(window).width()-10 : $(window).width()/2;
+        var height = width * 3 / 4;
+        $("img", $post).image_info(min_width, min_height).image_box(width, height, min_width, min_height);
+    };
+
+    var build_thumbnails = function($thumbnails, post){
+        if (post.category.template != "Photo"){
+            return;
+        }
+        $.each(post.photos, function(index, photo) {
+            $thumbnails.append('<li class="thumbnail">' +
+                    '<img src="{0}" real_src="{1}" alt="{2}" photo_id="{3}">'.format(photo.url_thumb||photo.url,
+                            photo.url, photo.alt, photo.id) +
+                    '</li>');
+        });
+        $thumbnails.show();
+        $thumbnails.imagesLoaded(function(){
+            var width = $(window).width()/2 < 400 ? 400 : $(window).width()/2;
+            var height = width * 3 / 4;
+            $("img", $thumbnails).image_box(width, height, 20, 10);
+        });
+    };
+
+    var preventDefault = function(key){
+        if (key.preventDefault) {
+            key.preventDefault();
+        }
+
+        if (window.event) {
+            window.event.returnValue = false;
+        }
+    };
+
+    var bind_shortcuts = function($menu_list, active_menu, load_callback, selector){
+        selector = selector || "li";
+        $(document).keydown(function(key){
+            if (editor && editor.is_shown()){
+                return; // disable for editor
+            }
+            var $focus_inputs=$(document.activeElement);
+            if ($focus_inputs && ($focus_inputs.is("input")  || $focus_inputs.is("textarea"))){
+                return; // disable if in text input mode
+            }
+
+            var keyCode = key.charCode || key.keyCode;
+            var keyCodeStr = String.fromCharCode(keyCode).toLowerCase();
+            var all_menus = $menu_list.find(selector);
+            if (all_menus.length < 1){
+                return;
+            }
+            var active_index = all_menus.index($menu_list.find(selector+".active"));
+            switch (keyCodeStr) {
+                case "i":
+                    active_menu($(all_menus[0]));
+                    break;
+                case "j":
+                    active_menu($(all_menus[active_index+1]));
+                    break;
+                case "k":
+                    if (active_index == -1){
+                        active_index = all_menus.length;
+                    }
+                    active_menu($(all_menus[active_index-1]));
+                    break;
+                case "n":
+                    active_menu($(all_menus[all_menus.length-1]));
+                    break;
+                default:
+                    switch (keyCode) {
+                        case 13: //Enter
+                            load_posts(load_callback);
+                            break;
+                        case 32: // space
+                            if (active_index == -1 || active_index+1 >= all_menus.length){
+                                active_menu($(all_menus[0]));
+                                preventDefault(key);
+                                break;
+                            }
+                            active_menu($(all_menus[active_index+1]));
+                            preventDefault(key);
+                            break;
+                    }
+
+            }
+
+        });
+    };
+
+    /* Post Menu Actions */
+    {% if user.is_admin() %}
+    var menu_edit = function(){
+        var $post = $(this).parents(".post");
+        var post_id = get_post_id($post);
+        editor.edit_post(post_id); //edit post
+    };
+    var menu_delete = function(e, $post, callback){
+        $post = $post || $(this).parents(".post");
+        bootbox.confirm("{{ _("Delete post, r u sure?") }}", function(sure){
+            if (sure){
+                var post_id = get_post_id($post);
+                $.json_action("post/delete",
+                        {'id':$.toJSON(post_id)},
+                        function(resp){
+                            $post.fadeOut(1000);
+                            window.setTimeout(function(){
+                                $post.remove();
+                            }, 2000);
+                            callback && callback(resp);
+                        },
+                        function(err){
+                            bootbox.alert(err);
+                        }
+                );
+            }
+        });
+    };
+    {% endif %}
+
+    {% if pager and category %}
+    var pager = { "cur_page" : {{ pager.cur_page }},
+                "per_page" : {{ pager.per_page }},
+                "is_last_page" : {% if pager.is_last_page %}true{% else %}false{% endif %},
+                "group_by" : "{{ pager.group_by }}",
+                "start_cursor" : "{{ pager.start_cursor }}"
+    };
+
+    var load_posts = function(callback){
+        if (pager.is_last_page){
+            $("#load-more-post").remove();
+            return;
+        }
+        $("#load-more-post").hide();
+        $("#post-loading").show();
+        $.json_action("category/posts",
+            {'category':$.toJSON('{{ category.url }}'),
+             'page':  $.toJSON(pager.cur_page + 1),
+             'per_page': $.toJSON(pager.per_page),
+             'group_by': $.toJSON(pager.group_by),
+             'start_cursor': $.toJSON(pager.start_cursor)
+            },
+            function(resp){
+                pager = resp.pager;
+                $("#post-loading").fadeOut(1000);
+                $.each(resp.posts, function(index, post){
+                    callback(post);
+                });
+                pager.is_last_page ? $("#load-more-post").remove() : $("#load-more-post").show();
+            },function(err){
+                bootbox.alert(err);
+                $("#load-more-post").show();
+                $("#post-loading").fadeOut(1000);
+        });
+    };
+    {% endif %}
+</script>
+{% endblock %}

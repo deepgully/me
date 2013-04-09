@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block css %}
+    <link href="/static/assets/google-code-prettify/desert.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="/static/assets/google-code-prettify/prettify.js"></script>
+{% endblock %}
+
+{% block body %}
+{% set template = "_%s.html"%category.template.lower() %}
+{% include template %}
+{% endblock %}

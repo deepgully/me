@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block css %}
+    <link href="/static/assets/google-code-prettify/desert.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="/static/assets/google-code-prettify/prettify.js"></script>
+{% endblock %}
+
+{% block body %}
+{% include "__post_script.html" %}
+    <script type="text/javascript" src="/static/assets/jquery.imagesloaded.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        var $container = $(".container-list");
+
+        $(".post", $container).each(function(){
+            var $post = $(this);
+            var post_id = get_post_id($post);
+            var post_body = $("#post_body_"+post_id).val();
+
+            $(".post-body", $post).html(md2html(post_body));
+            $("pre>code", $post).parent().addClass("prettyprint");
+
+            $(".cmdbar .comment", $post).click(function(){
+                comment.show_comments($("#comments"), post_id);
+            });
+            $(".cmdbar .stats", $post).click(function(){
+                var $this = $(this);
+                var $icon = $this.find("i").clone();
+                $.json_action("stats",{
+                    stats_type: $.toJSON($this.attr("stats_type")),
+                    id: $.toJSON(post_id),
+                    oper: $.toJSON($this.attr("oper")),
+                    name: $.toJSON($this.attr("name"))
+                },function(resp){
+                    $this.empty();
+                    $this.append($icon);
+                    $this.append(resp.stats[$this.attr("name")]);
+                },function(err){
+                    bootbox.alert(err);
+                });
+                $this.unbind("click");
+            });
+        });
+
+        prettyPrint();
+
+        var $thumbnails = $(".post-thumbnails");
+        var width = $(window).width()/2 < 400 ? 400 : $(window).width()/2;
+        var height = width * 3 / 4;
+        $("img", $thumbnails).image_box(width, height, -1, -1);
+
+        $container.imagesLoaded(function(){
+            bind_img($(".post-body", $container));
+        });
+        $(window).resize(function() {
+            bind_img($(".post-body", $container));
+        });
+
+        {% if user.is_admin() %}
+        var post_callback = function(post){
+            editor.hide();
+            window.location.href = "/post/"+post.id;
+        };
+        editor = new Editor(md_converter, post_callback);
+        $("#new-post").click(function(){
+            editor.new_post();
+        });
+        $(".menu-edit", $container).click(menu_edit);
+        $(".menu-delete", $container).click(menu_delete);
+        {% endif %}
+
+        comment = new Comment(md2html);
+        comment.show_comments($("#comments"), '{{ post.id }}');
+    });
+    </script>
+
+{% include "_editor.html" %}
+<div class="container-fluid container-list">
+    <div class="post span8" id="post_{{ post.id }}">
+        <input type="hidden" class="date_val" id="post_date_{{ post.id }}" value="{{ post.post_date }}" />
+        <textarea class="hide body_val" id="post_body_{{ post.id }}">{{ post.body }}</textarea>
+        <div class="post-title">
+            <span class=""><img src="{{ post.author.avatar_url }}" class="avatar32"/></span>
+            {% if not post.public %}<span class="label post-hide">{{ _("Hidden") }}</span>{% endif %}
+            <a href="/post/{{ post.id }}" class="title">{{post.title}}</a>
+            {% if user.is_admin() %}
+            <div class="menu btn-group pull-right">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                    <i class="icon-download"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="menu-edit" href="javascript:;">{{ _("Edit") }}</a></li>
+                    <li><a class="menu-delete" href="javascript:;">{{ _("Delete") }}</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        <ul class="tags">
+            {% for tag in post.tags %}<li><a href="/tags/{{ tag }}">{{ tag }}</a></li>{% endfor %}
+        </ul>
+        <div class="post-body">
+        </div>
+        {% if post.category.template == "Photo" %}
+        <div class="post-thumbnails">
+            {% for photo in post.photos %}
+                <li class="thumbnail">
+                    <img src="{{ photo.url_thumb or photo.url }}" real_src="{{ photo.url }}" alt="{{ photo.alt }}" />
+                </li>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div style="clear: both"></div>
+        <div class="post-bottom clearfix">
+            <i class="icon-time"></i><span class="post-date">{{ post.post_date.strftime('%Y-%m-%d') }}</span>
+            <div class="cmdbar">
+                <i class="icon-user"></i>
+                <span class="post-author">{{ post.author.nickname }}</span>
+                <i class="icon-eye-open"></i>
+                <span class="post-viewed">{{ post.stats.view_count }}</span>
+                <button class="share btn btn-mini" title="{{ _("Share") }}">
+                    <i class="icon-share"></i>{{ post.stats.share_count }}
+                </button>
+                <button class="stats btn btn-mini" stats_type="Post" name="like_count" oper="increase"
+                   title="{{ _("Like") }}"><i class="icon-thumbs-up"></i>{{ post.stats.like_count }}
+                </button>
+                <button class="stats btn btn-mini" stats_type="Post" name="unlike_count" oper="increase"
+                   title="{{ _("Unlike") }}"><i class="icon-thumbs-down"></i>{{ post.stats.unlike_count }}
+                </button>
+                <button class="comment btn btn-mini" title="{{ _("Comment") }}"><i class="icon-comment"></i>{{ post.stats.comment_count }}</button>
+            </div>
+        </div>
+        <div id="comments" class="">
+        </div>
+    </div>
+</div>
+{% include "__comment.html" %}
+{% endblock %}
