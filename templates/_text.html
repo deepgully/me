@@ -2,8 +2,7 @@
 {% endblock %}
 
 {% block script %}
-    <!--script type="text/javascript" src="/static/assets/pagedown/Markdown.Converter.js"></script-->
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/pagedown/1.0/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="/static/assets/pagedown/Markdown.Converter.js"></script>
     {% if user.is_admin() %}
     <script type="text/javascript" src="/static/assets/pagedown/Markdown.Editor.js"></script>
     {% endif %}

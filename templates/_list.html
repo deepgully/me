@@ -219,7 +219,7 @@
                             $(this).offset().top < $(document).scrollTop()+220;
                 });
                 current = $(current[0]);
-                if (current){
+                if (current.length > 0){
                     var $menu = $("#list_menu_"+current.attr("id").replace("post_", ""))
                     $list_menu.find("li").removeClass("active");
                     $menu.addClass("active");
