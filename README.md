@@ -7,12 +7,9 @@ ME@deepgully
 
 ##主要功能 Features
 
-----------
-
  1. 响应式页面,自动适应不同设备   
  Responsive design,adaptive on different devices
- 2. 4种模版可选    
- 4 Templates
+ 2. 4种模版可选 4 Templates
     1. [Timeline](http://demo.me.deepgully.com/): 时间线 
     2. [List](http://demo.me.deepgully.com/list): 列表显示, 普通Blog的显示方式 
     3. [Photo](http://demo.me.deepgully.com/photo): 相册模式, 只显示图片
@@ -29,11 +26,7 @@ ME@deepgully
 
 ##安装说明 Install
 
-----------
-
 ##在GAE上安装`ME@deepgully`
-
-----------
 
 #### 准备工作
 
@@ -61,11 +54,14 @@ ME@deepgully
 
   1. 使用GAE SDK工具上传应用, 也可在代码根目录执行命令行 `appcfg.py update .`
   2. 搞定, 登陆之后可到管理后台更改网站标题等设置
+  
+#### 本地调试GAE
+
+  1. cd到项目目录运行 `dev_appserver.py ./`
+  2. 访问 http://localhost:8080
 
 
 ##在BAE上安装`ME@deepgully`
-
-----------
 
 #### 准备工作
 
@@ -100,4 +96,10 @@ ME@deepgully
   1. 将ME@deepgully代码拷贝到BAE本地目录
   2. SVN上传所有文件
   3. 搞定, 登陆之后可到管理后台更改网站标题等设置
+  
+#### 本地调试BAE
+
+  1. 安装SQLAlchemy, `pip install SQLAlchemy`
+  2. 运行 index.py, 默认生成的sqlite数据库文件是test.db (也可以更改settings.py设置使用其他的数据库)
+  3. 访问 http://localhost:5000
 
