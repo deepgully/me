@@ -12,6 +12,21 @@ String.prototype.to_date = function () {
     return utc_date;
 };
 
+RegExp.prototype.exec_all = function(string) {
+    var match = null;
+    var matches = new Array();
+    while (match = this.exec(string)) {
+        var matchArray = [];
+        for (var i in match) {
+            if (parseInt(i) == i) {
+                matchArray.push(match[i]);
+            }
+        }
+        matches.push(matchArray);
+    }
+    return matches;
+};
+
 Date.prototype.format = function(format) {
     format = format || "yyyy-MM-dd hh:mm:ss";
     var o = {
@@ -64,6 +79,71 @@ Date.prototype.format = function(format) {
             }
         });
         return opt;
+    };
+
+    var players_settings = {
+        youku: {
+            link: /<a.+href="http.+v.youku.com\/v_show\/id_(\S+)\.html.*".*>.*<\/a>/gm,
+            player: function(match){
+                return '<div><iframe class="video_player"' +
+                    'src="http://player.youku.com/embed/{0}" '.format(match[1]) +
+                    'frameborder=0 allowfullscreen></iframe></div>'
+            }
+        },
+        xiami: {
+            link: /<a.+href="http.+www.xiami.com\/song\/(\d+).*".*>.*<\/a>/gm,
+            player: function(match){
+                var s = '<div><embed src="http://www.xiami.com/widget/0_{0}/singlePlayer.swf" ' +
+                        'type="application/x-shockwave-flash" width="257" height="33" ' +
+                        'wmode="transparent"></embed></div>';
+                return s.format(match[1])
+            }
+        },
+        xiami_album: {
+            link: /<a.+href="http.+www.xiami.com\/album\/(\d+).*".*>.*<\/a>/gm,
+            player: function(match){
+                var s = '<div><embed src="http://www.xiami.com/widget/' +
+                    '0_{0}_235_346_FF8719_494949/albumPlayer.swf" ' +
+                    'type="application/x-shockwave-flash" width="235" height="346" ' +
+                    'wmode="transparent"></embed></div>';
+                return s.format(match[1])
+            }
+        },
+        youtube: {
+            link: /<a.+href="http.+www.youtube.com\/watch\?.*v=([^\s&]+).*".*>.*<\/a>/gm,
+            player: function(match){
+                return '<div><iframe class="video_player" ' +
+                    'src="http://www.youtube.com/embed/{0}" '.format(match[1]) +
+                    'frameborder="0" allowfullscreen></iframe></div>'
+            }
+        },
+        ku6: {
+            link: /<a.+href="http.+v.ku6.com\/show\/(\S+)\.html.*".*>.*<\/a>/gm,
+            player: function(match){
+                return '<div><embed src="http://player.ku6.com/refer/{0}/v.swf" '.format(match[1]) +
+                'class="video_player" allowscriptaccess="always" ' +
+                'allowfullscreen="true" type="application/x-shockwave-flash" flashvars="from=ku6"></embed></div>'
+            }
+        },
+        qq: {
+            link: /<a.+href="http.+v.qq.com\/.+vid=([^\s&\/]+).*".*>.*<\/a>/gm,
+            player: function(match){
+                return '<div><embed src="http://static.video.qq.com/TPout.swf?vid={0}&auto=0" '.format(match[1]) +
+                    'allowFullScreen="true" quality="high"  class="video_player"' +
+                    'align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed></div>'
+            }
+        }
+    };
+    $.create_player = function(text){
+        // replace links with player
+        for (var name in players_settings) {
+            var player = players_settings[name];
+            var links = player.link.exec_all(text);
+            $.each(links, function(idx, match){
+                text = text.replace(match[0], player.player(match));
+            });
+        }
+        return text;
     };
 
     $.fn.image_box = function(width, height, min_width, min_height){

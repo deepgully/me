@@ -6,7 +6,12 @@
 <script type="text/javascript" src="/static/assets/pagedown/Markdown.Sanitizer.js"></script>
 <script type="text/javascript">
     var editor = null;
+
     var md_converter = Markdown.getSanitizingConverter();
+    md_converter.hooks.chain("postConversion", function (text) {
+        // convert player links
+        return $.create_player(text);
+    });
     var md2html = md_converter.makeHtml;
 
     var get_post_id = function($post){

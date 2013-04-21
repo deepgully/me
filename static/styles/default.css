@@ -566,6 +566,10 @@ code {
 }
 /* End MarkDown Editor */
 
+.video_player {
+    width: 460px;
+    height: 380px;
+}
 @media (min-width: 1200px) {
     .affix {
         position: fixed;
@@ -590,5 +594,9 @@ code {
     }
     .post-thumbnails {
         margin: auto;
+    }
+    .video_player {
+        width: 260px;
+        height: 220px;
     }
 }

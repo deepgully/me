@@ -1,6 +1,67 @@
 {% extends "base.html" %}
+
+{% set thumb_size = config["THUMB_SIZE"][0] %}
+
 {% block css %}
     <link href="/static/assets/google-code-prettify/desert.css" rel="stylesheet"/>
+    {% if post.category.template == "Photo" %}
+    <style type="text/css">
+    .post-thumbnails {
+        padding: 10px;
+        border: none;
+    }
+    .post-thumbnails .thumbnail {
+        /*width: {{ thumb_size//2-10 }}px;*/
+        width: 45%;
+        margin: 5px;
+        padding: 2px;
+        float: left;
+        display: block;
+        border: 3px #ccc solid;
+    }
+    .post-thumbnails > .thumbnail:nth-child({{ thumb_size//100 }}n+1) {
+        width: 45%;
+        margin: 5px;
+        padding: 2px;
+        float: left;
+        display: block;
+        border: 3px #ccc solid;
+    }
+
+    </style>
+
+    <!-[if lt IE 9]>
+    <style type="text/css">
+    .post-thumbnails > .thumbnail:first-child {
+        width: 45%;
+        margin: 5px;
+        padding: 2px;
+        float: left;
+        display: block;
+        border: 3px #ccc solid;
+    }
+    </style>
+    <![endif]->
+    <style type="text/css">
+    @media (max-width: 480px) {
+        .post-thumbnails {
+            padding: 5px;
+        }
+        .post-thumbnails .thumbnail {
+            width: 260px;
+            margin: 0;
+        }
+        .post-thumbnails > .thumbnail:nth-child({{ thumb_size//100 }}n+1) {
+            width: 260px;
+            margin: 0;
+        }
+        .post-thumbnails > .thumbnail:first-child {
+            width: 260px;
+            margin: 0;
+        }
+    }
+    </style>
+    {% endif %}
 {% endblock %}
 
 {% block script %}
