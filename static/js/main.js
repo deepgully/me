@@ -86,8 +86,8 @@ Date.prototype.format = function(format) {
             link: /<a.+href="http.+v.youku.com\/v_show\/id_(\S+)\.html.*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><iframe class="video_player"' +
-                    'src="http://player.youku.com/embed/{0}" '.format(match[1]) +
-                    'frameborder=0 allowfullscreen></iframe></div>'
+                    'src="http://player.youku.com/embed/{0}?wmode=transparent" '.format(match[1]) +
+                    'frameborder=0 allowfullscreen wmode="transparent"></iframe></div>'
             }
         },
         xiami: {
@@ -113,15 +113,15 @@ Date.prototype.format = function(format) {
             link: /<a.+href="http.+www.youtube.com\/watch\?.*v=([^\s&]+).*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><iframe class="video_player" ' +
-                    'src="http://www.youtube.com/embed/{0}" '.format(match[1]) +
-                    'frameborder="0" allowfullscreen></iframe></div>'
+                    'src="http://www.youtube.com/embed/{0}?wmode=transparent" '.format(match[1]) +
+                    'frameborder="0" allowfullscreen wmode="transparent"></iframe></div>'
             }
         },
         ku6: {
             link: /<a.+href="http.+v.ku6.com\/show\/(\S+)\.html.*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><embed src="http://player.ku6.com/refer/{0}/v.swf" '.format(match[1]) +
-                'class="video_player" allowscriptaccess="always" ' +
+                'class="video_player" allowscriptaccess="always" wmode="transparent"' +
                 'allowfullscreen="true" type="application/x-shockwave-flash" flashvars="from=ku6"></embed></div>'
             }
         },
@@ -129,7 +129,7 @@ Date.prototype.format = function(format) {
             link: /<a.+href="http.+v.qq.com\/.+vid=([^\s&\/]+).*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><embed src="http://static.video.qq.com/TPout.swf?vid={0}&auto=0" '.format(match[1]) +
-                    'allowFullScreen="true" quality="high"  class="video_player"' +
+                    'allowFullScreen="true" quality="high"  class="video_player" wmode="transparent"' +
                     'align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed></div>'
             }
         }

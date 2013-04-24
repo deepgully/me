@@ -114,9 +114,11 @@
 
         $container.imagesLoaded(function(){
             bind_img($(".post-body", $container));
+            bind_img($(".post-thumbnails", $container));
         });
         $(window).resize(function() {
             bind_img($(".post-body", $container));
+            bind_img($(".post-thumbnails", $container));
         });
 
         {% if user.is_admin() %}
