@@ -517,7 +517,7 @@ class DBPost(BaseModel, StatsMixin):
 
     @classmethod
     def latest_posts(cls, count=8, order="updated_date desc"):
-        return cls.all().filter("public =", True).order_by(gae_order(order)).fetch(count)
+        return cls.all().filter("public =", True).order(gae_order(order)).fetch(count)
 
 
 class DBTag(BaseModel, StatsMixin):

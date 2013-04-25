@@ -63,6 +63,12 @@ indexes:
 
 - kind: DBPost
   properties:
+  - name: public
+  - name: updated_date
+    direction: desc
+
+- kind: DBPost
+  properties:
   - name: sticky
     direction: desc
   - name: post_date

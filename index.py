@@ -21,14 +21,14 @@ from settings import app, RUNTIME_ENV
 from settings import gettext
 
 import os
-
+from flask import Response
 from flask import request, send_from_directory, g
 from flask import redirect, url_for, flash, abort
 
 import apis
 from tools import unquote
-from ajax import dispatch_action, jsonify, get_post
-from utils import render_template, get_locale
+from ajax import dispatch_action, jsonify, get_sitemap
+from utils import render_template, get_locale, flask_render_template
 from utils import login_required, login_user, logout_user
 
 import model
@@ -111,6 +111,11 @@ def post(postid):
 def json(action):
     return jsonify(dispatch_action(request.values, action))
 
+
+@app.route("/sitemap.xml")
+def sitemap():
+    return Response(flask_render_template("sitemap.xml", sitemap=get_sitemap()),
+        mimetype='text/xml')
 
 ########################################
 ## Admin Views

@@ -54,6 +54,7 @@ ME@deepgully
 
   1. 使用GAE SDK工具上传应用, 也可在代码根目录执行命令行 `appcfg.py update .`
   2. 搞定, 登陆之后可到管理后台更改网站标题等设置
+  P.S 上传后GAE会花几分钟到几个小时创建datastore index, 请等一段时间再访问
   
 #### 本地调试GAE
 

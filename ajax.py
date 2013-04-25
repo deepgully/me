@@ -19,7 +19,7 @@ AJAX functions
 import base64
 from datetime import datetime
 
-from flask import current_app, request, json
+from flask import current_app, request, json, url_for
 
 from settings import T, lazy_gettext, logging
 import apis
@@ -118,6 +118,25 @@ def update_site_settings(**settings):
         "settings": dbsettings
     }
     return result
+
+
+SITEMAP_CACHE_KEY = "SITEMAP_PAGES"
+SITEMAP_CACHE_TIME = 3600*24*7   # cache 1 week
+
+def get_sitemap():
+    sitemap = memcache.get(SITEMAP_CACHE_KEY)
+    if sitemap is None:
+        sitemap = []
+        for post in apis.Post.latest_posts(count=1000):
+            sitemap.append({
+                "loc": url_for("post", postid=post.id, _external=True),
+                "lastmod": post.updated_date.strftime(JSON_DATETIME_FORMAT[0])
+            })
+
+        if sitemap:
+            memcache.set(SITEMAP_CACHE_KEY, sitemap, SITEMAP_CACHE_TIME)
+
+    return sitemap
 
 
 @apis.User.requires_site_owner
@@ -369,6 +388,7 @@ def create_post(category_id=None, **settings):
         category = apis.Category.default_category()
 
     _delete_category_posts_cache(category)
+    memcache.delete(SITEMAP_CACHE_KEY)
 
     author = apis.User.get_current_user()
 
