@@ -61,6 +61,9 @@
             $(".post-author", $post).text(post.author.nickname);
             $(".post-viewed", $post).html(post.stats.view_count);
             $(".share", $post).html('<i class="icon-share"></i>{0}'.format(post.stats.share_count));
+            $(".share", $post).click(function(){
+                show_share(post);
+            });
             $(".stats[name=like_count]", $post).html('<i class="icon-thumbs-up"></i>{0}'.format(post.stats.like_count));
             $(".stats[name=unlike_count]", $post).html('<i class="icon-thumbs-down"></i>{0}'.format(post.stats.unlike_count));
             $(".comment", $post).html('<i class="icon-comment"></i>{0}'.format(post.stats.comment_count));

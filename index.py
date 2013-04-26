@@ -107,6 +107,20 @@ def post(postid):
     return render_template("post.html", post=post, category=post.category)
 
 
+@app.route("/share")
+def share():
+    values = request.values
+    postid = values.get("postid")
+    if postid:
+        url = url_for("post", postid=postid, _external=True)
+    else:
+        url = url_for("index", _external=True)
+    title = values.get("title","").strip().replace("\n", " ")
+    site = apis.get_site_settings().title.strip().replace("\n", " ")
+    summary = values.get("summary", "").strip().replace("\n", " ")
+    return flask_render_template("share.html", site=site, url=url, title=title, summary=summary)
+
+
 @app.route('/json/<path:action>', methods=['GET', 'POST'])
 def json(action):
     return jsonify(dispatch_action(request.values, action))

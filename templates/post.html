@@ -103,6 +103,14 @@
                 });
                 $this.unbind("click");
             });
+
+            $(".share", $post).click(function(){
+                show_share({
+                    id: post_id,
+                    title: $(".title", $post).text(),
+                    body: post_body
+                });
+            });
         });
 
         prettyPrint();
@@ -136,6 +144,7 @@
 
         comment = new Comment(md2html);
         comment.show_comments($("#comments"), '{{ post.id }}');
+
     });
     </script>
 

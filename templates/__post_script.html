@@ -110,6 +110,27 @@
         });
     };
 
+    var show_share = function(post, callback){
+        var share_iframe = $('<iframe src="/share?postid={0}&title={1}&summary={2}" '.format(encodeURIComponent(post.id),
+                encodeURIComponent($.trim(post.title)), encodeURIComponent($.trim(post.body).substr(0,40))) +
+                            'frameborder="0" width="100%" width="100%"></iframe>');
+        bootbox.confirm(share_iframe, function(ok){
+            if(!ok){
+                return;
+            }
+            $.json_action("stats",{
+                stats_type: $.toJSON("Post"),
+                id: $.toJSON(post.id),
+                oper: $.toJSON("increase"),
+                name: $.toJSON("share_count")
+            },function(resp){
+                callback && callback(resp);
+            },function(err){
+                bootbox.alert(err);
+            });
+        });
+    };
+
     /* Post Menu Actions */
     {% if user.is_admin() %}
     var menu_edit = function(){

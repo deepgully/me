@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ _("Share") }}</title>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script type="text/javascript">
+    function load()
+    {
+        jiathis_config.summary = document.getElementById("summary").value;
+        jiathis_config.title = "RT: " + document.getElementById("site").value +
+                " [" + document.getElementById("title").value + "] ";
+    }
+    </script>
+</head>
+<body onload="load()">
+<div>
+  <h2>{{ _("Share") }} <small class="text-success lead">{{ title }}</small></h2>
+    <p>{{ summary }}...</p>
+</div>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+<a class="jiathis_button_tsina"></a>
+<a class="jiathis_button_twitter"></a>
+<a class="jiathis_button_fb"></a>
+<a class="jiathis_button_googleplus"></a>
+<a class="jiathis_button_weixin"></a>
+<a class="jiathis_button_tsohu"></a>
+<a href="http://www.jiathis.com/share?uid=1739828" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+<a class="jiathis_counter_style"></a>
+</div>
+<input type="hidden" id="summary" value="{{ summary }}">
+<input type="hidden" id="title" value="{{ title }}">
+<input type="hidden" id="site" value="{{ site }}">
+<script type="text/javascript">
+var jiathis_config={
+	data_track_clickback:true,
+    summary: "summary",
+	url: "{{ url }}",
+	title: "title",
+	hideMore:true
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code_mini/jia.js?uid=1739828" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+</body>
