@@ -14,7 +14,7 @@ ME@deepgully
     2. [List](http://demo.me.deepgully.com/list): 列表显示, 普通Blog的显示方式 
     3. [Photo](http://demo.me.deepgully.com/photo): 相册模式, 只显示图片
     4. [Text](http://demo.me.deepgully.com/text): 文本格式,自定义页面 
- 3. 基于 **Markdown** 格式, 增强的 **Markdown** 在线编辑器 [Markdown格式说明][http://wowubuntu.com/markdown/], 实时预览
+ 3. 基于 **Markdown** 格式, 增强的 **Markdown** 在线编辑器 [Markdown格式说明][http://wowubuntu.com/markdown/], 实时预览    
  Based on  **Markdown**, enhancement Markdown online editor
  4. 代码高亮支持(包括评论里的代码)   
  Code highlight, support code block in comments
@@ -103,7 +103,7 @@ ME@deepgully
 
   1. 安装SQLAlchemy, `pip install SQLAlchemy`
   2. 安装Flask, `pip install Flask`
-  3. 安装PIL, `pip install PIL'
+  3. 安装PIL, `pip install PIL`
   4. 运行 index.py, 默认生成的sqlite数据库文件是test.db (也可以更改settings.py设置使用其他的数据库)
   5. 访问 http://localhost:5000
 
