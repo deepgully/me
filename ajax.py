@@ -123,6 +123,7 @@ def update_site_settings(**settings):
 SITEMAP_CACHE_KEY = "SITEMAP_PAGES"
 SITEMAP_CACHE_TIME = 3600*24*7   # cache 1 week
 
+
 def get_sitemap():
     sitemap = memcache.get(SITEMAP_CACHE_KEY)
     if sitemap is None:
@@ -488,6 +489,10 @@ def get_post(id):
     }
 
 
+HOT_POSTS_CACHE_KEY = "HOT_POSTS_count:%s_order:%s"
+HOT_POSTS_CACHE_TIME = 3600*24   # cache 1 day
+
+
 def get_hot_posts(count=8, order="view_count desc"):
     """get hot posts.
     Args:
@@ -496,8 +501,38 @@ def get_hot_posts(count=8, order="view_count desc"):
     Returns:
         posts: a list of post"""
 
+    key = HOT_POSTS_CACHE_KEY % (count, order)
+    posts = memcache.get(key)
+    if posts is None:
+        posts = apis.Post.hot_posts(count, order)
+        if posts:
+            memcache.set(key, posts, HOT_POSTS_CACHE_TIME)
+
     return {
-        "posts": apis.Post.hot_posts(count, order)
+        "posts": posts
+    }
+
+
+LATEST_POSTS_CACHE_KEY = "LATEST_POSTS_count:%s_order:%s"
+LATEST_POSTS_CACHE_TIME = 3600*24   # cache 1 day
+
+
+def get_latest_posts(count=12, order="updated_date desc"):
+    """get latest posts.
+    Args:
+        count: post count
+        order: posts order, default is "updated_date desc"
+    Returns:
+        posts: a list of post"""
+    key = LATEST_POSTS_CACHE_KEY % (count, order)
+    posts = memcache.get(key)
+    if posts is None:
+        posts = apis.Post.latest_posts(count, order)
+        if posts:
+            memcache.set(key, posts, LATEST_POSTS_CACHE_TIME)
+
+    return {
+        "posts": posts
     }
 
 
@@ -832,6 +867,7 @@ AJAX_METHODS = {
     "category/posts": get_posts_by_category,
     "post": get_post,
     "posts/hot": get_hot_posts,
+    "posts/latest": get_latest_posts,
     "post/create": create_post,
     "post/update": update_post,
     "post/delete": delete_post,

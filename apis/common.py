@@ -451,11 +451,11 @@ class Post(DBAdapter):
 
     @classmethod
     def hot_posts(cls, count=8, order="view_count desc"):
-        return DBPost.hot_posts(count, order)
+        return [cls(post) for post in DBPost.hot_posts(count, order)]
 
     @classmethod
     def latest_posts(cls, count=8, order="updated_date desc"):
-        return DBPost.latest_posts(count, order)
+        return [cls(post) for post in DBPost.latest_posts(count, order)]
 
     def update_photos(self, settings):
         public = settings.get("public", None)
@@ -544,6 +544,16 @@ class Post(DBAdapter):
     @property
     def Comments(self):
         return [Comment(dbcomment) for dbcomment in self.db_object.Comments]
+
+    @property
+    def html(self):
+        import markdown
+        return markdown.markdown(self.body, safe_mode=False)
+
+    @property
+    def safe_html(self):
+        import markdown
+        return markdown.markdown(self.body, safe_mode=True)
 
 
 ###########################################

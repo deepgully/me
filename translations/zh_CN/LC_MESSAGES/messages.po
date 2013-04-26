@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-06 11:44+0800\n"
-"PO-Revision-Date: 2013-04-25 22:37+0800\n"
+"POT-Creation-Date: 2013-04-26 22:40+0800\n"
+"PO-Revision-Date: 2013-04-26 22:40+0800\n"
 "Last-Translator: Gully Chen <deepgully@gmail.com>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -62,31 +62,31 @@ msgstr "没有标签 %(name)s"
 msgid "unsupported method [ %(name)s]"
 msgstr "不支持的方法 [ %(name)s]"
 
-#: ../ajax.py:132
+#: ../ajax.py:152
 msgid "email is required"
 msgstr "email是必须的"
 
-#: ../ajax.py:135
+#: ../ajax.py:155
 msgid "password is required"
 msgstr "密码是必须的"
 
-#: ../ajax.py:189
+#: ../ajax.py:209
 msgid "can not delete owner"
 msgstr "不能删除网站主人"
 
-#: ../ajax.py:212
+#: ../ajax.py:232
 msgid "pls input id or url"
 msgstr "请输入id或url"
 
-#: ../ajax.py:347
+#: ../ajax.py:367
 msgid "can not delete Home category"
 msgstr "不能删除Home"
 
-#: ../index.py:49
+#: ../index.py:48
 msgid "Page not found"
 msgstr "页面未找到"
 
-#: ../index.py:128
+#: ../index.py:165
 msgid "Please input valid email and password"
 msgstr "请输入有效的email和密码"
 
@@ -102,19 +102,19 @@ msgstr "已删除评论"
 msgid "Comments"
 msgstr "所有评论"
 
-#: ../templates/__comment.html:71 ../templates/_list.html:341
-#: ../templates/_photo.html:368 ../templates/_timeline.html:336
-#: ../templates/base.html:132 ../templates/tags.html:318
+#: ../templates/__comment.html:71 ../templates/_list.html:344
+#: ../templates/_photo.html:373 ../templates/_timeline.html:339
+#: ../templates/base.html:149 ../templates/tags.html:318
 msgid "loading"
 msgstr "正在载入"
 
-#: ../templates/__comment.html:75 ../templates/__comment.html:111
+#: ../templates/__comment.html:75 ../templates/__comment.html:112
 msgid "Reply"
 msgstr "回复"
 
-#: ../templates/__comment.html:81 ../templates/_list.html:317
-#: ../templates/_photo.html:388 ../templates/_timeline.html:326
-#: ../templates/post.html:131 ../templates/tags.html:296
+#: ../templates/__comment.html:81 ../templates/_list.html:320
+#: ../templates/_photo.html:393 ../templates/_timeline.html:329
+#: ../templates/post.html:203 ../templates/tags.html:296
 msgid "Comment"
 msgstr "评论"
 
@@ -126,63 +126,63 @@ msgstr "预览"
 msgid "Your Name"
 msgstr "你的名字"
 
-#: ../templates/__comment.html:87 ../templates/_editor.html:403
+#: ../templates/__comment.html:88 ../templates/_editor.html:403
 msgid "Submit"
 msgstr "提交"
 
-#: ../templates/__comment.html:94
+#: ../templates/__comment.html:95
 msgid "comment here, support markdown syntax"
 msgstr "在这评论,支持Markdown格式"
 
-#: ../templates/__comment.html:106 ../templates/_list.html:312
-#: ../templates/_photo.html:383 ../templates/_photo.html:406
-#: ../templates/_timeline.html:321 ../templates/post.html:126
+#: ../templates/__comment.html:107 ../templates/_list.html:315
+#: ../templates/_photo.html:388 ../templates/_photo.html:411
+#: ../templates/_timeline.html:324 ../templates/post.html:198
 #: ../templates/tags.html:291
 msgid "Like"
 msgstr "顶"
 
-#: ../templates/__comment.html:109 ../templates/_list.html:315
-#: ../templates/_photo.html:386 ../templates/_photo.html:409
-#: ../templates/_timeline.html:324 ../templates/post.html:129
+#: ../templates/__comment.html:110 ../templates/_list.html:318
+#: ../templates/_photo.html:391 ../templates/_photo.html:414
+#: ../templates/_timeline.html:327 ../templates/post.html:201
 #: ../templates/tags.html:294
 msgid "Unlike"
 msgstr "踩"
 
-#: ../templates/__comment.html:113 ../templates/_list.html:293
-#: ../templates/_photo.html:396 ../templates/_timeline.html:305
+#: ../templates/__comment.html:114 ../templates/_list.html:296
+#: ../templates/_photo.html:401 ../templates/_timeline.html:308
 #: ../templates/admin.html:287 ../templates/admin.html:392
-#: ../templates/post.html:95 ../templates/tags.html:272
+#: ../templates/post.html:167 ../templates/tags.html:272
 msgid "Delete"
 msgstr "删除"
 
-#: ../templates/__comment.html:114
+#: ../templates/__comment.html:115
 msgid "Restore"
 msgstr "恢复"
 
-#: ../templates/__comment.html:295 ../templates/_editor.html:145
+#: ../templates/__comment.html:296 ../templates/_editor.html:145
 #: ../templates/admin.html:23
 msgid "please input valid"
 msgstr "请输入有效的"
 
-#: ../templates/__comment.html:300 ../templates/_editor.html:152
+#: ../templates/__comment.html:301 ../templates/_editor.html:152
 #: ../templates/admin.html:28
 msgid "Saving"
 msgstr "正在保存"
 
-#: ../templates/__comment.html:309
+#: ../templates/__comment.html:310
 msgid "Comment Saved"
 msgstr "评论已保存"
 
-#: ../templates/__post_script.html:119
+#: ../templates/__post_script.html:143
 msgid "Delete post, r u sure?"
 msgstr "确认删除文章?"
 
-#: ../templates/_editor.html:59 ../templates/_timeline.html:290
-#: ../templates/base.html:101
+#: ../templates/_editor.html:59 ../templates/_timeline.html:293
+#: ../templates/base.html:115
 msgid "New Post"
 msgstr "新建文章"
 
-#: ../templates/_editor.html:61 ../templates/_photo.html:336
+#: ../templates/_editor.html:61 ../templates/_photo.html:341
 msgid "New Album"
 msgstr "新建相册"
 
@@ -222,21 +222,21 @@ msgstr "添加图片"
 msgid "Photo Description"
 msgstr "图片描述"
 
-#: ../templates/_editor.html:368 ../templates/_list.html:292
-#: ../templates/_photo.html:395 ../templates/_timeline.html:304
+#: ../templates/_editor.html:368 ../templates/_list.html:295
+#: ../templates/_photo.html:400 ../templates/_timeline.html:307
 #: ../templates/admin.html:286 ../templates/admin.html:391
-#: ../templates/post.html:94 ../templates/tags.html:271
+#: ../templates/post.html:166 ../templates/tags.html:271
 msgid "Edit"
 msgstr "编辑"
 
 #: ../templates/_editor.html:381 ../templates/_editor.html:383
-#: ../templates/base.html:89
+#: ../templates/base.html:103
 msgid "Tags"
 msgstr "标签"
 
 #: ../templates/_editor.html:395 ../templates/_editor.html:396
-#: ../templates/_list.html:283 ../templates/_list.html:331
-#: ../templates/_photo.html:357 ../templates/_timeline.html:311
+#: ../templates/_list.html:286 ../templates/_list.html:334
+#: ../templates/_photo.html:362 ../templates/_timeline.html:314
 msgid "Sticky"
 msgstr "置顶"
 
@@ -244,41 +244,42 @@ msgstr "置顶"
 msgid "Publish"
 msgstr "公开"
 
-#: ../templates/_editor.html:402 ../templates/_text.html:71
+#: ../templates/_editor.html:402 ../templates/_text.html:70
 #: ../templates/admin.html:289 ../templates/admin.html:394
 msgid "Cancel"
 msgstr "取消"
 
-#: ../templates/_list.html:42 ../templates/_list.html:175
-#: ../templates/_photo.html:218 ../templates/_timeline.html:25
-#: ../templates/post.html:86
+#: ../templates/_list.html:42 ../templates/_list.html:178
+#: ../templates/_photo.html:220 ../templates/_timeline.html:25
+#: ../templates/post.html:158
 msgid "Hidden"
 msgstr "已隐藏"
 
-#: ../templates/_list.html:310 ../templates/_photo.html:381
-#: ../templates/_timeline.html:319 ../templates/post.html:122
+#: ../templates/_list.html:313 ../templates/_photo.html:386
+#: ../templates/_timeline.html:322 ../templates/post.html:194
+#: ../templates/share.html:4 ../templates/share.html:17
 #: ../templates/tags.html:289
 msgid "Share"
 msgstr "分享"
 
-#: ../templates/_list.html:340 ../templates/_photo.html:367
-#: ../templates/_timeline.html:337 ../templates/tags.html:317
+#: ../templates/_list.html:343 ../templates/_photo.html:372
+#: ../templates/_timeline.html:340 ../templates/tags.html:317
 msgid "More"
 msgstr "更多"
 
-#: ../templates/_photo.html:353
+#: ../templates/_photo.html:358
 msgid "Albums"
 msgstr "所有相册"
 
-#: ../templates/_photo.html:416
+#: ../templates/_photo.html:421
 msgid "Hot Photos"
 msgstr "热门图片"
 
-#: ../templates/_text.html:53
+#: ../templates/_text.html:52
 msgid "Edit Page"
 msgstr "编辑页面"
 
-#: ../templates/_text.html:70 ../templates/admin.html:288
+#: ../templates/_text.html:69 ../templates/admin.html:288
 #: ../templates/admin.html:393
 msgid "Save"
 msgstr "保存"
@@ -395,20 +396,24 @@ msgstr "头像"
 msgid "Password"
 msgstr "密码"
 
-#: ../templates/base.html:105
+#: ../templates/base.html:119
 msgid "Admin"
 msgstr "管理"
 
-#: ../templates/base.html:109
+#: ../templates/base.html:123
 msgid "Logout"
 msgstr "登出"
 
-#: ../templates/base.html:113 ../templates/login.html:30
+#: ../templates/base.html:127 ../templates/login.html:30
 #: ../templates/login.html:60
 msgid "Login"
 msgstr "登陆"
 
-#: ../templates/base.html:127
+#: ../templates/base.html:131
+msgid "RSS"
+msgstr "RSS订阅"
+
+#: ../templates/base.html:144
 msgid "Powered by"
 msgstr "基于"
 

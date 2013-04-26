@@ -20,14 +20,14 @@ Site main views.
 from settings import app, RUNTIME_ENV
 from settings import gettext
 
-import os
 from flask import Response
-from flask import request, send_from_directory, g
+from flask import request, g
 from flask import redirect, url_for, flash, abort
+from werkzeug.contrib.atom import AtomFeed
 
 import apis
 from tools import unquote
-from ajax import dispatch_action, jsonify, get_sitemap
+from ajax import dispatch_action, jsonify, get_sitemap, get_latest_posts
 from utils import render_template, get_locale, flask_render_template
 from utils import login_required, login_user, logout_user
 
@@ -40,8 +40,7 @@ app = model.bind_app(app)  # Bind DataBase Models
 ########################################
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico',
-        mimetype='image/vnd.microsoft.icon')
+    return app.send_static_file('favicon.ico')
 
 
 @app.errorhandler(404)
@@ -116,7 +115,7 @@ def share():
     else:
         url = url_for("index", _external=True)
     title = values.get("title","").strip().replace("\n", " ")
-    site = apis.get_site_settings().title.strip().replace("\n", " ")
+    site = app.config["SiteTitle"].strip().replace("\n", " ")
     summary = values.get("summary", "").strip().replace("\n", " ")
     return flask_render_template("share.html", site=site, url=url, title=title, summary=summary)
 
@@ -130,6 +129,31 @@ def json(action):
 def sitemap():
     return Response(flask_render_template("sitemap.xml", sitemap=get_sitemap()),
         mimetype='text/xml')
+
+
+@app.route("/atom")
+@app.route("/feed")
+def feed():
+
+    feed = AtomFeed(title=app.config["SiteTitle"],
+        subtitle=app.config["SiteSubTitle"],
+        icon = url_for("favicon", _external=True),
+        feed_url=request.url,
+        url=request.url_root)
+
+    posts = get_latest_posts(12).get("posts", [])
+
+    for post in posts:
+        feed.add(title=post.title,
+            content=post.safe_html,
+            content_type='html',
+            author=post.author.nickname,
+            url=url_for("post", postid=post.id, _external=True),
+            updated=post.updated_date,
+            published=post.post_date)
+
+    return Response(feed.to_string(), mimetype='application/xml')
+
 
 ########################################
 ## Admin Views
