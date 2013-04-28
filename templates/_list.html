@@ -61,6 +61,7 @@
             $(".post-author", $post).text(post.author.nickname);
             $(".post-viewed", $post).html(post.stats.view_count);
             $(".share", $post).html('<i class="icon-share"></i>{0}'.format(post.stats.share_count));
+            $(".share", $post).unbind("click");
             $(".share", $post).click(function(){
                 show_share(post);
             });

@@ -555,7 +555,7 @@ class DBTag(db.Model, ModelMixin, StatsMixin):
     def post_ids(self):
         if not self._post_id_list:
             return []
-        return [id for id in self._post_id_list.split(",") if id and id.strip()]
+        return [long(id) for id in self._post_id_list.split(",") if id and id.strip()]
 
     @post_ids.setter
     def post_ids(self, value):
@@ -577,7 +577,9 @@ class DBTag(db.Model, ModelMixin, StatsMixin):
             self.save()
 
     def get_posts(self, page=1, per_page=10):
-        ids = self.post_ids[(page-1)*per_page:page*per_page]
+        posts_list = map(long, set(self.post_ids))
+        posts_list.sort(reverse=True)
+        ids = posts_list[(page-1)*per_page:page*per_page]
         return [post for post in DBPost.get_by_ids(ids) if post and post.public]
 
     @classmethod

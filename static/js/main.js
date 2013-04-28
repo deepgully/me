@@ -83,7 +83,7 @@ Date.prototype.format = function(format) {
 
     var players_settings = {
         youku: {
-            link: /<a.+href="http.+v.youku.com\/v_show\/id_(\S+)\.html.*".*>.*<\/a>/gm,
+            link: /<a.+href="http:\/\/v.youku.com\/v_show\/id_(\S+)\.html.*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><iframe class="video_player"' +
                     'src="http://player.youku.com/embed/{0}?wmode=transparent" '.format(match[1]) +
@@ -91,7 +91,7 @@ Date.prototype.format = function(format) {
             }
         },
         xiami: {
-            link: /<a.+href="http.+www.xiami.com\/song\/(\d+).*".*>.*<\/a>/gm,
+            link: /<a.+href="http:\/\/www.xiami.com\/song\/(\d+).*".*>.*<\/a>/gm,
             player: function(match){
                 var s = '<div><embed src="http://www.xiami.com/widget/0_{0}/singlePlayer.swf" ' +
                         'type="application/x-shockwave-flash" width="257" height="33" ' +
@@ -100,7 +100,7 @@ Date.prototype.format = function(format) {
             }
         },
         xiami_album: {
-            link: /<a.+href="http.+www.xiami.com\/album\/(\d+).*".*>.*<\/a>/gm,
+            link: /<a.+href="http:\/\/www.xiami.com\/album\/(\d+).*".*>.*<\/a>/gm,
             player: function(match){
                 var s = '<div><embed src="http://www.xiami.com/widget/' +
                     '0_{0}_235_346_FF8719_494949/albumPlayer.swf" ' +
@@ -110,7 +110,7 @@ Date.prototype.format = function(format) {
             }
         },
         youtube: {
-            link: /<a.+href="http.+www.youtube.com\/watch\?.*v=([^\s&]+).*".*>.*<\/a>/gm,
+            link: /<a.+href="http:\/\/www.youtube.com\/watch\?.*v=([^\s&]+).*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><iframe class="video_player" ' +
                     'src="http://www.youtube.com/embed/{0}?wmode=transparent" '.format(match[1]) +
@@ -118,7 +118,7 @@ Date.prototype.format = function(format) {
             }
         },
         ku6: {
-            link: /<a.+href="http.+v.ku6.com\/show\/(\S+)\.html.*".*>.*<\/a>/gm,
+            link: /<a.+href="http:\/\/v.ku6.com\/show\/(\S+)\.html.*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><embed src="http://player.ku6.com/refer/{0}/v.swf" '.format(match[1]) +
                 'class="video_player" allowscriptaccess="always" wmode="transparent"' +
@@ -126,11 +126,20 @@ Date.prototype.format = function(format) {
             }
         },
         qq: {
-            link: /<a.+href="http.+v.qq.com\/.+vid=([^\s&\/]+).*".*>.*<\/a>/gm,
+            link: /<a.+href="http:\/\/v.qq.com\/.+vid=([^\s&\/]+).*".*>.*<\/a>/gm,
             player: function(match){
                 return '<div><embed src="http://static.video.qq.com/TPout.swf?vid={0}&auto=0" '.format(match[1]) +
                     'allowFullScreen="true" quality="high"  class="video_player" wmode="transparent"' +
                     'align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed></div>'
+            }
+        },
+        magicycles: {
+            link: /<a.+href="http:\/\/www.magicycles.com\/(riders|routes)\/([^\s\/]+)".*>.*<\/a>/gm,
+            player: function(match){
+                return '<div class="magicycles_widget">' +
+                    '<iframe class="magicycles_widget"' +
+                    ' src="http://www.magicycles.com/{0}/{1}/widget" '.format(match[1], match[2]) +
+                    ' scrolling="no" frameborder="0" allowfullscreen wmode="transparent"></iframe></div>';
             }
         }
     };

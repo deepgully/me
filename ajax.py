@@ -790,7 +790,7 @@ def get_posts_by_tag(name, page=1, per_page=10):
 HOT_TAGS_CACHE_KEY = "hot_tags_count:%d"
 
 
-def get_hot_tags(count=16):
+def get_hot_tags(count=12):
     """get hot tags.
     Args:
         count: tags count

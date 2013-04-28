@@ -145,7 +145,18 @@
             });
         });
 
-
+        {% if user.is_owner() %}
+            $("#flush_cache").click(function(){
+                $.json_action("admin/memcache",
+                    {action: $.toJSON("flush_all")},
+                    function(resp){
+                        bootbox.alert("{{ _("Deleted") }}");
+                    },function(err){
+                        bootbox.alert(err);
+                });
+                return false;
+            });
+        {% endif %}
     });
 </script>
 {% endblock %}
@@ -208,6 +219,12 @@
                 <div class="controls">
                     <input type="text" id="ga_tracking_id" name="ga_tracking_id"
                            value="{{ settings.ga_tracking_id or "" }}"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ _("Memcache") }}</label>
+                <div class="controls">
+                    <button class="btn btn-danger" id="flush_cache">{{ _("Flush Cache") }}</button>
                 </div>
             </div>
         </form>

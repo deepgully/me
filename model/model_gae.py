@@ -550,7 +550,9 @@ class DBTag(BaseModel, StatsMixin):
             self.save()
 
     def get_posts(self, page=1, per_page=10):
-        ids = self._post_id_list[(page-1)*per_page:page*per_page]
+        posts_list = map(long, set(self._post_id_list))
+        posts_list.sort(reverse=True)
+        ids = posts_list[(page-1)*per_page:page*per_page]
         return [post for post in DBPost.get_by_ids(ids) if post and post.public]
 
     @classmethod
