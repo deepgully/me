@@ -155,10 +155,10 @@
         };
 
         var get_year_div = function(year){
-            var $year = $("#year_" + year);
-            if ($year.length <= 0 ){
-                $year = $('<div class="timeline-year">' +
-                          '<a href="javascript:;" data-toggle="collapse" data-target="#year_{0}">'.format(year) +
+            var $year_div = $("#year_" + year);
+            if ($year_div.length <= 0 ){
+                var $year = $('<div class="timeline-year">' +
+                          '<a class="collapse_btn" href="javascript:;" data-target="#year_{0}">'.format(year) +
                           '{0} </a></div>'.format(year) +
                           '<div id="year_{0}" class="collapse in year-content"></div>'.format(year));
 
@@ -180,10 +180,20 @@
                 if (!found){
                     $container.append($year);
                 }
+                $year_div = $("#year_"+year);
 
-                $year = $("#year_"+year);
+                $(".collapse_btn", $year).click(function(){
+                    if ($year_div.hasClass("in")) {
+                        $year_div.collapse('hide').removeClass("in");
+                        $year_div.attr("style", "height:0px;");
+                    } else {
+                        $year_div.collapse('show').addClass("in");
+                        $year_div.attr("style", "height:auto;");
+                    }
+                    return false;
+                });
             }
-            return $year;
+            return $year_div;
         };
 
         $(window).resize(function() {
@@ -193,11 +203,11 @@
         $("#load-more-post").click(function() {
             load_posts(show_post);
         });
-        $(window).bind("scroll", function(){
+        $(window).bind("scroll", $.debounce(50, function(){
             if ($(document).scrollTop() + $(window).height() > $(document).height() - 10) {
                 load_posts(show_post);
             }
-        });
+        }));
         load_posts(show_post);
 
 

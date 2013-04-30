@@ -365,7 +365,7 @@ class LinkPattern(Pattern):
             # This should not happen. Treat as suspect.
             return ''
 
-        for part in url[2:]:
+        for part in (path, params, fragment):
             if ":" in part:
                 # A colon in "path", "parameters", "query" or "fragment" is suspect.
                 return ''
