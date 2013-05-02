@@ -141,6 +141,15 @@ Date.prototype.format = function(format) {
                     ' src="http://www.magicycles.com/{0}/{1}/widget" '.format(match[1], match[2]) +
                     ' scrolling="no" frameborder="0" allowfullscreen wmode="transparent"></iframe></div>';
             }
+        },
+        yinyuetai: {
+            link: /<a.+href="http:\/\/www.yinyuetai.com\/video\/(\d+).*".*>.*<\/a>/gm,
+            player: function(match){
+                return '<div><embed src="http://player.yinyuetai.com/video/player/{0}/v_2932937.swf"'.format(match[1]) +
+                    ' class="video_player" quality="high" align="middle" wmode="transparent"' +
+                    ' allowScriptAccess="sameDomain" allowfullscreen="true" ' +
+                    ' type="application/x-shockwave-flash"></embed></div>';
+            }
         }
     };
     $.create_player = function(text){

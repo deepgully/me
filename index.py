@@ -79,7 +79,7 @@ def index(category_url=None):
 @app.route('/tags/<tag_name>', methods=['GET'])
 def tags(tag_name):
     try:
-        tag = apis.Tag.get_tag_by_name(tag_name)
+        tag = apis.Tag.get_tag_by_name(unquote(tag_name))
         if not tag:
             from ajax import MSG_NO_TAG
             raise Exception(gettext(MSG_NO_TAG, name=tag_name))
