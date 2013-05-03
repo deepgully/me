@@ -199,10 +199,10 @@ Date.prototype.format = function(format) {
 
                     imgBox.css({
                         width: width+"px", height: height + alt_height + "px", position: "relative",
-                        'background-color' : "#fff",
-                        'background-image': "url('/static/images/loading.gif')",
+                        'background-color' : "#f1f1f1",
+                        'background-image': "url('/static/images/loading_alpha.gif')",
                         'background-repeat': 'no-repeat',
-                        'background-position': '50% 50%',
+                        'background-position': '50% 36%',
                         'overflow' : 'hidden'
                     });
                     $("img", imgBox).css({
@@ -233,26 +233,26 @@ Date.prototype.format = function(format) {
                     });
 
                     $("span", imgBox).css({
-                        'width': '48px',
+                        'width': '50%',
                         'height': '100%',
                         'display': 'none',
                         'position': 'absolute',
                         'top': '0',
-                        'background-repeat': 'no-repeat',
-                        'background-position': '50% 50%',
-                        'cursor': 'pointer'
+                        'background-repeat': 'no-repeat'
                     });
                     var $prev = $(".prev", imgBox);
                     $prev.css({
                         'background-image': "url('/static/images/prev.png')",
-                        'left': '0'
+                        'left': '0',
+                        'background-position': '2% 50%',
+                        'cursor': "url('/static/images/prev.png'), pointer"
                     });
                     var $next = $(".next", imgBox);
                     $next.css({
                         'background-image': "url('/static/images/next.png')",
                         'right': '0',
-                        'width': '100%',
-                        'background-position': '98% 50%'
+                        'background-position': '98% 50%',
+                        'cursor': "url('/static/images/next.png'), pointer"
                     });
 
                     var current = index;

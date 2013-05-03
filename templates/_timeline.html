@@ -56,9 +56,17 @@
             $(".comment", $post).html('<i class="icon-comment"></i>{0}'.format(post.stats.comment_count));
 
 
-            $(".post-body", $post).html(md2html(post.body));
+            $(".post-body", $post).html(md2html_short(post.body));
             $(".post-body", $post).imagesLoaded(function(){
                 bind_img($(".post-body", $post));
+            });
+
+            var $btn_more = $(".post-body more", $post);
+            $btn_more.html('<button class="btn btn-small btn-block"> {{ _("Full Article") }}</button>');
+            $btn_more.click(function(){
+                $(".post-body", $post).html(md2html(post.body));
+                $("pre>code", $post).parent().addClass("prettyprint");
+                prettyPrint();
             });
 
             $("pre>code", $post).parent().addClass("prettyprint");

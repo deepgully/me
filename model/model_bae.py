@@ -88,6 +88,10 @@ def init_database(app):
 __db_get_cache = {}
 
 
+def clean_cache():
+    __db_get_cache.clear()
+
+
 def _norm_key(cls, id):
     return "%s_%s" % (cls.__name__, id)
 
@@ -211,8 +215,10 @@ class ModelMixin(object):
 
     def delete(self, commit=True):
         if hasattr(self, "stats"):
-            _remove(self.__class__, self.stats.id)
-            db.session.delete(self.stats)
+            dbstats = DBStats.get_by_id(self._stats_id)
+            _remove(DBStats, self._stats_id)
+            if dbstats:
+                db.session.delete(dbstats)
 
         _remove(self.__class__, self.id)
         db.session.delete(self)
@@ -362,7 +368,7 @@ class DBUser(db.Model, ModelMixin, StatsMixin):
     role = db.Column(db.Enum(*UserRoles), default="User")
     joined_date = db.Column(db.DateTime, default=datetime.utcnow)
 
-    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id'))
+    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
 
     def __init__(self, email,
                  nickname="", avatar="", role="User", active=True):
@@ -411,7 +417,7 @@ class DBCategory(db.Model, ModelMixin, StatsMixin):
     template = db.Column(db.Enum(*Templates), default=Templates[0])
     content = db.Column(db.Text)  # for template "Text" only
 
-    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id'))
+    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
 
     def __init__(self, url, name, sort=0, order=Orders[1], template=Templates[0]):
         self.url = url
@@ -463,13 +469,13 @@ class DBPost(db.Model, ModelMixin, StatsMixin):
     post_date = db.Column(db.DateTime, default=datetime.utcnow, index=True)  # post event datetime
     updated_date = db.Column(db.DateTime, onupdate=datetime.utcnow, index=True)  # updated datetime
 
-    category_id = db.Column(db.Integer, db.ForeignKey(DBCategory.__tablename__ + '.id'), index=True)
+    category_id = db.Column(db.Integer, db.ForeignKey(DBCategory.__tablename__ + '.id', ondelete="SET NULL"), index=True)
     _category = db.relationship('DBCategory', backref=db.backref('posts', lazy='dynamic'))
 
-    author_id = db.Column(db.Integer, db.ForeignKey(DBUser.__tablename__ + ".id"), index=True)
+    author_id = db.Column(db.Integer, db.ForeignKey(DBUser.__tablename__ + ".id", ondelete="SET NULL"), index=True)
     _author = db.relationship('DBUser', backref=db.backref('posts', lazy='dynamic'))
 
-    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id'))
+    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
     _tag_list = db.Column(db.Text, default="")
 
 
@@ -543,7 +549,7 @@ class DBTag(db.Model, ModelMixin, StatsMixin):
 
     _post_id_list = db.Column(db.Text, default="")
 
-    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id'))
+    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
 
     def __init__(self, name):
         self.name = name.strip()
@@ -559,16 +565,18 @@ class DBTag(db.Model, ModelMixin, StatsMixin):
 
     @post_ids.setter
     def post_ids(self, value):
+        value = map(str, value)
         self._post_id_list = ",".join(value)
 
     def add_post_id(self, post_id):
+        post_id = long(post_id)
         if post_id not in self.post_ids:
             self.post_count += 1
             self._post_id_list += "," + str(post_id)
             self.save()
 
     def remove_post_id(self, post_id):
-        post_id = str(post_id)
+        post_id = long(post_id)
         post_ids = self.post_ids
         if post_id in post_ids:
             post_ids.remove(post_id)
@@ -609,10 +617,10 @@ class DBPhoto(db.Model, ModelMixin, StatsMixin):
 
     public = db.Column(db.Boolean, default=True)
 
-    post_id = db.Column(db.Integer, db.ForeignKey(DBPost.__tablename__ + ".id"), index=True)
+    post_id = db.Column(db.Integer, db.ForeignKey(DBPost.__tablename__ + ".id", ondelete="SET NULL"), index=True)
     _post = db.relationship('DBPost', backref=db.backref('photos', lazy='dynamic'))
 
-    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id'))
+    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
 
     def __init__(self, url="", real_file="", alt="", mime="application/octet-stream"):
         self.url = url
@@ -644,10 +652,10 @@ class DBComment(db.Model, ModelMixin, StatsMixin):
     deleted = db.Column(db.Boolean, default=False)
 
     parent_id = db.Column(db.Integer, default=-1)
-    post_id = db.Column(db.Integer, db.ForeignKey(DBPost.__tablename__ + ".id"), index=True)
+    post_id = db.Column(db.Integer, db.ForeignKey(DBPost.__tablename__ + ".id", ondelete="SET NULL"), index=True)
     _post = db.relationship('DBPost', backref=db.backref('comments', lazy='dynamic'))
 
-    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id'))
+    _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
 
     def __init__(self, author, content, post_id, parent_id=-1):
         self.author = author

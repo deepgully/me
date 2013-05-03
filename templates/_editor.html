@@ -3,10 +3,9 @@
 <link href="/static/assets/bootstrap/css/bootstrap-fileupload.min.css" rel="stylesheet">
 <style type="text/css">
     #editor_msg {
-        max-width: 200px;
         white-space: normal;
-        text-align: left;
-        float: right;
+        margin-top: 8px;
+        padding: 4px 8px;
     }
 
     .image-bar > .thumbnails > li {
@@ -24,6 +23,19 @@
     #editor .nav-tabs {
         margin: 0;
         padding: 0;
+    }
+
+    .alt_editor {
+        margin-bottom: 4px;
+    }
+
+    .alt_editor img{
+        max-width: 80px;
+        max-height: 60px;
+    }
+
+    .alt_editor input{
+        margin: 0;
     }
 </style>
 {% endblock %}
@@ -318,6 +330,17 @@
              });
         };
 
+        var init_md_hooks = function(){
+            md_converter.hooks.chain("preConversion", function (text) {
+                if ((text.length > 300) && (text.indexOf('\n<!--more-->') == -1)){
+                    show_message("{{ _("Tips: insert <!--more--> to show excerpt only") }}");
+                } else {
+                    show_message("");
+                }
+                return text;
+            });
+        };
+
         this.is_shown = function(){
             return editor_elem.is(":visible");
         };
@@ -325,6 +348,8 @@
         init();
 
         init_alt_editor();
+
+        init_md_hooks();
 
         return self;
     };
@@ -358,8 +383,8 @@
         </div>
         <div class="clearfix"></div>
         <div class="alt_editor hide">
-            <img style="width: 48px; height: 36px;"/>
-            <input class="span4" type="text" placeholder="{{ _("Photo Description") }}" style="margin: 0;" />
+            <img/>
+            <input class="span4" type="text" placeholder="{{ _("Photo Description") }}"/>
             <button class="btn btn-small">OK</button>
         </div>
         <div class="clearfix"></div>
@@ -367,12 +392,12 @@
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#wmd-editor">{{ _("Edit") }}</a></li>
                 <li class=""><a data-toggle="tab" href="#wmd-preview">{{ _("Preview") }}</a></li>
+                <span id="editor_msg" class="label hide"></span>
             </ul>
             <div class="tab-content">
                 <div id="wmd-editor" class="wmd-panel tab-pane active">
                     <div id="wmd-button-bar" class="wmd-button-bar"></div>
                     <textarea rows="8" class="span5" name="body" id="wmd-input" class="wmd-input"></textarea>
-
                 </div>
                 <div id="wmd-preview" class="tab-pane wmd-panel"></div>
             </div>
@@ -384,7 +409,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <div id="editor-date" class="input-append pull-left">
+        <div id="editor-date" class="input-append pull-left" style="margin-bottom: 0">
             <input data-format="yyyy-MM-dd" type="text" class="input-small" name="post_date" required/>
             <span class="add-on">
                 <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
@@ -402,6 +427,5 @@
             <button class="btn" data-dismiss="modal">{{ _("Cancel") }}</button>
             <button class="btn btn-primary" id="submit">{{ _("Submit") }}</button>
         </div>
-        <span id="editor_msg" class="label hide"></span>
     </div>
 </div>

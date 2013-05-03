@@ -45,7 +45,7 @@
             $("input.date_val", $post).val(post.post_date.format("yyyy-MM-dd")).attr("id", "post_date_"+post.id);
             $(".post-title .title", $post).text(post.title).attr("href", "/post/{0}".format(post.id));
             $(".post-title img", $post).attr("src", post.author.avatar_url).attr("title", post.author.nickname);
-            $(".post-body", $post).html(md2html(post.body));
+            $(".post-body", $post).html(md2html_short(post.body));
             $(".post-date", $post).html(post.post_date.format("yyyy-MM-dd"));
             $(".post-author", $post).text(post.author.nickname);
             $(".post-viewed", $post).html(post.stats.view_count);
@@ -57,6 +57,14 @@
             $(".stats[name=like_count]", $post).html('<i class="icon-thumbs-up"></i>{0}'.format(post.stats.like_count));
             $(".stats[name=unlike_count]", $post).html('<i class="icon-thumbs-down"></i>{0}'.format(post.stats.unlike_count));
             $(".comment", $post).html('<i class="icon-comment"></i>{0}'.format(post.stats.comment_count));
+
+            var $btn_more = $(".post-body more", $post);
+            $btn_more.html('<button class="btn btn-small btn-block"> {{ _("Full Article") }}</button>');
+            $btn_more.click(function(){
+                $(".post-body", $post).html(md2html(post.body));
+                $("pre>code", $post).parent().addClass("prettyprint");
+                prettyPrint();
+            });
 
             $("pre>code", $post).parent().addClass("prettyprint");
             prettyPrint();

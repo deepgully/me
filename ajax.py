@@ -840,6 +840,7 @@ def admin_memcache(action, params={}):
         params: function params
     Returns:
         result: function result"""
+    apis.clean_database_cache()
     function = getattr(memcache, action)
     if callable(function):
         result = function(**params)

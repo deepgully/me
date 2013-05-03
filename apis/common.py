@@ -89,10 +89,15 @@ class DBAdapter(object):
 ## Settings
 ###########################################
 from model import DBSiteSettings
+from model import clean_cache
 
 
 def get_site_settings():
     return DBSiteSettings.get_site_settings()
+
+
+def clean_database_cache():
+    clean_cache()
 
 
 ###########################################
@@ -534,11 +539,15 @@ class Post(DBAdapter):
             dbcomment.delete(commit=False)
             comment_count += 1
 
-        self.category.stats.decrease("comment_count", delta=comment_count, commit=False)
-        self.category.stats.decrease("post_count")
-        self.author.stats.decrease("post_count")
+        for tag_name in self.tags:
+            tag = Tag.get_tag_by_name(tag_name)
+            if tag:
+                tag.remove_post_id(self.id)
 
-        self.stats.delete(commit=False)
+        self.category.stats.decrease("comment_count", delta=comment_count, commit=False)
+        self.category.stats.decrease("post_count", commit=False)
+        self.author.stats.decrease("post_count", commit=False)
+
         self.db_object.delete(commit=True)
 
     @property

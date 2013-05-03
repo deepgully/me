@@ -102,16 +102,20 @@ def gae_type_convert(val, target_type):
     return val
 
 # DataStore Cache in Memory
-_db_get_cache = {}
+__db_get_cache = {}
+
+
+def clean_cache():
+    __db_get_cache.clear()
 
 
 def get(keys, **kwargs):
     keys, multiple = datastore.NormalizeAndTypeCheckKeys(keys)
-    ret = db.get([key for key in keys if key not in _db_get_cache], **kwargs)
+    ret = db.get([key for key in keys if key not in __db_get_cache], **kwargs)
     if (len(ret) == 1) and (ret[0] is None) and (not multiple):
         return
-    _db_get_cache.update(dict([(x.key(), x) for x in ret if x is not None]))
-    ret = [_db_get_cache.get(k, None) for k in keys]
+    __db_get_cache.update(dict([(x.key(), x) for x in ret if x is not None]))
+    ret = [__db_get_cache.get(k, None) for k in keys]
     if multiple:
         return ret
     if len(ret) > 0:
@@ -120,7 +124,7 @@ def get(keys, **kwargs):
 
 def remove(keys):
     keys, _ = datastore.NormalizeAndTypeCheckKeys(keys)
-    return [_db_get_cache.pop(k) for k in keys if k in _db_get_cache]
+    return [__db_get_cache.pop(k) for k in keys if k in __db_get_cache]
 
 
 class DBParent(db.Model):
@@ -531,19 +535,22 @@ class DBTag(BaseModel, StatsMixin):
 
     @property
     def post_ids(self):
-        return self._post_id_list
+        return map(long, self._post_id_list)
 
     @post_ids.setter
     def post_ids(self, value):
+        value = map(str, value)
         self._post_id_list = value
 
     def add_post_id(self, post_id):
+        post_id = long(post_id)
         if post_id not in self._post_id_list:
             self.post_count += 1
             self._post_id_list.append(post_id)
             self.save()
 
     def remove_post_id(self, post_id):
+        post_id = long(post_id)
         if post_id in self._post_id_list:
             self.post_count -= 1
             self._post_id_list.remove(post_id)

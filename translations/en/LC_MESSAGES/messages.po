@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-04-26 22:40+0800\n"
+"POT-Creation-Date: 2013-05-03 23:30+0800\n"
 "PO-Revision-Date: 2013-03-24 14:53+0800\n"
 "Last-Translator: Gully Chen <deepgully@gmail.com>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -85,7 +85,7 @@ msgstr ""
 msgid "Page not found"
 msgstr ""
 
-#: ../index.py:165
+#: ../index.py:171
 msgid "Please input valid email and password"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Please login to access this page"
 msgstr ""
 
-#: ../model/model_bae.py:664 ../model/model_gae.py:619
+#: ../model/model_bae.py:674 ../model/model_gae.py:628
 msgid "Comment Deleted"
 msgstr ""
 
@@ -101,9 +101,9 @@ msgstr ""
 msgid "Comments"
 msgstr ""
 
-#: ../templates/__comment.html:71 ../templates/_list.html:344
-#: ../templates/_photo.html:373 ../templates/_timeline.html:339
-#: ../templates/base.html:149 ../templates/tags.html:318
+#: ../templates/__comment.html:71 ../templates/_list.html:353
+#: ../templates/_photo.html:373 ../templates/_timeline.html:358
+#: ../templates/base.html:149 ../templates/tags.html:330
 msgid "loading"
 msgstr ""
 
@@ -111,13 +111,13 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
-#: ../templates/__comment.html:81 ../templates/_list.html:320
-#: ../templates/_photo.html:393 ../templates/_timeline.html:329
-#: ../templates/post.html:203 ../templates/tags.html:296
+#: ../templates/__comment.html:81 ../templates/_list.html:329
+#: ../templates/_photo.html:393 ../templates/_timeline.html:348
+#: ../templates/post.html:203 ../templates/tags.html:308
 msgid "Comment"
 msgstr ""
 
-#: ../templates/__comment.html:82 ../templates/_editor.html:369
+#: ../templates/__comment.html:82 ../templates/_editor.html:394
 msgid "Preview"
 msgstr ""
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Your Name"
 msgstr ""
 
-#: ../templates/__comment.html:88 ../templates/_editor.html:403
+#: ../templates/__comment.html:88 ../templates/_editor.html:428
 msgid "Submit"
 msgstr ""
 
@@ -133,24 +133,24 @@ msgstr ""
 msgid "comment here, support markdown syntax"
 msgstr ""
 
-#: ../templates/__comment.html:107 ../templates/_list.html:315
+#: ../templates/__comment.html:107 ../templates/_list.html:324
 #: ../templates/_photo.html:388 ../templates/_photo.html:411
-#: ../templates/_timeline.html:324 ../templates/post.html:198
-#: ../templates/tags.html:291
+#: ../templates/_timeline.html:343 ../templates/post.html:198
+#: ../templates/tags.html:303
 msgid "Like"
 msgstr ""
 
-#: ../templates/__comment.html:110 ../templates/_list.html:318
+#: ../templates/__comment.html:110 ../templates/_list.html:327
 #: ../templates/_photo.html:391 ../templates/_photo.html:414
-#: ../templates/_timeline.html:327 ../templates/post.html:201
-#: ../templates/tags.html:294
+#: ../templates/_timeline.html:346 ../templates/post.html:201
+#: ../templates/tags.html:306
 msgid "Unlike"
 msgstr ""
 
-#: ../templates/__comment.html:114 ../templates/_list.html:296
-#: ../templates/_photo.html:401 ../templates/_timeline.html:308
-#: ../templates/admin.html:287 ../templates/admin.html:392
-#: ../templates/post.html:167 ../templates/tags.html:272
+#: ../templates/__comment.html:114 ../templates/_list.html:305
+#: ../templates/_photo.html:401 ../templates/_timeline.html:327
+#: ../templates/admin.html:304 ../templates/admin.html:409
+#: ../templates/post.html:167 ../templates/tags.html:284
 msgid "Delete"
 msgstr ""
 
@@ -158,12 +158,12 @@ msgstr ""
 msgid "Restore"
 msgstr ""
 
-#: ../templates/__comment.html:296 ../templates/_editor.html:145
+#: ../templates/__comment.html:296 ../templates/_editor.html:157
 #: ../templates/admin.html:23
 msgid "please input valid"
 msgstr ""
 
-#: ../templates/__comment.html:301 ../templates/_editor.html:152
+#: ../templates/__comment.html:301 ../templates/_editor.html:164
 #: ../templates/admin.html:28
 msgid "Saving"
 msgstr ""
@@ -172,97 +172,106 @@ msgstr ""
 msgid "Comment Saved"
 msgstr ""
 
-#: ../templates/__post_script.html:143
+#: ../templates/__post_script.html:158
 msgid "Delete post, r u sure?"
 msgstr ""
 
-#: ../templates/_editor.html:59 ../templates/_timeline.html:293
+#: ../templates/_editor.html:71 ../templates/_timeline.html:312
 #: ../templates/base.html:115
 msgid "New Post"
 msgstr ""
 
-#: ../templates/_editor.html:61 ../templates/_photo.html:341
+#: ../templates/_editor.html:73 ../templates/_photo.html:341
 msgid "New Album"
 msgstr ""
 
-#: ../templates/_editor.html:98
+#: ../templates/_editor.html:110
 msgid "Edit Album"
 msgstr ""
 
-#: ../templates/_editor.html:100 ../templates/_editor.html:336
+#: ../templates/_editor.html:112 ../templates/_editor.html:361
 msgid "Edit Post"
 msgstr ""
 
-#: ../templates/_editor.html:104
+#: ../templates/_editor.html:116
 msgid "Loading"
 msgstr ""
 
-#: ../templates/_editor.html:164
+#: ../templates/_editor.html:176
 msgid "Post Saved"
 msgstr ""
 
-#: ../templates/_editor.html:213
+#: ../templates/_editor.html:225
 msgid "Photo Deleted"
 msgstr ""
 
-#: ../templates/_editor.html:311
+#: ../templates/_editor.html:323
 msgid "Photo Description Saved"
 msgstr ""
 
-#: ../templates/_editor.html:348
+#: ../templates/_editor.html:336
+msgid "Tips: insert <!--more--> to show excerpt only"
+msgstr ""
+
+#: ../templates/_editor.html:373
 msgid "Post Title"
 msgstr ""
 
-#: ../templates/_editor.html:353
+#: ../templates/_editor.html:378
 msgid "Add Photo"
 msgstr ""
 
-#: ../templates/_editor.html:362
+#: ../templates/_editor.html:387
 msgid "Photo Description"
 msgstr ""
 
-#: ../templates/_editor.html:368 ../templates/_list.html:295
-#: ../templates/_photo.html:400 ../templates/_timeline.html:307
-#: ../templates/admin.html:286 ../templates/admin.html:391
-#: ../templates/post.html:166 ../templates/tags.html:271
+#: ../templates/_editor.html:393 ../templates/_list.html:304
+#: ../templates/_photo.html:400 ../templates/_timeline.html:326
+#: ../templates/admin.html:303 ../templates/admin.html:408
+#: ../templates/post.html:166 ../templates/tags.html:283
 msgid "Edit"
 msgstr ""
 
-#: ../templates/_editor.html:381 ../templates/_editor.html:383
+#: ../templates/_editor.html:406 ../templates/_editor.html:408
 #: ../templates/base.html:103
 msgid "Tags"
 msgstr ""
 
-#: ../templates/_editor.html:395 ../templates/_editor.html:396
-#: ../templates/_list.html:286 ../templates/_list.html:334
-#: ../templates/_photo.html:362 ../templates/_timeline.html:314
+#: ../templates/_editor.html:420 ../templates/_editor.html:421
+#: ../templates/_list.html:295 ../templates/_list.html:343
+#: ../templates/_photo.html:362 ../templates/_timeline.html:333
 msgid "Sticky"
 msgstr ""
 
-#: ../templates/_editor.html:399 ../templates/_editor.html:400
+#: ../templates/_editor.html:424 ../templates/_editor.html:425
 msgid "Publish"
 msgstr ""
 
-#: ../templates/_editor.html:402 ../templates/_text.html:70
-#: ../templates/admin.html:289 ../templates/admin.html:394
+#: ../templates/_editor.html:427 ../templates/_text.html:70
+#: ../templates/admin.html:306 ../templates/admin.html:411
 msgid "Cancel"
 msgstr ""
 
-#: ../templates/_list.html:42 ../templates/_list.html:178
+#: ../templates/_list.html:42 ../templates/_list.html:187
 #: ../templates/_photo.html:220 ../templates/_timeline.html:25
 #: ../templates/post.html:158
 msgid "Hidden"
 msgstr ""
 
-#: ../templates/_list.html:313 ../templates/_photo.html:386
-#: ../templates/_timeline.html:322 ../templates/post.html:194
+#: ../templates/_list.html:73 ../templates/_timeline.html:65
+#: ../templates/tags.html:62
+msgid "Full Article"
+msgstr ""
+
+#: ../templates/_list.html:322 ../templates/_photo.html:386
+#: ../templates/_timeline.html:341 ../templates/post.html:194
 #: ../templates/share.html:4 ../templates/share.html:17
-#: ../templates/tags.html:289
+#: ../templates/tags.html:301
 msgid "Share"
 msgstr ""
 
-#: ../templates/_list.html:343 ../templates/_photo.html:372
-#: ../templates/_timeline.html:340 ../templates/tags.html:317
+#: ../templates/_list.html:352 ../templates/_photo.html:372
+#: ../templates/_timeline.html:359 ../templates/tags.html:329
 msgid "More"
 msgstr ""
 
@@ -278,8 +287,8 @@ msgstr ""
 msgid "Edit Page"
 msgstr ""
 
-#: ../templates/_text.html:69 ../templates/admin.html:288
-#: ../templates/admin.html:393
+#: ../templates/_text.html:69 ../templates/admin.html:305
+#: ../templates/admin.html:410
 msgid "Save"
 msgstr ""
 
@@ -295,103 +304,111 @@ msgstr ""
 msgid "Deleting"
 msgstr ""
 
-#: ../templates/admin.html:91
+#: ../templates/admin.html:91 ../templates/admin.html:153
 msgid "Deleted"
 msgstr ""
 
-#: ../templates/admin.html:156
+#: ../templates/admin.html:167
 msgid "Site Settings"
 msgstr ""
 
-#: ../templates/admin.html:157
+#: ../templates/admin.html:168
 msgid "Users"
 msgstr ""
 
-#: ../templates/admin.html:158
+#: ../templates/admin.html:169
 msgid "Categories"
 msgstr ""
 
-#: ../templates/admin.html:161
+#: ../templates/admin.html:172
 msgid "Personal"
 msgstr ""
 
-#: ../templates/admin.html:165
+#: ../templates/admin.html:176
 msgid "Reset Password"
 msgstr ""
 
-#: ../templates/admin.html:177
+#: ../templates/admin.html:188
 msgid "Save Settings"
 msgstr ""
 
-#: ../templates/admin.html:186
+#: ../templates/admin.html:197
 msgid "Site Title"
 msgstr ""
 
-#: ../templates/admin.html:193
+#: ../templates/admin.html:204
 msgid "Site Subtitle"
 msgstr ""
 
-#: ../templates/admin.html:200
+#: ../templates/admin.html:211
 msgid "Copyright"
 msgstr ""
 
-#: ../templates/admin.html:207
+#: ../templates/admin.html:218
 msgid "Google Analytics ID"
 msgstr ""
 
-#: ../templates/admin.html:217
+#: ../templates/admin.html:225
+msgid "Memcache"
+msgstr ""
+
+#: ../templates/admin.html:227
+msgid "Flush Cache"
+msgstr ""
+
+#: ../templates/admin.html:234
 msgid "New User"
 msgstr ""
 
-#: ../templates/admin.html:223 ../templates/admin.html:304
+#: ../templates/admin.html:240 ../templates/admin.html:321
 msgid "Name"
 msgstr ""
 
-#: ../templates/admin.html:224
+#: ../templates/admin.html:241
 msgid "Active?"
 msgstr ""
 
-#: ../templates/admin.html:225
+#: ../templates/admin.html:242
 msgid "Role"
 msgstr ""
 
-#: ../templates/admin.html:226 ../templates/admin.html:309
+#: ../templates/admin.html:243 ../templates/admin.html:326
 msgid "Action"
 msgstr ""
 
-#: ../templates/admin.html:257 ../templates/admin.html:349
+#: ../templates/admin.html:274 ../templates/admin.html:366
 msgid "New"
 msgstr ""
 
-#: ../templates/admin.html:298
+#: ../templates/admin.html:315
 msgid "New Category"
 msgstr ""
 
-#: ../templates/admin.html:305
+#: ../templates/admin.html:322
 msgid "Sort"
 msgstr ""
 
-#: ../templates/admin.html:306
+#: ../templates/admin.html:323
 msgid "Post per Page"
 msgstr ""
 
-#: ../templates/admin.html:307
+#: ../templates/admin.html:324
 msgid "Order"
 msgstr ""
 
-#: ../templates/admin.html:308
+#: ../templates/admin.html:325
 msgid "Template"
 msgstr ""
 
-#: ../templates/admin.html:415
+#: ../templates/admin.html:432
 msgid "Nickname"
 msgstr ""
 
-#: ../templates/admin.html:422
+#: ../templates/admin.html:439
 msgid "Avatar"
 msgstr ""
 
-#: ../templates/admin.html:438 ../templates/login.html:49
+#: ../templates/admin.html:455 ../templates/login.html:49
 msgid "Password"
 msgstr ""
 

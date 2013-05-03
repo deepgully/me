@@ -14,6 +14,21 @@
     });
     var md2html = md_converter.makeHtml;
 
+    var md_short_converter = Markdown.getSanitizingConverter();
+    md_short_converter.hooks.chain("postConversion", function (text) {
+        // convert player links
+        return $.create_player(text);
+    });
+    md_short_converter.hooks.chain("preConversion", function (text) {
+        // add tag <more>
+        var pos = text.indexOf('\n<!--more-->');
+        if (pos > -1){
+            text = text.slice(0, pos) + " ......\n\n<more></more>";
+        }
+        return text;
+    });
+    var md2html_short = md_short_converter.makeHtml;
+
     var get_post_id = function($post){
         return $post.attr("id").replace(/^post_/, "");
     };
