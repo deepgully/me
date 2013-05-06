@@ -535,7 +535,7 @@ class DBTag(BaseModel, StatsMixin):
 
     @property
     def post_ids(self):
-        return map(long, self._post_id_list)
+        return self._post_id_list
 
     @post_ids.setter
     def post_ids(self, value):
@@ -543,22 +543,22 @@ class DBTag(BaseModel, StatsMixin):
         self._post_id_list = value
 
     def add_post_id(self, post_id):
-        post_id = long(post_id)
+        post_id = str(post_id)
         if post_id not in self._post_id_list:
             self.post_count += 1
             self._post_id_list.append(post_id)
             self.save()
 
     def remove_post_id(self, post_id):
-        post_id = long(post_id)
+        post_id = str(post_id)
         if post_id in self._post_id_list:
             self.post_count -= 1
             self._post_id_list.remove(post_id)
             self.save()
 
     def get_posts(self, page=1, per_page=10):
-        posts_list = map(long, set(self._post_id_list))
-        posts_list.sort(reverse=True)
+        posts_list = map(long, self._post_id_list)
+        posts_list = posts_list[::-1]
         ids = posts_list[(page-1)*per_page:page*per_page]
         return [post for post in DBPost.get_by_ids(ids) if post and post.public]
 
