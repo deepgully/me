@@ -27,6 +27,7 @@ def bind_app(app):
     db.app = app
     db.init_app(app)
     init_database(app)
+    app.teardown_request(clean_cache)
     return app
 
 
@@ -88,7 +89,7 @@ def init_database(app):
 __db_get_cache = {}
 
 
-def clean_cache():
+def clean_cache(*args, **kwargs):
     __db_get_cache.clear()
 
 

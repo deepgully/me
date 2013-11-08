@@ -3,6 +3,9 @@
 #################
 
 .idea
+test.db
+
+static/uploads
 
 *.pydevproject
 .project

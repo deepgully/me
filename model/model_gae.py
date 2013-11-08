@@ -24,6 +24,7 @@ import common
 
 def bind_app(app):
     init_database(app)
+    app.teardown_request(clean_cache)
     return app
 
 
@@ -105,7 +106,7 @@ def gae_type_convert(val, target_type):
 __db_get_cache = {}
 
 
-def clean_cache():
+def clean_cache(*args, **kwargs):
     __db_get_cache.clear()
 
 
