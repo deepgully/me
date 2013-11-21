@@ -116,7 +116,7 @@
         prettyPrint();
 
         var $thumbnails = $(".post-thumbnails");
-        var width = $(window).width()/2 < 400 ? 400 : $(window).width()/2;
+        var width = $(window).width()/1.5 < 400 ? 400 : $(window).width()/1.5;
         var height = width * 3 / 4;
         $("img", $thumbnails).image_box(width, height, -1, -1);
 

@@ -37,7 +37,7 @@
         return $("#post_date_"+post_id).attr("value").toString().to_date();
     };
     var bind_img = function($post, min_width, min_height){
-        var width = $(window).width()/2 <= 240 ? $(window).width()-10 : $(window).width()/2;
+        var width = $(window).width()/1.5 <= 240 ? $(window).width()-10 : $(window).width()/1.5;
         var height = width * 3 / 4;
         $("img", $post).image_info(min_width, min_height).image_box(width, height, min_width, min_height);
     };
