@@ -41,17 +41,6 @@ def upgrade():
     sa.Column('comment_count', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('db_tag',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('_norm_name', sa.String(length=64), nullable=True),
-    sa.Column('name', sa.String(length=64), nullable=True),
-    sa.Column('post_count', sa.Integer(), nullable=True),
-    sa.Column('_post_id_list', sa.Text(), nullable=True),
-    sa.Column('_stats_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('db_user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=128), nullable=True),
@@ -62,7 +51,18 @@ def upgrade():
     sa.Column('role', sa.Enum('User', 'Admin', 'Owner'), nullable=True),
     sa.Column('joined_date', sa.DateTime(), nullable=True),
     sa.Column('_stats_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ),
+    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ondelete='SET NULL'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('db_tag',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('_norm_name', sa.String(length=64), nullable=True),
+    sa.Column('name', sa.String(length=64), nullable=True),
+    sa.Column('post_count', sa.Integer(), nullable=True),
+    sa.Column('_post_id_list', sa.Text(), nullable=True),
+    sa.Column('_stats_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('db_category',
@@ -75,7 +75,7 @@ def upgrade():
     sa.Column('template', sa.Enum('Timeline', 'List', 'Photo', 'Text'), nullable=True),
     sa.Column('content', sa.Text(), nullable=True),
     sa.Column('_stats_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ),
+    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('db_post',
@@ -90,22 +90,9 @@ def upgrade():
     sa.Column('author_id', sa.Integer(), nullable=True),
     sa.Column('_stats_id', sa.Integer(), nullable=True),
     sa.Column('_tag_list', sa.Text(), nullable=True),
-    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ),
-    sa.ForeignKeyConstraint(['author_id'], ['db_user.id'], ),
-    sa.ForeignKeyConstraint(['category_id'], ['db_category.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('db_comment',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.Column('author', sa.String(length=32), nullable=False),
-    sa.Column('content', sa.Text(), nullable=True),
-    sa.Column('deleted', sa.Boolean(), nullable=True),
-    sa.Column('parent_id', sa.Integer(), nullable=True),
-    sa.Column('post_id', sa.Integer(), nullable=True),
-    sa.Column('_stats_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ),
-    sa.ForeignKeyConstraint(['post_id'], ['db_post.id'], ),
+    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['author_id'], ['db_user.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['category_id'], ['db_category.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('db_photo',
@@ -120,8 +107,21 @@ def upgrade():
     sa.Column('public', sa.Boolean(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.Column('_stats_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ),
-    sa.ForeignKeyConstraint(['post_id'], ['db_post.id'], ),
+    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['post_id'], ['db_post.id'], ondelete='SET NULL'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('db_comment',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_date', sa.DateTime(), nullable=True),
+    sa.Column('author', sa.String(length=32), nullable=False),
+    sa.Column('content', sa.Text(), nullable=True),
+    sa.Column('deleted', sa.Boolean(), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.Column('post_id', sa.Integer(), nullable=True),
+    sa.Column('_stats_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['_stats_id'], ['db_stats.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['post_id'], ['db_post.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     ### end Alembic commands ###
@@ -129,12 +129,12 @@ def upgrade():
 
 def downgrade():
     ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('db_photo')
     op.drop_table('db_comment')
+    op.drop_table('db_photo')
     op.drop_table('db_post')
     op.drop_table('db_category')
-    op.drop_table('db_user')
     op.drop_table('db_tag')
+    op.drop_table('db_user')
     op.drop_table('db_stats')
     op.drop_table('db_site_settings')
     ### end Alembic commands ###
