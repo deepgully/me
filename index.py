@@ -15,6 +15,7 @@
 """
 Site main views.
 """
+import os
 
 # import settings first to setup environment
 from settings import app, RUNTIME_ENV
@@ -23,6 +24,7 @@ from settings import gettext
 from flask import Response
 from flask import request, g
 from flask import redirect, url_for, flash, abort
+from flask.helpers import safe_join
 from werkzeug.contrib.atom import AtomFeed
 
 import apis
@@ -33,6 +35,26 @@ from utils import login_required, login_user, logout_user
 
 import model
 app = model.bind_app(app)  # Bind DataBase Models
+
+
+########################################
+## Global Functions
+########################################
+def theme_file(theme, filename):
+    filename = "themes/%s/%s" % (theme, filename)
+
+    if RUNTIME_ENV not in ("gae", "gae_dev"):
+        # GAE can not access static folder because the files will go to CDN instead of GAE instance
+        real_file = safe_join(app.static_folder, filename)
+        if not os.path.isfile(real_file):
+            return ""
+
+    return "%s/%s" % (app.static_url_path, filename)
+
+
+@app.context_processor
+def utility_processor():
+    return {"theme_file": theme_file}
 
 
 ########################################
@@ -61,28 +83,30 @@ def before_request():
 @app.route('/')
 @app.route("/<path:category_url>", methods=['GET'])
 def index(category_url=None):
+    _category = None
     try:
         category_url = category_url and unquote(category_url)
-        category = apis.Category.get_by_url(category_url)
-        if not category:
+        _category = apis.Category.get_by_url(category_url)
+        if not _category:
             from ajax import MSG_NO_CATEGORY
             raise Exception(gettext(MSG_NO_CATEGORY, id=category_url))
 
         pager = {
             "cur_page": 0,
-            "per_page": category.posts_per_page,
+            "per_page": _category.posts_per_page,
             "group_by": "",
             "is_last_page": False,
         }
     except:
         abort(404)
 
-    category.stats.increase("view_count")
-    return render_template("index.html", category=category, pager = pager)
+    _category.stats.increase("view_count")
+    return render_template("index.html", category=_category, pager = pager)
 
 
 @app.route('/tags/<tag_name>', methods=['GET'])
 def tags(tag_name):
+    tag = None
     try:
         tag = apis.Tag.get_tag_by_name(unquote(tag_name))
         if not tag:
@@ -132,32 +156,30 @@ def json(action):
 
 @app.route("/sitemap.xml")
 def sitemap():
-    return Response(flask_render_template("sitemap.xml", sitemap=get_sitemap()),
-        mimetype='text/xml')
+    return Response(flask_render_template("sitemap.xml", sitemap=get_sitemap()), mimetype='text/xml')
 
 
 @app.route("/atom")
 @app.route("/feed")
 def feed():
 
-    feed = AtomFeed(title=app.config["SiteTitle"],
-        subtitle=app.config["SiteSubTitle"],
-        icon = url_for("favicon", _external=True),
-        feed_url=request.url,
-        url=request.url_root)
+    _feed = AtomFeed(title=app.config["SiteTitle"],
+                     subtitle=app.config["SiteSubTitle"],
+                     icon=url_for("favicon", _external=True),
+                     url=request.url_root)
 
     posts = get_latest_posts(12).get("posts", [])
 
-    for post in posts:
-        feed.add(title=post.title,
-            content=post.safe_html,
-            content_type='html',
-            author=post.author.nickname,
-            url=url_for("post", postid=post.id, _external=True),
-            updated=post.updated_date,
-            published=post.post_date)
+    for _post in posts:
+        _feed.add(title=_post.title,
+                  content=_post.safe_html,
+                  content_type='html',
+                  author=_post.author.nickname,
+                  url=url_for("post", postid=_post.id, _external=True),
+                  updated=_post.updated_date,
+                  published=_post.post_date)
 
-    return Response(feed.to_string(), mimetype='application/xml')
+    return Response(_feed.to_string(), mimetype='application/xml')
 
 
 ########################################
@@ -191,7 +213,7 @@ def admin():
                            users=apis.User.get_all_users())
 
 
-# GAE bolbstroe Serving
+# GAE blob store Serving
 if RUNTIME_ENV in ("gae", "gae_dev"):
     from settings import BLOB_SERVING_URL
 
@@ -211,12 +233,9 @@ if RUNTIME_ENV in ("gae", "gae_dev"):
 ########################################
 ## Start Application
 ########################################
-if RUNTIME_ENV in ("bae",):
-    from bae.middleware.profiler import ProfilingMiddleware
-    application = ProfilingMiddleware(app)
-
+if RUNTIME_ENV in ("bae", ):
     from bae.core.wsgi import WSGIApplication
-    application = WSGIApplication(application)
+    application = WSGIApplication(app)
 
 elif RUNTIME_ENV in ("local",):
     app.run(debug=True)

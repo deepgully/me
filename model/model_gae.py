@@ -288,17 +288,20 @@ class StatsMixin(object):
     def stats(self):
         dbstats = DBStats.get_by_id(self._stats_id)
         if not dbstats:
-            dbstats = DBStats.filter_one(target_id=self.id)
+            dbstats = DBStats.filter_one(target_id=self.id, target_type=self.__class__.__name__)
 
-        if not dbstats:
-            dbstats = DBStats.create()
-            dbstats.target_type = self.__class__.__name__
-            dbstats.target_id = self.id
+            if not dbstats:
+                dbstats = DBStats.create()
+                dbstats.target_type = self.__class__.__name__
+                dbstats.target_id = self.id
+
             if hasattr(self, "public"):
                 dbstats.public = self.public
+                
             dbstats.save()
             self._stats_id = str(dbstats.id)
             self.save()
+
         return dbstats
 
 
@@ -340,12 +343,13 @@ class DBStats(BaseModel):
 
 # DataStore Models
 class DBSiteSettings(BaseModel, StatsMixin):
-    VERSION = 1.2  # update this if tables changed
+    VERSION = 1.3  # update this if tables changed
 
     version = db.FloatProperty(default=0.0)
     title = db.StringProperty()
     subtitle = db.StringProperty()
     copyright = db.StringProperty(default="")
+    theme = db.StringProperty(default="")
     ga_tracking_id = db.StringProperty()
     owner = db.StringProperty()
     inited = db.BooleanProperty(default=False)
@@ -367,6 +371,10 @@ class DBSiteSettings(BaseModel, StatsMixin):
     @property
     def Orders(self):
         return DBCategory.Orders
+
+    @property
+    def Themes(self):
+        return common.BootsWatchThemes
 
     @classmethod
     def get_site_settings(cls):
@@ -429,6 +437,7 @@ class DBCategory(BaseModel, StatsMixin):
     order = db.StringProperty(choices=Orders, default=Orders[1])
     template = db.StringProperty(choices=Templates, default=Templates[0])
     content = db.TextProperty(default="")  # for template "Text" only
+    hidden = db.BooleanProperty(default=False)
 
     _stats_id = db.StringProperty()
 

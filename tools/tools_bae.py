@@ -23,11 +23,8 @@ def send_mail(body, address, fromaddr=None, subject=None, **kwargs):
     if not isinstance(address, (list, tuple, set)):
         address = [address, ]
 
-    from settings import BAE_BCMS
-    ret = BAE_BCMS.createQueue("mail_queue")
-    BcmsQueue = str(ret["response_params"]["queue_name"])
-    BAE_BCMS.mail(BcmsQueue, body, address, fromaddr, subject, **kwargs)
-    BAE_BCMS.dropQueue(BcmsQueue)
+    #todo: support mail on BAE3
+    raise NotImplemented
 
 
 ############################################
@@ -37,24 +34,20 @@ def save_file(binary, filename, public=True, mime_type="application/octet-stream
     today = datetime.now().strftime("%Y/%m/%d/")
     filename = today + filename
 
-    from urlparse import urljoin
-    from settings import BAE_BCS, BCS_HOST, BUCKET_NAME, BSC_FOLDER
+    from settings import BAE_BCS, const
 
-    object_name = "%s%s" % (BSC_FOLDER, filename)
-    err, resp = BAE_BCS.put_object(BUCKET_NAME, object_name, binary)
-    if err != 0:
-        raise Exception(resp)
+    bucket = BAE_BCS.bucket(const.BCS_BUCKET)
+
+    object_name = "%s%s" % (const.BSC_FOLDER, filename)
+
+    bcs_obj = bucket.object(object_name)
+    bcs_obj.put(binary)
 
     if public:
-        #err, resp = BAE_BCS.make_public(BUCKET_NAME, object_name)
-        acl_read = '{"statements":[{"action":["get_object"],"effect":"allow","resource":["%s%s"],"user":["*"]}]}' % (
-            BUCKET_NAME, object_name)
-        err, resp = BAE_BCS.set_acl(BUCKET_NAME, object_name, acl_read)
-        if err != 0:
-            BAE_BCS.del_object(BUCKET_NAME, object_name)
-            raise Exception(resp)
+        bcs_obj.make_public()
 
-    url = urljoin(BCS_HOST, BUCKET_NAME) + object_name
+    url = bcs_obj.public_get_url
+
     return url, url
 
 
@@ -66,10 +59,9 @@ def delete_file(file_path):
     _, bucket_name, object_name = path.split("/", 2)
     object_name = "/" + object_name
 
-    err, resp = BAE_BCS.del_object(bucket_name, object_name)
-    if err != 0:
-        raise Exception(resp)
-
+    bucket = BAE_BCS.bucket(bucket_name)
+    bcs_obj = bucket.object(object_name)
+    bcs_obj.delete()
 
 
 ############################################
@@ -79,8 +71,7 @@ from settings import ENABLE_MEMCACHE
 
 
 if ENABLE_MEMCACHE:
-    from bae.api.memcache import BaeMemcache
+    from settings import memcache
 
-    memcache = BaeMemcache()  # bind memcache to BAE
     memcache.flush_all = lambda cls: None
 

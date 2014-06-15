@@ -1,0 +1,29 @@
+
+.post.active {
+    border-color: #debb27;
+}
+
+.post.active .tags a {
+    background: #debb27;
+}
+
+.post.active .tags a:before {
+    border-color:transparent #debb27 transparent transparent;
+}
+
+.tags a:hover{background: #debb27;}
+
+.tags a:hover:before{border-color:transparent #debb27 transparent transparent;}
+
+.container-timeline .post.active:before {
+    border-color:transparent #debb27 transparent transparent;/
+}
+.container-timeline .post.active:after {
+    background: #debb27;
+}
+.container-timeline .post.active .post-date {
+    color: #debb27;
+}
+.container-timeline .post.active .post-category {
+    border-bottom: 20px solid #debb27;
+}

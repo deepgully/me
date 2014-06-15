@@ -36,27 +36,138 @@
         var post_id = get_post_id($post);
         return $("#post_date_"+post_id).attr("value").toString().to_date();
     };
-    var bind_img = function($post, min_width, min_height){
-        var width = $(window).width()/1.5 <= 240 ? $(window).width()-10 : $(window).width()/1.5;
-        var height = width * 3 / 4;
-        $("img", $post).image_info(min_width, min_height).image_box(width, height, min_width, min_height);
+    var bind_img_box = function($container, gallery, parent, min_width, min_height) {
+        $("img", $container).image_box(min_width, min_height, gallery, parent);
+    };
+    var bind_img_info = function($container, min_width, min_height) {
+         $("img", $container).image_info(min_width, min_height);
     };
 
-    var build_thumbnails = function($thumbnails, post){
+    var build_thumbnails = function($thumbnails, post, gallery, parent){
         if (post.category.template != "Photo"){
             return;
         }
         $.each(post.photos, function(index, photo) {
-            $thumbnails.append('<li class="thumbnail">' +
+            $thumbnails.append('<div class="col-xs-6 col-lg-3">' +
+                    '<div class="thumbnail">' +
                     '<img src="{0}" real_src="{1}" alt="{2}" photo_id="{3}">'.format(photo.url_thumb||photo.url,
                             photo.url, photo.alt, photo.id) +
-                    '</li>');
+                    '</div></div>');
         });
         $thumbnails.show();
         $thumbnails.imagesLoaded(function(){
-            var width = $(window).width()/2 < 400 ? 400 : $(window).width()/2;
-            var height = width * 3 / 4;
-            $("img", $thumbnails).image_box(width, height, 20, 10);
+            bind_img_box($thumbnails, gallery, parent, 40, 30);
+        });
+    };
+
+    var build_post_panel = function($post, post) {
+        $post.attr("id", "post_{0}".format(post.id));
+
+        var $tags = $(".tags", $post).empty();
+        $.each(post.tags, function(index, tag){
+            $tags.append('<a href="/tags/{0}">{0}</a>'.format(tag));
+        });
+
+        if (post.public) {
+            $post.removeClass("text-muted");
+            $(".post-hide", $post).text("").hide();
+        } else {
+            $post.addClass("text-muted");
+            $(".post-hide", $post).text("{{ _("Hidden") }}").show();
+        }
+
+        if(post.sticky) {
+            $(".post-sticky", $post).show();
+        } else {
+            $(".post-sticky", $post).hide();
+        }
+
+        $("input.date_val", $post).val(post.post_date).attr("id", "post_date_"+post.id);
+        $(".post-title .title", $post).text(post.title).attr("href", "/post/"+post.id);
+        $(".post-category", $post).attr("href","/"+post.category.url).append(post.category.name);
+        $(".avatar", $post).attr("src", post.author.avatar_url).attr("title", post.author.nickname);
+        $(".post-date", $post).text(post.post_date.format("yyyy-MM-dd"));
+        $(".post-author", $post).text(post.author.nickname);
+        $(".post-viewed", $post).text(post.stats.view_count);
+
+        var $share = $(".share", $post);
+        var $icon = $share.find("i").clone();
+        $share.empty().append($icon, post.stats.share_count);
+        $share.unbind("click");
+        $share.click(function(){
+            show_share(post);
+        });
+
+        var $like = $(".stats[name=like_count]", $post);
+        $icon = $like.find("i").clone();
+        $like.empty().append($icon, post.stats.like_count);
+
+        var $unlike = $(".stats[name=unlike_count]", $post);
+        $icon = $unlike.find("i").clone();
+        $unlike.empty().append($icon, post.stats.unlike_count);
+
+        var $comment = $(".comment", $post);
+        $icon = $comment.find("i").clone();
+        $comment.empty().append($icon, post.stats.comment_count);
+
+        var $comments_panel = $(".comments_panel", $post);
+        $(".cmdbar .comment", $post).click(function(){
+            $comments_panel.show();
+            var comment = new Comment(md2html);
+            comment.show_comments($comments_panel,  post.id);
+        });
+
+        $(".cmdbar .stats", $post).click(function(){
+            var $this = $(this);
+            var $icon = $this.find("i").clone();
+            $.json_action("stats",{
+                stats_type: $.toJSON($this.attr("stats_type")),
+                id: $.toJSON(post.id),
+                oper: $.toJSON($this.attr("oper")),
+                name: $.toJSON($this.attr("name"))
+            },function(resp){
+                $this.empty();
+                $this.append($icon);
+                $this.append(resp.stats[$this.attr("name")]);
+                post.stats = resp.stats;
+            },function(err){
+                bootbox.alert(err);
+            });
+            $this.unbind("click");
+        });
+
+        {% if user.is_admin() %}
+        $(".menu-edit", $post).click(menu_edit);
+        $(".menu-delete", $post).click(menu_delete);
+        {% endif %}
+
+        return $post;
+    };
+
+    var build_post_body = function($post, post) {
+        var $post_body = $(".post-body", $post);
+
+        $post_body.html(md2html_short(post.body));
+
+        var $btn_more = $("more", $post_body);
+        $btn_more.html('<button class="btn btn-default btn-sm btn-block"> {{ _("Full Article") }}</button>');
+        $btn_more.click(function(){
+            $post_body.html(md2html(post.body));
+            $("pre>code", $post_body).parent().addClass("prettyprint");
+            prettyPrint();
+
+            $post_body.imagesLoaded(function(){
+                bind_img_box($post_body, "post_"+post.id, ".post-body");
+                bind_img_info($post_body, 150, 120);
+            });
+        });
+
+        $("pre>code", $post_body).parent().addClass("prettyprint");
+        prettyPrint();
+
+        $post.imagesLoaded(function(){
+            bind_img_box($post_body, "post_"+post.id, ".post-body");
+            bind_img_info($post_body, 150, 120);
         });
     };
 
@@ -185,12 +296,15 @@
     };
 
     var load_posts = function(callback){
+        var $load_more_post = $(".load-more-post");
+        var $post_loading = $(".post-loading");
         if (pager.is_last_page){
-            $("#load-more-post").remove();
+            $load_more_post.remove();
             return;
         }
-        $("#load-more-post").hide();
-        $("#post-loading").show();
+
+        $load_more_post.hide();
+        $post_loading.show();
         $.json_action("category/posts",
             {'category':$.toJSON('{{ category.url }}'),
              'page':  $.toJSON(pager.cur_page + 1),
@@ -200,15 +314,15 @@
             },
             function(resp){
                 pager = resp.pager;
-                $("#post-loading").fadeOut(1000);
+                $post_loading.fadeOut(1000);
                 $.each(resp.posts, function(index, post){
                     callback(post);
                 });
-                pager.is_last_page ? $("#load-more-post").remove() : $("#load-more-post").show();
+                pager.is_last_page ? $load_more_post.remove() : $load_more_post.show();
             },function(err){
                 bootbox.alert(err);
-                $("#load-more-post").show();
-                $("#post-loading").fadeOut(1000);
+                $load_more_post.show();
+                $post_loading.fadeOut(1000);
         });
     };
     {% endif %}

@@ -3,62 +3,58 @@
 {% block script %}
 <script type="text/javascript" src="/static/assets/bootstrap/jqBootstrapValidation.js"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
-        $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
-
-        $("#forgot").click(function(){
-            var hasErrors = $("input[type=email]").jqBootstrapValidation("hasErrors");
-            if( !hasErrors ){
-                bootbox.confirm("{{ _("A email will send to your email address to reset your password") }}",
-                    function(sure){
-                        if(sure){
-                            $.json_action("reset_mail/send",
-                                {email: $.toJSON( $.trim($("input[type=email]").val()) )},
-                                function(resp){
-                                    bootbox.alert("{{ _("password reset mail sent, pls check your email") }}")
-                            });
-                        }
-                });
-            }
-        });
-    });
+$(document).ready(function() {
+    $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+});
 </script>
 {% endblock %}
 
 {% block body %}
 <form class="form-horizontal" action="" method=post>
+  <fieldset>
     <legend>{{ _("Login") }}</legend>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <div class="alert alert-error">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <div class="alert alert-dismissable alert-danger">
+                <button type="button" class="close" data-dismiss="alert">×</button>
                 {% for message in messages %}
                     {{ message }}
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
-    <div class="control-group">
-        <label class="control-label" for="email">Email</label>
-        <div class="controls">
-            <input type="email" id="email" name="email" placeholder="Email" required
-                    value="{{ request.form.email }}"/>
+    <div class="form-group">
+      <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+      <div class="col-sm-4">
+        <input type="email" name="email" class="form-control" id="inputEmail" placeholder="Email"
+               maxlength="30" autofocus required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputPassword" class="col-sm-2 control-label">{{ _("Password") }}</label>
+      <div class="col-sm-4">
+        <input type="password" name="password" class="form-control"
+               minlength="4" maxlength="30"
+               id="inputPassword" placeholder="{{ _("Password") }}" required>
+
+        <a id="forgot" href="javascript:;" class="hide">{{ _("Forgot Password?") }}</a>
+
+      </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-2 col-lg-offset-2">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="remember" checked> {{ _("Remember me") }}
+              </label>
+            </div>
         </div>
     </div>
-    <div class="control-group">
-        <label class="control-label" for="password">{{ _("Password") }}</label>
-        <div class="controls">
-            <input type="password" id="password" name="password" required placeholder="Password"/>
-            <a id="forgot" href="javascript:;" class="hide">{{ _("Forgot Password?") }}</a>
-        </div>
+    <div class="form-group">
+      <div class="col-sm-2 col-lg-offset-2">
+        <button type="submit" class="btn btn-primary btn-block">{{ _("Login") }}</button>
+      </div>
     </div>
-    <div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-                <input type="checkbox" name="remember" checked>{{ _("Remember me") }}
-            </label>
-            <button type="submit" class="btn">{{ _("Login") }}</button>
-        </div>
-    </div>
+  </fieldset>
 </form>
 {% endblock %}

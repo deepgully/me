@@ -266,17 +266,20 @@ class StatsMixin(object):
     def stats(self):
         dbstats = DBStats.get_by_id(self._stats_id)
         if not dbstats:
-            dbstats = DBStats.filter_one(target_id=self.id)
+            dbstats = DBStats.filter_one(target_id=self.id, target_type=self.__class__.__name__)
 
-        if not dbstats:
-            dbstats = DBStats.create()
-            dbstats.target_type = self.__class__.__name__
-            dbstats.target_id = self.id
+            if not dbstats:
+                dbstats = DBStats.create()
+                dbstats.target_type = self.__class__.__name__
+                dbstats.target_id = self.id
+
             if hasattr(self, "public"):
                 dbstats.public = self.public
+
             dbstats.save()
             self._stats_id = dbstats.id
             self.save()
+
         return dbstats
 
 
@@ -324,7 +327,7 @@ class DBStats(db.Model, ModelMixin):
 ## Data Models
 ########################################
 class DBSiteSettings(db.Model, ModelMixin):
-    VERSION = 1.2  # update this if tables changed
+    VERSION = 1.3  # update this if tables changed
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -332,6 +335,7 @@ class DBSiteSettings(db.Model, ModelMixin):
     title = db.Column(db.String(512))
     subtitle = db.Column(db.String(128))
     copyright = db.Column(db.String(512), default="")
+    theme = db.Column(db.String(512), default="")
     ga_tracking_id = db.Column(db.String(128))
     owner = db.Column(db.String(256))
     inited = db.Column(db.Boolean, default=False)
@@ -357,6 +361,10 @@ class DBSiteSettings(db.Model, ModelMixin):
     @property
     def Orders(self):
         return DBCategory.Orders
+
+    @property
+    def Themes(self):
+        return common.BootsWatchThemes
 
     @classmethod
     def get_site_settings(cls):
@@ -428,6 +436,7 @@ class DBCategory(db.Model, ModelMixin, StatsMixin):
     order = db.Column(db.Enum(*Orders), default=Orders[1])
     template = db.Column(db.Enum(*Templates), default=Templates[0])
     content = db.Column(db.Text)  # for template "Text" only
+    hidden = db.Column(db.Boolean, default=False)
 
     _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
 
@@ -510,7 +519,7 @@ class DBPost(db.Model, ModelMixin, StatsMixin):
 
     @property
     def category(self):
-        return DBCategory.get_by_id(self.category_id)
+        return self.category_id and DBCategory.get_by_id(self.category_id)
 
     @property
     def Comments(self):

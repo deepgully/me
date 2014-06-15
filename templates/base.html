@@ -3,71 +3,35 @@
 <head>
     <meta charset="utf-8">
     <title>{{ settings.title|default("ME@deepgully") }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="ME@deepgully">
     <meta name="author" content="deepgully">
     {% block header %}
     {% endblock %}
 
     <!-- CSS styles -->
-    <!--link href="/static/assets/bootstrap/css/bootstrap.css" rel="stylesheet"/-->
-    <!--link href="/static/assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"-->
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    {% set theme = (settings.theme or "Flatly").lower() %}
+    <link href="/static/themes/{{ theme }}/bootstrap.min.css" rel="stylesheet"/>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"/>
 
-    <link href="/static/styles/default.css" rel="stylesheet"/>
+    <link href="/static/assets/bootstrap/lightbox/ekko-lightbox.css" rel="stylesheet"/>
+    <link href="/static/assets/bootstrap/lightbox/dark.css" rel="stylesheet"/>
+
+    <link href="/static/themes/base.css" rel="stylesheet"/>
+    {% set theme_css = theme_file(theme, "styles.css") %}
+    {% if theme_css %}
+    <link href="{{ theme_css }}" rel="stylesheet"/>
+    {% endif %}
     {% block css %}
     {% endblock %}
 
-    <!-- Script -->
-    <!--script type="text/javascript" src="/static/assets/jquery-1.9.0.min.js"></script-->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/assets/jquery.blockUI.js"></script>
-    <script type="text/javascript" src="/static/assets/jquery.json-2.4.min.js"></script>
-    <!--script type="text/javascript" src="/static/assets/bootstrap/js/bootstrap.min.js"></script-->
-    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/static/assets/bootstrap/bootbox.min.js"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.js"></script>
+    <![endif]-->
 
-    <script type="text/javascript" src="/static/js/main.js"></script>
-    <script type="text/javascript">
-        /* Document Ready */
-        $(document).ready(function() {
-            var $nav_bar_top = $(".navbar-fixed-top");
-            var resize_holder = function(){
-                if ($nav_bar_top.css("position") === "fixed"){
-                    $(".headerholder").height($nav_bar_top.height()+5);
-                } else {
-                    $(".headerholder").height(0);
-                }
-            };
-
-            $(window).resize(function() {
-                resize_holder();
-            });
-
-            resize_holder();
-
-            $("#tags_cloud_btn").popover({
-                "html": true,
-                "placement": "bottom",
-                "content": function(){
-                    return $("#tags_cloud").html();
-                }
-            });
-
-            $.json_action("tags/hot",{},
-                function(resp){
-                    var tags_cloud = $("#tags_cloud>div");
-                    tags_cloud.empty();
-                    $.each(resp.tags, function(index, tag){
-                        tags_cloud.append('<a href="/tags/{0}">{0}({1})</a>'.format(tag.name, tag.post_count));
-                    });
-                },function(err){
-                    bootbox.alert(err);
-            });
-        });
-    </script>
-    {% block script %}
-    {% endblock %}
     {% if settings.ga_tracking_id %}
     <script type="text/javascript">
         var _gaq = _gaq || [];
@@ -81,73 +45,149 @@
         })();
     </script>
     {% endif %}
+<!-- Script -->
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script>window.jQuery || document.write(unescape('%3Cscript src="/static/assets/jquery/jquery-1.11.1.min.js"%3E%3C/script%3E'))</script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script>$.fn.carousel || document.write(unescape('%3Cscript src="/static/assets/bootstrap/bootstrap-3.1.1.min.js"%3E%3C/script%3E'))</script>
+
+<script src="/static/assets/bootstrap/lightbox/ekko-lightbox.js"></script>
+
+<script src="/static/js/main.js"></script>
+
+{% set theme_js = theme_file(theme, "script.js") %}
+{% if theme_js %}
+<script src="{{ theme_js }}"></script>
+{% endif %}
+
+<script type="text/javascript">
+/* Document Ready */
+$(document).ready(function() {
+    $("#tags_cloud_btn").popover({
+        "html": true,
+        "placement": "bottom",
+        "content": function(){
+            return $("#tags_cloud").html();
+        }
+    });
+
+    $.json_action("tags/hot",{},
+        function(resp){
+            var tags_cloud = $("#tags_cloud>.tags_cloud");
+            tags_cloud.empty();
+            $.each(resp.tags, function(index, tag){
+                tags_cloud.append('<a class="tag btn btn-default btn-sm" href="/tags/{0}">{0}({1})</a>'.format(tag.name, tag.post_count));
+            });
+        },function(err){
+            bootbox.alert(err);
+    });
+
+    // delegate calls to data-toggle="lightbox"
+    $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
+        event.preventDefault();
+        return $(this).ekkoLightbox({
+            left_arrow_class: '.fa .fa-chevron-left .glyphicon-chevron-left',
+            right_arrow_class: '.fa .fa-chevron-right .glyphicon-chevron-right'
+        });
+    });
+});
+</script>
+{% block script %}
+{% endblock %}
 </head>
 
 <body>
-<div class="container">
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="brand" href="/">{{ settings.title|default("ME@deepgully")|safe }}</a>
-                <ul class="nav category">
-                    {% for _category in settings.categories %}
-                        <li class="{% if category and category.url == _category.url %}active{% endif %}">
-                            <a href="/{{ _category.url }}">{{ _category.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <span class="subtitle pull-left">{{ settings.subtitle }}</span>
-                <ul class="nav pull-right">
-                    <li class="{% if tag %}active{% endif %}">
-                        <a href="javascript:;" id="tags_cloud_btn" rel="popover">
-                            <i class="icon-tags icon-white"></i> {{ _("Tags") }}</a>
-                    </li>
-                    {% if user.is_user() %}
-                        <li>
-                            <a href="/admin" id="nav_avatar">
-                            <img src="{{ user.avatar_url }}" class="avatar24"/>
-                            <span>{{ user.nickname }}</span>
-                            </a>
-                        </li>
-                        {% if user.is_admin() %}
-                            {% if category %}
-                            <li>
-                                <a id="new-post" href="javascript:;"><i class="icon-pencil icon-white"></i> {{ _("New Post") }}</a>
-                            </li>
-                            {% endif %}
-                            <li class="{% if not category and not tag %}active{% endif %}">
-                                <a href="/admin"><i class="icon-wrench icon-white"></i> {{ _("Admin") }}</a>
-                            </li>
-                        {% endif %}
-                        <li>
-                            <a href="/logout"><i class="icon-off icon-white"></i> {{ _("Logout") }}</a>
-                        </li>
-                    {% else %}
-                        <li>
-                            <a href="/login"><i class="icon-user icon-white"></i>{{ _("Login") }}</a>
-                        </li>
-                    {% endif %}
-                        <li>
-                            <a href="/feed"><i class="icon-bookmark icon-white"></i>{{ _("RSS") }}</a>
-                        </li>
-                </ul>
-            </div>
-        </div>
+<!-- Nav Bar -->
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+  <div class="container">
+    <div class="navbar-header ">
+      <a  class="navbar-brand" href="/" >
+        {{ settings.title|default("ME@deepgully")|safe }}
+        <i><small> {{ settings.subtitle }} </small></i>
+      </a>
+      <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
     </div>
-    <div class="headerholder"></div>
-    {% block body %}
-    {% endblock %}
-    <div class="footer">
+    <div class="navbar-collapse collapse" id="navbar-main">
+      <ul class="nav navbar-nav">
+        {% for _category in settings.categories %}
+          {% if not _category.hidden %}
+          <li class="{% if category and category.url == _category.url %}active{% endif %}">
+            <a href="/{{ _category.url }}">{{ _category.name }}</a>
+          </li>
+          {% endif %}
+        {% endfor %}
+        <li class="{% if tag %}active{% endif %}">
+            <a href="javascript:;" id="tags_cloud_btn">
+                <i class="fa fa-tags"></i> {{ _("Tags") }}
+                <span class="caret"></span>
+            </a>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+      {% if user.is_admin() %}
+      {% if category %}
+      <li>
+        <a id="new-post" href="javascript:;"><i class="fa fa-edit"></i> {{ _("New Post") }}</a>
+      </li>
+      {% endif %}
+      {% endif %}
+
+      {% if user.is_user() %}
+        <li class="dropdown {% if not category and not tag %}active{% endif %}">
+            <a class="dropdown-toggle"
+               data-toggle="dropdown" href="#" id="user">
+                <img src="{{ user.avatar_url }}" class="avatar24"/>
+                <span>{{ user.nickname }}</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="user">
+                {% if user.is_admin() %}
+                <li> <a href="/admin"><i class="fa fa-wrench"></i> {{ _("Admin") }}</a> </li>
+                {% endif %}
+                <li> <a href="/admin"><i class="fa fa-user"></i> {{ _("Personal") }}</a> </li>
+                <li><a href="/logout"><i class="fa fa-sign-out"></i> {{ _("Logout") }}</a></li>
+            </ul>
+        </li>
+      {% else %}
+        <li>
+           <a href="/login"><i class="fa fa-user"></i> {{ _("Login") }}</a>
+        </li>
+      {% endif %}
+        <li>
+          <a href="/feed"><i class="fa fa-rss"></i> {{ _("RSS") }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+{% block body %}
+{% endblock %}
+</div>
+<!-- Footer -->
+<div class="container">
+    <footer>
+    <div class="row">
+      <div class="col-lg-12">
         <hr/>
         <p><i class="icon-heart"></i>
             <span class=""> {{ settings.title|safe }} {{ settings.copyright|safe }}.</span>
-            {{ _("Powered by") }}<a href="http://github.com/deepgully/me/"><code>ME@deepgully v{{ settings.version }}</code></a>.
+            {{ _("Powered by") }}<a href="http://github.com/deepgully/me/"><code>ME@deepgully v{{ settings.version }}.{{ config['APP_VER'] }}</code></a>
         </p>
+      </div>
     </div>
-    <div id="tags_cloud" class="hide">
-        <div class="tags_cloud tags">
-            <img class="loading" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
-        </div>
+    </footer>
+</div>
+<!-- Tags -->
+<div id="tags_cloud" class="dis-none">
+    <div class="tags_cloud">
+        <img class="loading" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
     </div>
 </div>
 </body>

@@ -36,6 +36,7 @@ MSG_NO_PHOTO = T("no photo %(id)s")
 MSG_NO_COMMENT = T("no comment %(id)s")
 MSG_NO_TAG = T("no tag %(name)s")
 
+
 # helper functions
 def _get_method_doc(method_name):
     method = AJAX_METHODS.get(method_name)
@@ -62,7 +63,7 @@ def json_dumps(item):
 
 
 def json_loads(date_str):
-    if len(date_str) in [10,19,24,26]:
+    if len(date_str) in [10, 19, 24, 26]:
         for format_str in JSON_DATETIME_FORMAT:
             try:
                 return datetime.strptime(date_str, format_str)
@@ -227,7 +228,7 @@ def get_category(id=None, url=None):
     if id is not None:
         category = apis.Category.get_by_id(id)
     elif url is not None:
-         category = apis.Category.get_by_url(url)
+        category = apis.Category.get_by_url(url)
     else:
         raise Exception(lazy_gettext("pls input id or url"))
 
@@ -784,7 +785,6 @@ def get_posts_by_tag(name, page=1, per_page=10):
     }
 
     return result
-
 
 
 HOT_TAGS_CACHE_KEY = "hot_tags_count:%d"

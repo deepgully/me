@@ -16,7 +16,7 @@
 from settings import RUNTIME_ENV
 
 __all__ = [
-    "secret_hash", "unquote", "save_photo", "delete_file",
+    "secret_hash", "unquote", "save_photo", "delete_file", "make_blob_file_header"
 ]
 
 from common import *

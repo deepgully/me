@@ -21,7 +21,10 @@ Site Settings for various runtime environments
 
 import os
 import sys
+import logging
 
+
+__version__ = 1
 
 ######################################
 ## Global environment
@@ -29,6 +32,17 @@ import sys
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(BASE_DIR, "libs"))
+
+
+class MagicDict(dict):
+    def __init__(self, **kwargs):
+        dict.__init__(self, kwargs)
+        self.__dict__ = self
+
+    def __getattr__(self, name):
+        self[name] = MagicDict()
+        return self[name]
+
 
 try:
     from google.appengine.api import conf
@@ -38,15 +52,12 @@ try:
     if GAE_DEVELOPMENT:
         RUNTIME_ENV = "gae_dev"
 
-    import logging
 except:
     RUNTIME_ENV = "local"
-    if "SERVER_SOFTWARE" in os.environ:
-        from bae.core import const
-        from bae.api import logging
+    
+    if "SERVER_SOFTWARE" in os.environ or "BAE_LOCALENV_VERSION" in os.environ:
         RUNTIME_ENV = "bae"
-    else:
-        import logging
+
 
 from flask import Flask
 
@@ -58,25 +69,55 @@ app = Flask(__name__)
 
 app.config["RUNTIME_ENV"] = RUNTIME_ENV
 
+app.config["APP_VER"] = __version__
+
+if RUNTIME_ENV in ("bae",):
+    const = MagicDict()
+    const.APP_ID = "2929012"
+    const.ACCESS_KEY = "YCiKuHCPd62DyeEtpG3c2h7y"
+    const.SECRET_KEY = "dpgazAGGB4724FgvPslu7sUzkwNFesEb"
+
+    const.CACHE_ID = "bTXWvXunneyHgLlmglxn"
+    const.CACHE_USER = const.ACCESS_KEY
+    const.CACHE_PASS = const.SECRET_KEY
+    const.CACHE_HOST = "cache.duapp.com"
+    const.CACHE_PORT = "20243"
+    const.CACHE_ADDR = "%s:%s" % (const.CACHE_HOST, const.CACHE_PORT)
+
+    const.MYSQL_DATABASE = "GdCYGKgTwfbhXgAUOJcy"
+    const.MYSQL_USER = const.ACCESS_KEY
+    const.MYSQL_PASS = const.SECRET_KEY
+    const.MYSQL_HOST = "sqld.duapp.com"
+    const.MYSQL_PORT = "4050"
+
+    const.BCS_ADDR = "http://bcs.duapp.com/"
+    const.BCS_USER = const.ACCESS_KEY
+    const.BCS_PASS = const.SECRET_KEY
+    const.BCS_BUCKET = "deepgully"
+    const.BSC_FOLDER = "/photos/"
+
+    app.config["BAE_CONFIG"] = const
+
+
 ######################################
 ## Database
 ######################################
 if RUNTIME_ENV in ("bae",):
-    SAE_DATABASE = "qHWGMWtaVuVSNMEpprEk"
-
     app.secret_key = const.ACCESS_KEY + const.SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s:%s/%s?charset=utf8' % (
         const.MYSQL_USER, const.MYSQL_PASS,
         const.MYSQL_HOST, const.MYSQL_PORT,
-        SAE_DATABASE
-        )
+        const.MYSQL_DATABASE
+    )
+
     app.config['SQLALCHEMY_POOL_RECYCLE'] = 10
+
 elif RUNTIME_ENV in ("local",):
     LOCAL_DATABASE = "test"
 
     app.secret_key = "ME@deepgully"
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s.db'%LOCAL_DATABASE
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:123456@127.0.0.1:3306/%s'%LOCAL_DATABASE
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s.db' % LOCAL_DATABASE
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:123456@127.0.0.1:3306/%s' % LOCAL_DATABASE
 
 elif RUNTIME_ENV in ("gae", "gae_dev"):
 
@@ -85,7 +126,7 @@ elif RUNTIME_ENV in ("gae", "gae_dev"):
 
 if RUNTIME_ENV in ("bae", "local"):
     from alembic.config import Config
-    MIGRATE_CFG = Config("alembic.ini")
+    MIGRATE_CFG = Config(os.path.join(BASE_DIR, "alembic.ini"))
     MIGRATE_CFG.set_section_option("alembic", "sqlalchemy.url", app.config['SQLALCHEMY_DATABASE_URI'])
     app.config['MIGRATE_CFG'] = MIGRATE_CFG
 
@@ -109,9 +150,8 @@ login_manager.init_app(app)
 ## Mail
 #####################################
 if RUNTIME_ENV in ("bae",):
-    from bae.api.bcms import BaeBcms
-
-    BAE_BCMS = BaeBcms(const.ACCESS_KEY, const.SECRET_KEY)
+    pass
+    #todo: support mail on BAE3
 
 elif RUNTIME_ENV in ("local",):
     app.config['MAIL_SERVER'] = "localhost"
@@ -131,13 +171,12 @@ elif RUNTIME_ENV in ("gae", "gae_dev"):
 ## Image Upload
 #####################################
 if RUNTIME_ENV in ("bae",):
-    from bae.api import bcs
-
-    BAE_BCS = bcs.BaeBCS(const.BCS_ADDR, const.ACCESS_KEY, const.SECRET_KEY)
-
-    BCS_HOST = "http://bcs.duapp.com"
-    BUCKET_NAME = "deepgully"
-    BSC_FOLDER = "/photos/"
+    import pybcs
+    try:
+        import pycurl
+        BAE_BCS = pybcs.BCS(const.BCS_ADDR, const.BCS_USER, const.BCS_PASS, pybcs.PyCurlHTTPC)
+    except:
+        BAE_BCS = pybcs.BCS(const.BCS_ADDR, const.BCS_USER, const.BCS_PASS, pybcs.HttplibHTTPC)
 
 elif RUNTIME_ENV in ("local",):
     UPLOAD_URL = "static/uploads/"
@@ -171,5 +210,11 @@ def T(string):
 ######################################
 ENABLE_MEMCACHE = True
 if RUNTIME_ENV in ("bae",):
-    ENABLE_MEMCACHE = False  # default to disable memcache for BAE because it's not free
+    ENABLE_MEMCACHE = True  # enable memcache for BAE3
+
+    from bae_memcache.cache import BaeMemcache
+
+    # bind memcache to BAE
+    memcache = BaeMemcache(const.CACHE_ID, const.CACHE_ADDR, const.CACHE_USER, const.CACHE_PASS)
+
 

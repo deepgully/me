@@ -1,9 +1,5 @@
-{% block css %}
-{% endblock %}
-
 {% include "__post_script.html" %}
 {% block script %}
-<script type="text/javascript" src="/static/assets/jquery.imagesloaded.min.js"></script>
 <script type="text/javascript">
 
     $(document).ready(function(){
@@ -17,62 +13,13 @@
 
             var $post = get_post_div(post);
 
-            if (post.public) {
-                $post.removeClass("muted");
-                $(".post-hide", $post).text("").hide();
-            } else {
-                $post.addClass("muted");
-                $(".post-hide", $post).text("{{ _("Hidden") }}").show();
-            }
+            $post = build_post_panel($post, post);
 
-            if(post.sticky) {
-                $(".post-sticky", $post).show();
-            } else {
-                $(".post-sticky", $post).hide();
-            }
-
-            $("input.date_val", $post).val(post_date.format("yyyy-MM-dd")).attr("id", "post_date_"+post.id);
             $("div.post-date", $post).html('{0}.{1}<span>{2}</span>'.format(post_date.getMonth()+1,
                     post_date.getDate(), post_date.getFullYear()));
 
-            var $tags = $(".tags", $post);
-            $.each(post.tags, function(index, tag){
-                $tags.append('<li><a href="/tags/{0}">{0}</a></li>'.format(tag));
-            });
-
-            $(".post-author", $post).attr("title", post.author.nickname);
-            $(".post-author img", $post).attr("src", post.author.avatar_url);
-            $(".post-title a", $post).attr("href", "/post/"+post.id).text(post.title);
-            $(".post-category", $post).attr("href","/"+post.category.url).append(post.category.name);
-            $(".post-viewed", $post).html(post.stats.view_count);
-            $(".share", $post).html('<i class="icon-share"></i>{0}'.format(post.stats.share_count));
-            $(".share", $post).unbind("click");
-            $(".share", $post).click(function(){
-                show_share(post);
-            });
-
-            $(".stats[name=like_count]", $post).html('<i class="icon-thumbs-up"></i>{0}'.format(post.stats.like_count));
-            $(".stats[name=unlike_count]", $post).html('<i class="icon-thumbs-down"></i>{0}'.format(post.stats.unlike_count));
-            $(".comment", $post).html('<i class="icon-comment"></i>{0}'.format(post.stats.comment_count));
-
-
-            $(".post-body", $post).html(md2html_short(post.body));
-            $(".post-body", $post).imagesLoaded(function(){
-                bind_img($(".post-body", $post));
-            });
-
-            var $btn_more = $(".post-body more", $post);
-            $btn_more.html('<button class="btn btn-small btn-block"> {{ _("Full Article") }}</button>');
-            $btn_more.click(function(){
-                $(".post-body", $post).html(md2html(post.body));
-                $("pre>code", $post).parent().addClass("prettyprint");
-                prettyPrint();
-            });
-
-            $("pre>code", $post).parent().addClass("prettyprint");
-            prettyPrint();
-
-            build_thumbnails($(".thumbnails", $post), post);
+            build_post_body($post, post);
+            build_thumbnails($(".thumbnails", $post), post, "thumbnails_"+post.id, ".thumbnails");
 
             reset_scroll();
             $post.show();
@@ -127,9 +74,13 @@
 
                 var $comments_panel = $(".comments_panel", $post);
                 $(".cmdbar .comment", $post).click(function(){
-                    $comments_panel.show();
-                    var comment = new Comment(md2html);
-                    comment.show_comments($comments_panel,  post.id);
+                    if ($comments_panel.is(":visible")) {
+                        $comments_panel.hide();
+                    } else {
+                        $comments_panel.show();
+                        var comment = new Comment(md2html);
+                        comment.show_comments($comments_panel,  post.id);
+                    }
                 });
 
                 $(".cmdbar .stats", $post).click(function(){
@@ -150,14 +101,8 @@
                     $this.unbind("click");
                 });
 
-
-
                 // bind actions
                 $post.attr("id", "post_{0}".format(post.id));
-                {% if user.is_admin() %}
-                $(".menu-edit", $post).click(menu_edit);
-                $(".menu-delete", $post).click(menu_delete);
-                {% endif %}
             }
             return $post;
         };
@@ -205,10 +150,10 @@
         };
 
         $(window).resize(function() {
-           bind_img($container);
+           bind_img_info($(".post-body", $container), 200, 150);
         });
 
-        $("#load-more-post").click(function() {
+        $(".load-more-post").click(function() {
             load_posts(show_post);
         });
         $(window).bind("scroll", $.debounce(50, function(){
@@ -288,7 +233,7 @@
 
         /* Timeline Actions */
         $(".timeline").click(function(e){
-            editor.new_post(find_timeline_date(e.pageY)); //new post
+            editor.new_post(find_timeline_date(e.pageY).format()); //new post
         });
         $("#new-post").click(function(){
             editor.new_post();
@@ -299,20 +244,19 @@
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid timeline-page">
+<div class="timeline-page">
     {% if user.is_admin() %}
         {% include "_editor.html" %}
     {% endif %}
     <div class="row">
-        <div class="span2">
+        <div class="col-lg-3">
         </div>
-        <div class="span8">
+        <div class="col-lg-9">
             <table>
                 <tr>
-                    <td class="timeline" {% if user.is_admin() %}title="{{ _("New Post") }}"{% endif %}>
-                    </td>
+                    <td class="timeline" {% if user.is_admin() %}title="{{ _("New Post") }}"{% endif %}></td>
                     <td>
-                        <div id="post_template" class="post span5 hide" >
+                        <div id="post_template" class="post dis-none" >
                             <input type="hidden" class="date_val" />
                             <div class="post-date">
                                 <span></span>
@@ -320,7 +264,7 @@
                             {% if user.is_admin() %}
                             <div class="menu btn-group pull-right">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                                    <i class="icon-download"></i>
+                                    <h4><i class="fa fa-toggle-down text-default"></i></h4>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li><a class="menu-edit" href="javascript:;">{{ _("Edit") }}</a></li>
@@ -328,26 +272,27 @@
                                 </ul>
                             </div>
                             {% endif %}
-                            <span class="post-author pull-left"><img src="" class="avatar32"/></span>
-                            <span class="label pull-left post-hide hide"></span>
-                            <span class="post-sticky hide" title="{{ _("Sticky") }}"></span>
-                            <span class="post-title"><a href=""></a></span>
+                            <span class=""><img src="" class="avatar avatar32"/></span>
+                            <span class="label label-default pull-left post-hide dis-none"></span>
+                            <span class="post-sticky dis-none" title="{{ _("Sticky") }}"></span>
+                            <span class="post-title"><a class="title" href=""></a></span>
                             <ul class="tags"></ul>
                             <div class="post-body"></div>
-                            <ul class="thumbnails hide"></ul>
+                            <div class="thumbnails dis-none"></div>
+                            <div class="clearfix"></div>
                             <a class="post-category" href=""><i class="icon-th-large icon-white"></i></a>
                             <div class="cmdbar">
-                                <i class="icon-eye-open"></i><span class="post-viewed"></span>
-                                <a class="share" href="javascript:;" title="{{ _("Share") }}"><i class="icon-share"></i></a>
-                                <a class="stats" stats_type="Post" name="like_count" oper="increase"
-                                   href="javascript:;" title="{{ _("Like") }}"><i class="icon-thumbs-up"></i>
+                                <i class="fa fa-eye"></i> <span class="post-viewed"></span>
+                                &nbsp;<a class="share" href="javascript:;" title="{{ _("Share") }}"><i class="fa fa-share"></i></a>
+                                &nbsp;<a class="stats" stats_type="Post" name="like_count" oper="increase"
+                                   href="javascript:;" title="{{ _("Like") }}"><i class="fa fa-thumbs-o-up"></i>
                                 </a>
-                                <a class="stats" stats_type="Post" name="unlike_count" oper="increase"
-                                   href="javascript:;" title="{{ _("Unlike") }}"><i class="icon-thumbs-down"></i>
+                                &nbsp;<a class="stats" stats_type="Post" name="unlike_count" oper="increase"
+                                   href="javascript:;" title="{{ _("Unlike") }}"><i class="fa fa-thumbs-o-down"></i>
                                 </a>
-                                <a class="comment" href="javascript:;" title="{{ _("Comment") }}"><i class="icon-comment"></i></a>
+                                &nbsp;<a class="comment" href="javascript:;" title="{{ _("Comment") }}"><i class="fa fa-comment-o"></i></a>
                             </div>
-                            <div class="comments_panel hide"></div>
+                            <div class="comments_panel dis-none"></div>
                         </div>
                         <!-- end post template -->
                         <div class="container-timeline">
@@ -355,8 +300,8 @@
                     </td>
                 </tr>
             </table>
-            <img id="post-loading" class="loading hide" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
-            <button id="load-more-post" class="btn hide">{{ _("More") }}...</button>
+            <img class="post-loading loading dis-none" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+            <button class="load-more-post btn dis-none">{{ _("More") }}...</button>
         </div>
     </div>
 </div>
