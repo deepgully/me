@@ -288,17 +288,20 @@ class StatsMixin(object):
     def stats(self):
         dbstats = DBStats.get_by_id(self._stats_id)
         if not dbstats:
-            dbstats = DBStats.filter_one(target_id=self.id)
+            dbstats = DBStats.filter_one(target_id=self.id, target_type=self.__class__.__name__)
 
-        if not dbstats:
-            dbstats = DBStats.create()
-            dbstats.target_type = self.__class__.__name__
-            dbstats.target_id = self.id
+            if not dbstats:
+                dbstats = DBStats.create()
+                dbstats.target_type = self.__class__.__name__
+                dbstats.target_id = self.id
+
             if hasattr(self, "public"):
                 dbstats.public = self.public
+                
             dbstats.save()
             self._stats_id = str(dbstats.id)
             self.save()
+
         return dbstats
 
 
