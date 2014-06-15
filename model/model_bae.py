@@ -68,6 +68,7 @@ def create_default_settings(app):
 
 
 def init_database(app):
+    settings = None
     try:
         settings = DBSiteSettings.get_site_settings()
 
@@ -78,8 +79,15 @@ def init_database(app):
             raise Exception("Database expired")
     except:
         from alembic import command
+
         command.upgrade(app.config["MIGRATE_CFG"], "head")
-        settings = create_default_settings(app)
+
+        if not settings:
+            settings = create_default_settings(app)
+        else:
+            settings.inited = True
+            settings.version = DBSiteSettings.VERSION
+            settings.save()
 
     app.config["SiteTitle"] = settings.title
     app.config["SiteSubTitle"] = settings.subtitle
@@ -257,6 +265,9 @@ class StatsMixin(object):
     @property
     def stats(self):
         dbstats = DBStats.get_by_id(self._stats_id)
+        if not dbstats:
+            dbstats = DBStats.filter_one(target_id=self.id)
+
         if not dbstats:
             dbstats = DBStats.create()
             dbstats.target_type = self.__class__.__name__
@@ -517,9 +528,9 @@ class DBPost(db.Model, ModelMixin, StatsMixin):
 
     def to_dict(self):
         res = ModelMixin.to_dict(self)
-        res["author"] = self.author.to_dict() if self.author is not None else {}
-        res["category"] = self.category.to_dict() if self.category is not None else {}
-        res["photos"] = [photo.to_dict() for photo in self.photos if photo is not None]
+        res["author"] = self.author.to_dict() if self.author else {}
+        res["category"] = self.category.to_dict() if self.category else {}
+        res["photos"] = [photo.to_dict() for photo in self.photos if photo]
         res["tags"] = self.tags
         return res
 

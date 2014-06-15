@@ -288,6 +288,9 @@ class StatsMixin(object):
     def stats(self):
         dbstats = DBStats.get_by_id(self._stats_id)
         if not dbstats:
+            dbstats = DBStats.filter_one(target_id=self.id)
+
+        if not dbstats:
             dbstats = DBStats.create()
             dbstats.target_type = self.__class__.__name__
             dbstats.target_id = self.id
@@ -486,7 +489,7 @@ class DBPost(BaseModel, StatsMixin):
 
     @property
     def category(self):
-        return DBCategory.get_by_id(self.category_id)
+        return self.category_id and DBCategory.get_by_id(self.category_id)
 
     @property
     def photos(self):
@@ -507,10 +510,10 @@ class DBPost(BaseModel, StatsMixin):
     def to_dict(self):
         res = BaseModel.to_dict(self)
         author = self.author
-        res["author"] = author.to_dict() if author is not None else ""
+        res["author"] = author.to_dict() if author else ""
         category = self.category
-        res["category"] = category.to_dict() if category is not None else ""
-        res["photos"] = [photo.to_dict() for photo in self.photos if photo is not None]
+        res["category"] = category.to_dict() if category else ""
+        res["photos"] = [photo.to_dict() for photo in self.photos if photo]
         res["tags"] = self.tags
         return res
 

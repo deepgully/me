@@ -22,6 +22,7 @@ from model_bae import *   # use same db model with BAE
 
 
 def init_database(app):
+    settings = None
     try:
         settings = DBSiteSettings.get_by_id(1)
 
@@ -30,6 +31,7 @@ def init_database(app):
 
         if settings.version < DBSiteSettings.VERSION:
             raise Exception("Database expired")
+
     except:
         from alembic import command
 
@@ -43,7 +45,12 @@ def init_database(app):
 
         command.upgrade(app.config["MIGRATE_CFG"], "head")
 
-        settings = create_default_settings(app)
+        if not settings:
+            settings = create_default_settings(app)
+        else:
+            settings.inited = True
+            settings.version = DBSiteSettings.VERSION
+            settings.save()
 
     app.config["SiteTitle"] = settings.title
     app.config["SiteSubTitle"] = settings.subtitle
