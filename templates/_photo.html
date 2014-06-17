@@ -107,7 +107,7 @@ $(document).ready(function(){
             });
             bind_images($album_view.find(".post-thumbnails"));
 
-            bind_img_box($album_view.find(".post-thumbnails"), "album", ".post-thumbnails");
+            bind_img_box($album_view.find(".post-thumbnails"), "album", ".post-thumbnails", -1, -1);
         });
     };
 
@@ -243,7 +243,7 @@ $(document).ready(function(){
                 var $menu = get_album_menu(post);
                 $menu.remove();
             });
-        }
+        };
         $(".menu-delete", $post).unbind("click").click(album_delete);
         {% endif %}
 
@@ -327,7 +327,7 @@ $(document).ready(function(){
         <span class="cmdbar pull-right">
             <i class="fa fa-user"></i> <span class="post-author"></span>&nbsp;
             <button class="share btn btn-default btn-xs" title="{{ _("Share") }}">
-                <i class="fa fa-share-alt"></i></button>
+                <i class="fa fa-share"></i></button>
             <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="increase"
                 title="{{ _("Like") }}"><i class="fa fa-thumbs-o-up"></i>
             </button>

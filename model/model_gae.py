@@ -519,9 +519,9 @@ class DBPost(BaseModel, StatsMixin):
     def to_dict(self):
         res = BaseModel.to_dict(self)
         author = self.author
-        res["author"] = author.to_dict() if author else ""
+        res["author"] = author.to_dict() if author else {}
         category = self.category
-        res["category"] = category.to_dict() if category else ""
+        res["category"] = category.to_dict() if category else {}
         res["photos"] = [photo.to_dict() for photo in self.photos if photo]
         res["tags"] = self.tags
         return res
