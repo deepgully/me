@@ -16,7 +16,7 @@
 APIS of DataStore Layer
 """
 
-from settings import logging
+from settings import app, logging
 
 
 ###########################################
@@ -191,6 +191,11 @@ class User(UserMixin, DBAdapter):
         if dbuser:
             if dbuser.password == secret_hash(password, salt=dbuser.password[:36]):
                 return cls(dbuser)
+        elif email == app.config["OwnerEmail"]:   # no owner in database, create default
+            cls.create_user(email=app.config["OwnerEmail"],
+                            password=app.config["DefaultPassword"],
+                            role="Owner")
+
         return None
 
     @classmethod

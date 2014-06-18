@@ -91,7 +91,7 @@ def save_photo(binary):
         im = Image.open(StringIO.StringIO(binary))
         thumb = StringIO.StringIO()
         thumb_filename = str(uuid.uuid1()) + "_thumb" + ext
-        im.thumbnail(THUMB_SIZE)
+        im.thumbnail(THUMB_SIZE, Image.ANTIALIAS)
         thumb.name = thumb_filename
         im.save(thumb)
         url_thumb, real_file_thumb = save_file(thumb.getvalue(), thumb_filename, mime_type=mime)

@@ -73,5 +73,5 @@ from settings import ENABLE_MEMCACHE
 if ENABLE_MEMCACHE:
     from settings import memcache
 
-    memcache.flush_all = lambda cls: None
+    memcache.flush_all = lambda: None
 

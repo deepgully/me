@@ -58,6 +58,10 @@ except:
     if "SERVER_SOFTWARE" in os.environ or "BAE_LOCALENV_VERSION" in os.environ:
         RUNTIME_ENV = "bae"
 
+        from bae_utils.log import getLogger
+
+        logging = getLogger("bae.debug.log")
+
 
 from flask import Flask
 
@@ -67,9 +71,13 @@ from flask import Flask
 ######################################
 app = Flask(__name__)
 
-app.config["RUNTIME_ENV"] = RUNTIME_ENV
-
 app.config["APP_VER"] = __version__
+app.config["SiteTitle"] = "ME@deepgully"
+app.config["SiteSubTitle"] = ""
+app.config["OwnerEmail"] = "deepgully@gmail.com"
+app.config["DefaultPassword"] = "admin"
+
+app.config["RUNTIME_ENV"] = RUNTIME_ENV
 
 if RUNTIME_ENV in ("bae",):
     const = MagicDict()
@@ -117,7 +125,7 @@ elif RUNTIME_ENV in ("local",):
 
     app.secret_key = "ME@deepgully"
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///%s.db' % LOCAL_DATABASE
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:123456@127.0.0.1:3306/%s' % LOCAL_DATABASE
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://test:123456@test_server:3306/%s' % LOCAL_DATABASE
 
 elif RUNTIME_ENV in ("gae", "gae_dev"):
 
@@ -129,12 +137,6 @@ if RUNTIME_ENV in ("bae", "local"):
     MIGRATE_CFG = Config(os.path.join(BASE_DIR, "alembic.ini"))
     MIGRATE_CFG.set_section_option("alembic", "sqlalchemy.url", app.config['SQLALCHEMY_DATABASE_URI'])
     app.config['MIGRATE_CFG'] = MIGRATE_CFG
-
-
-app.config["SiteTitle"] = "ME@deepgully"
-app.config["SiteSubTitle"] = ""
-app.config["OwnerEmail"] = "deepgully@gmail.com"
-app.config["DefaultPassword"] = "admin"
 
 
 ######################################
@@ -172,11 +174,15 @@ elif RUNTIME_ENV in ("gae", "gae_dev"):
 #####################################
 if RUNTIME_ENV in ("bae",):
     import pybcs
+
+    pybcs_client = pybcs.HttplibHTTPC
     try:
         import pycurl
-        BAE_BCS = pybcs.BCS(const.BCS_ADDR, const.BCS_USER, const.BCS_PASS, pybcs.PyCurlHTTPC)
+        pybcs_client = pybcs.PyCurlHTTPC
     except:
-        BAE_BCS = pybcs.BCS(const.BCS_ADDR, const.BCS_USER, const.BCS_PASS, pybcs.HttplibHTTPC)
+        pass
+
+    BAE_BCS = pybcs.BCS(const.BCS_ADDR, const.BCS_USER, const.BCS_PASS, pybcs_client)
 
 elif RUNTIME_ENV in ("local",):
     UPLOAD_URL = "static/uploads/"
