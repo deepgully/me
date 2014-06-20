@@ -53,9 +53,13 @@ def delete_file(file_path):
     from urlparse import urlsplit
     from sae.storage import Bucket
 
-    path = urlsplit(file_path).path
-    _, bucket_name, object_name = path.split("/", 2)
-    object_name = "/" + object_name
+    res = urlsplit(file_path)
+
+    hostname, path = res.hostname, res.path
+
+    bucket_name = hostname.split(".", 1)[0].split("-")[-1]
+
+    _, object_name = path.split("/", 1)
 
     bucket = Bucket(bucket_name)
     bucket.delete_object(object_name)
