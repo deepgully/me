@@ -54,13 +54,16 @@ try:
 
 except:
     RUNTIME_ENV = "local"
-    
-    if "SERVER_SOFTWARE" in os.environ or "BAE_LOCALENV_VERSION" in os.environ:
+
+    server = os.environ.get("SERVER_SOFTWARE", "")
+    if server.startswith("bae"):
         RUNTIME_ENV = "bae"
 
         from bae_utils.log import getLogger
-
         logging = getLogger("bae.debug.log")
+
+    elif server.startswith("direwolf"):
+        RUNTIME_ENV = "sae"
 
 
 from flask import Flask
@@ -79,7 +82,7 @@ app.config["DefaultPassword"] = "admin"
 
 app.config["RUNTIME_ENV"] = RUNTIME_ENV
 
-if RUNTIME_ENV in ("bae",):
+if RUNTIME_ENV == "bae":
     const = MagicDict()
     const.APP_ID = "2929012"
     const.ACCESS_KEY = "YCiKuHCPd62DyeEtpG3c2h7y"
@@ -106,12 +109,33 @@ if RUNTIME_ENV in ("bae",):
 
     app.config["BAE_CONFIG"] = const
 
+elif RUNTIME_ENV == "sae":
+    import sae.const as sae_const
+    const = MagicDict()
+
+    const.APP_ID = os.environ.get("APP_NAME", "N/A")
+
+    const.ACCESS_KEY = sae_const.ACCESS_KEY
+    const.SECRET_KEY = sae_const.SECRET_KEY
+
+    const.MYSQL_DATABASE = sae_const.MYSQL_DB
+    const.MYSQL_USER = sae_const.MYSQL_USER
+    const.MYSQL_PASS = sae_const.MYSQL_PASS
+    const.MYSQL_HOST = sae_const.MYSQL_HOST
+    const.MYSQL_PORT = sae_const.MYSQL_PORT
+
+    const.SAE_BUCKET = "deepgully"
+    const.SAE_FOLDER = "/photos/"
+
+    app.config["SAE_CONFIG"] = const
+
 
 ######################################
 ## Database
 ######################################
-if RUNTIME_ENV in ("bae",):
+if RUNTIME_ENV in ("bae", "sae"):
     app.secret_key = const.ACCESS_KEY + const.SECRET_KEY
+
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s:%s/%s?charset=utf8' % (
         const.MYSQL_USER, const.MYSQL_PASS,
         const.MYSQL_HOST, const.MYSQL_PORT,
@@ -132,7 +156,7 @@ elif RUNTIME_ENV in ("gae", "gae_dev"):
     app.secret_key = "ME@deepgully+GAE"
 
 
-if RUNTIME_ENV in ("bae", "local"):
+if RUNTIME_ENV in ("bae", "sae", "local"):
     from alembic.config import Config
     MIGRATE_CFG = Config(os.path.join(BASE_DIR, "alembic.ini"))
     MIGRATE_CFG.set_section_option("alembic", "sqlalchemy.url", app.config['SQLALCHEMY_DATABASE_URI'])
@@ -151,9 +175,9 @@ login_manager.init_app(app)
 #####################################
 ## Mail
 #####################################
-if RUNTIME_ENV in ("bae",):
+if RUNTIME_ENV in ("bae", "sae"):
     pass
-    #todo: support mail on BAE3
+    #todo: support mail on BAE3 and SAE
 
 elif RUNTIME_ENV in ("local",):
     app.config['MAIL_SERVER'] = "localhost"
@@ -183,6 +207,12 @@ if RUNTIME_ENV in ("bae",):
         pass
 
     BAE_BCS = pybcs.BCS(const.BCS_ADDR, const.BCS_USER, const.BCS_PASS, pybcs_client)
+    BAE_BUCKET = BAE_BCS.bucket(const.BCS_BUCKET)
+
+elif RUNTIME_ENV in ("sae",):
+    from sae.storage import Bucket
+
+    SAE_BUCKET = Bucket(const.SAE_BUCKET)
 
 elif RUNTIME_ENV in ("local",):
     UPLOAD_URL = "static/uploads/"
@@ -218,9 +248,8 @@ ENABLE_MEMCACHE = True
 if RUNTIME_ENV in ("bae",):
     ENABLE_MEMCACHE = True  # enable memcache for BAE3
 
-    from bae_memcache.cache import BaeMemcache
+elif RUNTIME_ENV in ("sae",):
+    ENABLE_MEMCACHE = True   # enbale memcache for SAE
 
-    # bind memcache to BAE
-    memcache = BaeMemcache(const.CACHE_ID, const.CACHE_ADDR, const.CACHE_USER, const.CACHE_PASS)
 
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013 Gully Chen
+# Copyright 2014 Gully Chen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ def send_mail(body, address, fromaddr=None, subject=None, **kwargs):
     if not isinstance(address, (list, tuple, set)):
         address = [address, ]
 
-    #todo: support mail on BAE3
+    #todo: support mail on SAE
     raise NotImplemented
 
 
@@ -34,45 +34,44 @@ def save_file(binary, filename, public=True, mime_type="application/octet-stream
     today = datetime.now().strftime("%Y/%m/%d/")
     filename = today + filename
 
-    from settings import BAE_BUCKET, const
+    from settings import SAE_BUCKET, const
 
-    object_name = "%s%s" % (const.BSC_FOLDER, filename)
+    folder = const.SAE_FOLDER[1:] if const.SAE_FOLDER.startswith("/") else const.SAE_FOLDER
+    object_name = "%s%s" % (folder, filename)
 
-    bcs_obj = BAE_BUCKET.object(object_name)
-    bcs_obj.put(binary)
+    SAE_BUCKET.put_object(object_name, binary, mime_type)
 
     if public:
-        bcs_obj.make_public()
+        SAE_BUCKET.post(acl=".r:*")
 
-    url = bcs_obj.public_get_url
+    url = SAE_BUCKET.generate_url(object_name)
 
     return url, url
 
 
 def delete_file(file_path):
     from urlparse import urlsplit
-    from settings import BAE_BCS
+    from sae.storage import Bucket
 
     path = urlsplit(file_path).path
     _, bucket_name, object_name = path.split("/", 2)
     object_name = "/" + object_name
 
-    bucket = BAE_BCS.bucket(bucket_name)
-    bcs_obj = bucket.object(object_name)
-    bcs_obj.delete()
+    bucket = Bucket(bucket_name)
+    bucket.delete_object(object_name)
 
 
 ############################################
 ## memcache
 ############################################
-from settings import const, ENABLE_MEMCACHE
+from settings import ENABLE_MEMCACHE
 
 if ENABLE_MEMCACHE:
-    from bae_memcache.cache import BaeMemcache
+    import pylibmc
+
     from tools import fail_safe_func
 
-    # bind memcache to BAE
-    memcache = BaeMemcache(const.CACHE_ID, const.CACHE_ADDR, const.CACHE_USER, const.CACHE_PASS)
-
+    memcache = pylibmc.Client()
     memcache.flush_all = lambda: None
     memcache.set = fail_safe_func(memcache.set)
+

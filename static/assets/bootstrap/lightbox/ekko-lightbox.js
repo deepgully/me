@@ -283,30 +283,33 @@ License: https://github.com/ashleydw/lightbox/blob/master/LICENSE
       if ((onLoadShowImage == null) || onLoadShowImage === true) {
         img.onload = function() {
           var image;
-          image = $('<img />');
-          image.attr('src', img.src);
+          image = $('<img/>');
+          image.attr('src', img.src).hide();
           image.addClass('img-responsive');
-          _this.lightbox_body.html(image);
           if (_this.modal_arrows) {
             _this.modal_arrows.css('display', 'block');
           }
           auto_fit(img, $(window).width() * 0.9, $(window).height() * 0.8);
+          _this.lightbox_body.html(image.fadeIn(600)).css("height", "auto");
           return _this.resize(img.width, img.height);
         };
         img.onerror = function() {
           return _this.error('Failed to load image: ' + src);
         };
       }
+      _this.lightbox_body.text("");
       img.src = src;
       return img;
     },
     resize: function(width, height) {
       var width_total;
+      var _this = this;
       width_total = width + this.border.left + this.padding.left + this.padding.right + this.border.right;
 
       this.modal_dialog.css('width', 'auto').css('max-width', width_total);
       this.lightbox_container.find('a').css('padding-top', function() {
-        return $(this).parent().height() / 2;
+        _this.lightbox_body.height(_this.lightbox_body.height());
+        return _this.lightbox_body.height() / 2;
       });
       return this;
     },

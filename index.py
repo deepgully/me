@@ -233,11 +233,15 @@ if RUNTIME_ENV in ("gae", "gae_dev"):
 ########################################
 ## Start Application
 ########################################
-if RUNTIME_ENV in ("bae", ):
+if RUNTIME_ENV == "bae":
     from bae.core.wsgi import WSGIApplication
     application = WSGIApplication(app)
 
-elif RUNTIME_ENV in ("local",):
+elif RUNTIME_ENV == "sae":
+    import sae
+    application = sae.create_wsgi_app(app)
+
+elif RUNTIME_ENV == "local":
     app.run(debug=True)
 
 elif RUNTIME_ENV in ("gae", "gae_dev"):

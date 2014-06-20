@@ -191,10 +191,8 @@ class User(UserMixin, DBAdapter):
         if dbuser:
             if dbuser.password == secret_hash(password, salt=dbuser.password[:36]):
                 return cls(dbuser)
-        elif email == app.config["OwnerEmail"]:   # no owner in database, create default
-            cls.create_user(email=app.config["OwnerEmail"],
-                            password=app.config["DefaultPassword"],
-                            role="Owner")
+            elif not dbuser.password:
+                dbuser.update(password=secret_hash(app.config["DefaultPassword"], salt=None))
 
         return None
 

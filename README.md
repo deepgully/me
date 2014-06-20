@@ -3,7 +3,10 @@ ME@deepgully
 
 `ME@deepgully`是基于Python,Flask的开源博客系统,可以运行在GAE(Google AppEngine), BAE(Baidu AppEngine)和SAE(Sina AppEngine)上  
 `ME@deepgully` is a open source blog system based on Python&Flask, support GAE(Google AppEngine), BAE(Baidu AppEngine) and SAE(Sina AppEngine)
-
+ 
+ * Demo on GAE: http://me.deepgully.com
+ * Demo on BAE: http://deepgully2.duapp.com
+ * Demo on SAE: http://deepgully.sinaapp.com
 
 ##主要功能 Features
 
@@ -138,4 +141,44 @@ ME@deepgully
         #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://test:123456@test_server:3306/%s' % LOCAL_DATABASE
      
   
+##在SAE上安装`ME@deepgully`
 
+#### 准备工作
+
+ 1. 申请 **SAE** 开发账号, 创建Python Web应用  
+   SAE 新手入门:  http://sae.sina.com.cn/doc/tutorial/index.html
+ 2. 进入SAE应用管理控制台
+ 3. 在服务管理中创建SAE云存储 **domain**, 记下 **domain名字**
+ 4. 在服务管理中初始化MySQL数据库
+ 5. 在服务管理中初始化Memcache
+ 6. 使用SVNT工具将代码checkout到本地
+
+#### 更改设置 
+
+ 1. 从 https://github.com/deepgully/me 下载ME@deepgully代码
+ 2. 编辑代码根目录下的 **config.yaml** 和  **settings.py**       
+
+> 将config.yaml第一行的application id改成你自己的
+    
+    name: deepgully
+    version: 1
+
+> 编辑settings.py
+
+> 更改默认管理员账号密码 `app.config["OwnerEmail"]` 及 `app.config["DefaultPassword"]` 
+    
+    app.config["OwnerEmail"] = "deepgully@gmail.com"
+    app.config["DefaultPassword"] = "admin"
+
+> 更改SAE云存储设置,将`SAE_BUCKET`改成你刚才创建的domain名字, `SAE_FOLDER`也可以修改
+    
+    const.SAE_BUCKET = "deepgully"
+    const.SAE_FOLDER= "/photos/"
+
+#### 上传
+
+  1. 将ME@deepgully代码拷贝到SAE本地目录
+  2. SVN上传所有文件
+  3. 搞定, 登陆之后可到管理后台更改网站标题及管理员密码等设置
+  
+#### 本地调试 同BAE

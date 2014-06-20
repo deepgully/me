@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2013 Gully Chen
+# Copyright 2013-2014 Gully Chen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,13 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from settings import RUNTIME_ENV
-
-__all__ = [
-    "secret_hash", "unquote", "save_photo", "delete_file", "make_blob_file_header",
-    "fail_safe_func",
-]
-
-from common import *
-
-exec("from tools_%s import *" % RUNTIME_ENV.split("_")[0]) in locals()
+from model_bae import *   # use same db model with BAE

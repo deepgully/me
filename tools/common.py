@@ -14,8 +14,9 @@
 # limitations under the License.
 
 import uuid
-from hashlib import sha256
 from hmac import HMAC
+from hashlib import sha256
+from functools import wraps
 
 from urllib import unquote as _unquote
 
@@ -38,6 +39,19 @@ def secret_hash(source, salt=None, key=app.secret_key):
 
 def unquote(s):
     return unicode(_unquote(s.encode("utf-8")), "utf-8")
+
+
+def fail_safe_func(func, fail_safe=True):
+    @wraps(func)
+    def fail_safe(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            logging.exception("error in func call [%s]" % func.__name__)
+            if not fail_safe:
+                raise
+
+    return fail_safe
 
 
 ############################################
@@ -79,22 +93,30 @@ def save_photo(binary):
     if mime == ImageMime.UNKNOWN:
         raise Exception("unsupported image format")
 
-    filename = str(uuid.uuid1()) + ext
+    rand_str = str(uuid.uuid1())
+    filename = rand_str + ext
     url, real_file = save_file(binary, filename, mime_type=mime)
 
     url_thumb = real_file_thumb = ""
     try:
         import StringIO
+
         from PIL import Image
         from settings import THUMB_SIZE
 
         im = Image.open(StringIO.StringIO(binary))
-        thumb = StringIO.StringIO()
-        thumb_filename = str(uuid.uuid1()) + "_thumb" + ext
         im.thumbnail(THUMB_SIZE, Image.ANTIALIAS)
-        thumb.name = thumb_filename
+
+        thumb = StringIO.StringIO()
+        thumb.name = filename
         im.save(thumb)
-        url_thumb, real_file_thumb = save_file(thumb.getvalue(), thumb_filename, mime_type=mime)
+        binary = thumb.getvalue()
+        thumb.close()
+
+        mime, ext = get_img_type(binary)
+        thumb_filename = rand_str + "_thumb" + ext
+
+        url_thumb, real_file_thumb = save_file(binary, thumb_filename, mime_type=mime)
     except:
         logging.exception("save thumb error")
 

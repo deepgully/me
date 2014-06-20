@@ -1,0 +1,21 @@
+name: deepgully
+version: 1
+
+handlers:
+- url: /favicon.ico
+  static_path: static/favicon.ico
+
+- url: /robots.txt
+  static_path: static/robots.txt
+
+- url: /static
+  static_dir: static
+
+libraries:
+- name: jinja2
+  version: "2.6"
+
+- name: PIL
+  version: "1.1.7"
+
+
