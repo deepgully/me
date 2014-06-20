@@ -222,6 +222,25 @@ elif RUNTIME_ENV in ("gae", "gae_dev"):
     BLOB_SERVING_URL = "/_files"
     app.config["BLOB_SERVING_URL"] = BLOB_SERVING_URL
 
+
+QINIU_SETTINGS = MagicDict()
+
+QINIU_SETTINGS.Enabled = False
+QINIU_SETTINGS.MirrorSite = ""
+
+if QINIU_SETTINGS.Enabled:
+    QINIU_SETTINGS.MirrorSite = "//me-deepgully.qiniudn.com"
+
+    QINIU_SETTINGS.ACCESS_KEY = "ef1ZZEwlvUzY-kBsp0jtWOf2rka0c_q8fnKMG8KP"
+    QINIU_SETTINGS.SECRET_KEY = "XMM0GVgToJ3hhmVp9Vm-TDClfUe_IWOanqYSoM3a"
+
+    QINIU_SETTINGS.BUCKET_NAME = "me-deepgully"
+    QINIU_SETTINGS.BUCKET_DOMAIN = "me-deepgully.qiniudn.com"
+
+
+app.config["QINIU"] = QINIU_SETTINGS
+
+
 THUMB_SIZE = (400, 300)
 
 app.config["THUMB_SIZE"] = THUMB_SIZE

@@ -2,8 +2,8 @@
 {% endblock %}
 
 {% block script %}
-<script type="text/javascript" src="/static/assets/pagedown/Markdown.Converter.js"></script>
-<script type="text/javascript" src="/static/assets/pagedown/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/pagedown/Markdown.Converter.js"></script>
+<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/pagedown/Markdown.Sanitizer.js"></script>
 <script type="text/javascript">
     var editor = null;
 

@@ -49,7 +49,7 @@ def theme_file(theme, filename):
         if not os.path.isfile(real_file):
             return ""
 
-    return "%s/%s" % (app.static_url_path, filename)
+    return "%s%s/%s" % (app.config["QINIU"].MirrorSite, app.static_url_path, filename)
 
 
 @app.context_processor

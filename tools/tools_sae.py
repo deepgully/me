@@ -76,6 +76,7 @@ if ENABLE_MEMCACHE:
     from tools import fail_safe_func
 
     memcache = pylibmc.Client()
-    memcache.flush_all = lambda: None
+
+    memcache.flush_all = fail_safe_func(memcache.flush_all)
     memcache.set = fail_safe_func(memcache.set)
 

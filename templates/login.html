@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block script %}
-<script type="text/javascript" src="/static/assets/bootstrap/jqBootstrapValidation.js"></script>
+<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
