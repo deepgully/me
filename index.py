@@ -197,7 +197,7 @@ def login():
 
         flash(gettext("Please input valid email and password"))
 
-    return render_template("login.html")
+    return render_template("login.html", admin_page=True)
 
 
 @app.route("/logout")
