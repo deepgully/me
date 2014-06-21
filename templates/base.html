@@ -9,18 +9,19 @@
     {% block header %}
     {% endblock %}
 
+    {% set mirror_site = "" if admin_page else settings.MirrorSite %}
     <!-- CSS styles -->
-    {% set theme = (settings.theme or "Flatly").lower() %}
-    <link href="{{ config.QINIU.MirrorSite }}/static/themes/{{ theme }}/bootstrap.min.css" rel="stylesheet"/>
+    {% set theme = (settings.theme or "default").lower() %}
+    <link href="{{ mirror_site }}/static/themes/{{ theme }}/bootstrap.min.css" rel="stylesheet"/>
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"/>
 
-    <link href="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/lightbox/ekko-lightbox.css" rel="stylesheet"/>
-    <link href="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/lightbox/dark.css" rel="stylesheet"/>
+    <link href="{{ mirror_site }}/static/assets/bootstrap/lightbox/ekko-lightbox.css" rel="stylesheet"/>
+    <link href="{{ mirror_site }}/static/assets/bootstrap/lightbox/dark.css" rel="stylesheet"/>
 
-    <link href="{{ config.QINIU.MirrorSite }}/static/themes/base.css" rel="stylesheet"/>
+    <link href="{{ mirror_site }}/static/themes/base.css" rel="stylesheet"/>
     {% set theme_css = theme_file(theme, "styles.css") %}
     {% if theme_css %}
-    <link href="{{ theme_css }}" rel="stylesheet"/>
+    <link href="{{ mirror_site }}{{ theme_css }}" rel="stylesheet"/>
     {% endif %}
     {% block css %}
     {% endblock %}
@@ -47,17 +48,17 @@
     {% endif %}
 <!-- Script -->
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script>window.jQuery || document.write(unescape('%3Cscript src="{{ config.QINIU.MirrorSite }}/static/assets/jquery/jquery-1.11.1.min.js"%3E%3C/script%3E'))</script>
+<script>window.jQuery || document.write(unescape('%3Cscript src="{{ mirror_site }}/static/assets/jquery/jquery-1.11.1.min.js"%3E%3C/script%3E'))</script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-<script>$.fn.carousel || document.write(unescape('%3Cscript src="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/bootstrap-3.1.1.min.js"%3E%3C/script%3E'))</script>
+<script>$.fn.carousel || document.write(unescape('%3Cscript src="{{ mirror_site }}/static/assets/bootstrap/bootstrap-3.1.1.min.js"%3E%3C/script%3E'))</script>
 
-<script src="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/lightbox/ekko-lightbox.js"></script>
+<script src="{{ mirror_site }}/static/assets/bootstrap/lightbox/ekko-lightbox.js"></script>
 
-<script src="{{ config.QINIU.MirrorSite }}/static/js/main.js"></script>
+<script src="{{ mirror_site }}/static/js/main.js"></script>
 
 {#% set theme_js = theme_file(theme, "script.js") %#}
 {#% if theme_js %#}
-{# <script src="{{ theme_js }}"></script> #}
+{# <script src="{{ mirror_site }}{{ theme_js }}"></script> #}
 {#% endif %#}
 
 <script type="text/javascript">
@@ -187,7 +188,7 @@ $(document).ready(function() {
 <!-- Tags -->
 <div id="tags_cloud" class="dis-none">
     <div class="tags_cloud">
-        <img class="loading" src="{{ config.QINIU.MirrorSite }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        <img class="loading" src="{{ mirror_site }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
     </div>
 </div>
 </body>

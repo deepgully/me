@@ -335,8 +335,9 @@ class DBSiteSettings(db.Model, ModelMixin):
     title = db.Column(db.String(512))
     subtitle = db.Column(db.String(128))
     copyright = db.Column(db.String(512), default="")
-    theme = db.Column(db.String(512), default="")
+    theme = db.Column(db.String(128), default="")
     ga_tracking_id = db.Column(db.String(128))
+    mirror_site = db.Column(db.String(512), default="")    # mirror site for static files
     owner = db.Column(db.String(256))
     inited = db.Column(db.Boolean, default=False)
 
@@ -365,6 +366,10 @@ class DBSiteSettings(db.Model, ModelMixin):
     @property
     def Themes(self):
         return common.BootsWatchThemes
+
+    @property
+    def MirrorSite(self):
+        return self.mirror_site or ""
 
     @classmethod
     def get_site_settings(cls):

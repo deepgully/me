@@ -1,6 +1,6 @@
 {% block css %}
-<link href="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
-<link href="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/bootstrap-fileupload/bootstrap-fileupload.min.css" rel="stylesheet">
+<link href="{{ settings.MirrorSite }}/static/assets/bootstrap/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="{{ settings.MirrorSite }}/static/assets/bootstrap/bootstrap-fileupload/bootstrap-fileupload.min.css" rel="stylesheet">
 <style type="text/css">
     #editor_msg {
         white-space: normal;
@@ -29,10 +29,10 @@
 {% endblock %}
 
 {% block script %}
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/moment.min.js"></script>
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/pagedown/Markdown.Editor.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/moment.min.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/pagedown/Markdown.Editor.js"></script>
 <script type="text/javascript">
 // Prevent jQuery UI dialog from blocking focusin
 $(document).on('focusin', function(e) {
@@ -192,7 +192,7 @@ function Editor(md_converter, callback, album_mode) {
     };
 
     var new_thumb = function(src){
-        src = src || "{{ config.QINIU.MirrorSite }}/static/images/loading.gif";
+        src = src || "{{ settings.MirrorSite }}/static/images/loading.gif";
 
         var thumbnails = $(".image-bar .thumbnails");
         var thumb = $('<li class="pull-left"><button type="button" class="alt btn btn-default btn-xs">E</button>' +

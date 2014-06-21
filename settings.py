@@ -24,7 +24,7 @@ import sys
 import logging
 
 
-__version__ = 1
+__version__ = "2"
 
 ######################################
 ## Global environment
@@ -226,11 +226,8 @@ elif RUNTIME_ENV in ("gae", "gae_dev"):
 QINIU_SETTINGS = MagicDict()
 
 QINIU_SETTINGS.Enabled = False
-QINIU_SETTINGS.MirrorSite = ""
 
 if QINIU_SETTINGS.Enabled:
-    QINIU_SETTINGS.MirrorSite = "//me-deepgully.qiniudn.com"
-
     QINIU_SETTINGS.ACCESS_KEY = "ef1ZZEwlvUzY-kBsp0jtWOf2rka0c_q8fnKMG8KP"
     QINIU_SETTINGS.SECRET_KEY = "XMM0GVgToJ3hhmVp9Vm-TDClfUe_IWOanqYSoM3a"
 

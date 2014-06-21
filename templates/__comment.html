@@ -1,7 +1,7 @@
 <div id="comments-template" class="comment-box dis-none">
     <div class="comment-title" title="Click to Collapse">
         <span class="comment-count"></span> {{ _("Comments") }}  <span class="caret"></span>
-        <img class="loading" src="{{ config.QINIU.MirrorSite }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        <img class="loading" src="{{ settings.MirrorSite }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
         <div class="pull-right">
             <button class="btn btn-success btn-sm reply-post">
                 <i class="fa fa-reply"></i>
@@ -58,9 +58,9 @@
     <ul class="threads">
     </ul>
 </div>
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/jquery/timeago/jquery.timeago.js"></script>
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/jquery/timeago/jquery.timeago.{{ g.locale }}.js"></script>
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/jquery/timeago/jquery.timeago.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/jquery/timeago/jquery.timeago.{{ g.locale }}.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
 <script type="text/javascript">
 function Comment(md2html) {
     var self = this;

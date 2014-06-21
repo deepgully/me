@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block script %}
-<script type="text/javascript" src="{{ config.QINIU.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
+<script type="text/javascript" src="/static/assets/bootstrap/jqBootstrapValidation.js"></script>
 <script type="text/javascript">
 /* Document Ready */
 $(document).ready(function() {
@@ -212,6 +212,14 @@ $(document).ready(function() {
                 <div class="col-sm-4">
                     <input type="text" id="ga_tracking_id" name="ga_tracking_id" class="form-control"
                            value="{{ settings.ga_tracking_id or "" }}"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="mirror_site">{{ _("Static Files Mirror Site") }}</label>
+                <div class="col-sm-4">
+                    <input type="text" id="mirror_site" name="mirror_site" class="form-control"
+                           placeholder="***.qiniudn.com"
+                           value="{{ settings.MirrorSite }}"/>
                 </div>
             </div>
             <div class="form-group">

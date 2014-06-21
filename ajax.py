@@ -121,6 +121,18 @@ def update_site_settings(**settings):
     Returns:
         settings: a dict of settings"""
     dbsettings = apis.get_site_settings()
+
+    # check setting values
+    if "mirror_site" in settings:
+        mirror_site = settings["mirror_site"]
+        if not mirror_site:
+            mirror_site = ""
+        if not mirror_site.startswith("//") and not mirror_site.lower().startswith("http"):
+            mirror_site = "//" + mirror_site
+
+        mirror_site = mirror_site.rstrip("/")
+        settings["mirror_site"] = mirror_site
+
     dbsettings.update(**settings)
     result = {
         "settings": dbsettings
