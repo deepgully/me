@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-06-16 21:41+0800\n"
+"POT-Creation-Date: 2014-06-21 15:12+0800\n"
 "PO-Revision-Date: 2013-03-24 14:53+0800\n"
 "Last-Translator: Gully Chen <deepgully@gmail.com>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -61,23 +61,23 @@ msgstr ""
 msgid "unsupported method [ %(name)s]"
 msgstr ""
 
-#: ../ajax.py:153
+#: ../ajax.py:172
 msgid "email is required"
 msgstr ""
 
-#: ../ajax.py:156
+#: ../ajax.py:175
 msgid "password is required"
 msgstr ""
 
-#: ../ajax.py:210
+#: ../ajax.py:229
 msgid "can not delete owner"
 msgstr ""
 
-#: ../ajax.py:233
+#: ../ajax.py:252
 msgid "pls input id or url"
 msgstr ""
 
-#: ../ajax.py:368
+#: ../ajax.py:387
 msgid "can not delete Home category"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Please login to access this page"
 msgstr ""
 
-#: ../model/model_bae.py:696 ../model/model_gae.py:641
+#: ../model/model_bae.py:701 ../model/model_gae.py:646
 msgid "Comment Deleted"
 msgstr ""
 
@@ -103,7 +103,7 @@ msgstr ""
 
 #: ../templates/__comment.html:4 ../templates/_list.html:285
 #: ../templates/_list.html:294 ../templates/_photo.html:306
-#: ../templates/_timeline.html:303 ../templates/base.html:190
+#: ../templates/_timeline.html:301 ../templates/base.html:191
 #: ../templates/tags.html:282 ../templates/tags.html:291
 msgid "loading"
 msgstr ""
@@ -113,7 +113,7 @@ msgid "Reply"
 msgstr ""
 
 #: ../templates/__comment.html:14 ../templates/_list.html:261
-#: ../templates/_photo.html:337 ../templates/_timeline.html:293
+#: ../templates/_photo.html:337 ../templates/_timeline.html:291
 #: ../templates/post.html:149 ../templates/tags.html:259
 msgid "Comment"
 msgstr ""
@@ -136,21 +136,21 @@ msgstr ""
 
 #: ../templates/__comment.html:43 ../templates/_list.html:256
 #: ../templates/_photo.html:332 ../templates/_photo.html:360
-#: ../templates/_timeline.html:288 ../templates/post.html:144
+#: ../templates/_timeline.html:286 ../templates/post.html:144
 #: ../templates/tags.html:254
 msgid "Like"
 msgstr ""
 
 #: ../templates/__comment.html:46 ../templates/_list.html:259
 #: ../templates/_photo.html:335 ../templates/_photo.html:363
-#: ../templates/_timeline.html:291 ../templates/post.html:147
+#: ../templates/_timeline.html:289 ../templates/post.html:147
 #: ../templates/tags.html:257
 msgid "Unlike"
 msgstr ""
 
 #: ../templates/__comment.html:50 ../templates/_list.html:232
-#: ../templates/_photo.html:347 ../templates/_timeline.html:271
-#: ../templates/admin.html:303 ../templates/admin.html:417
+#: ../templates/_photo.html:347 ../templates/_timeline.html:269
+#: ../templates/admin.html:311 ../templates/admin.html:425
 #: ../templates/post.html:107 ../templates/tags.html:230
 msgid "Delete"
 msgstr ""
@@ -186,8 +186,8 @@ msgstr ""
 msgid "Delete post, r u sure?"
 msgstr ""
 
-#: ../templates/_editor.html:66 ../templates/_timeline.html:257
-#: ../templates/base.html:135
+#: ../templates/_editor.html:66 ../templates/_timeline.html:255
+#: ../templates/base.html:136
 msgid "New Post"
 msgstr ""
 
@@ -236,20 +236,20 @@ msgid "Photo Description"
 msgstr ""
 
 #: ../templates/_editor.html:401 ../templates/_list.html:231
-#: ../templates/_photo.html:346 ../templates/_timeline.html:270
-#: ../templates/admin.html:302 ../templates/admin.html:416
+#: ../templates/_photo.html:346 ../templates/_timeline.html:268
+#: ../templates/admin.html:310 ../templates/admin.html:424
 #: ../templates/post.html:106 ../templates/tags.html:229
 msgid "Edit"
 msgstr ""
 
 #: ../templates/_editor.html:418 ../templates/_editor.html:419
-#: ../templates/base.html:125
+#: ../templates/base.html:126
 msgid "Tags"
 msgstr ""
 
 #: ../templates/_editor.html:434 ../templates/_editor.html:435
 #: ../templates/_list.html:222 ../templates/_list.html:275
-#: ../templates/_photo.html:295 ../templates/_timeline.html:277
+#: ../templates/_photo.html:295 ../templates/_timeline.html:275
 msgid "Sticky"
 msgstr ""
 
@@ -258,19 +258,19 @@ msgid "Publish"
 msgstr ""
 
 #: ../templates/_editor.html:441 ../templates/_text.html:81
-#: ../templates/admin.html:305 ../templates/admin.html:419
+#: ../templates/admin.html:313 ../templates/admin.html:427
 msgid "Cancel"
 msgstr ""
 
 #: ../templates/_list.html:253 ../templates/_photo.html:329
-#: ../templates/_timeline.html:286 ../templates/post.html:141
+#: ../templates/_timeline.html:284 ../templates/post.html:141
 #: ../templates/share.html:4 ../templates/share.html:17
 #: ../templates/tags.html:251
 msgid "Share"
 msgstr ""
 
 #: ../templates/_list.html:284 ../templates/_list.html:293
-#: ../templates/_photo.html:305 ../templates/_timeline.html:304
+#: ../templates/_photo.html:305 ../templates/_timeline.html:302
 #: ../templates/tags.html:281 ../templates/tags.html:290
 msgid "More"
 msgstr ""
@@ -287,8 +287,8 @@ msgstr ""
 msgid "Edit Page"
 msgstr ""
 
-#: ../templates/_text.html:80 ../templates/admin.html:304
-#: ../templates/admin.html:418
+#: ../templates/_text.html:80 ../templates/admin.html:312
+#: ../templates/admin.html:426
 msgid "Save"
 msgstr ""
 
@@ -320,8 +320,8 @@ msgstr ""
 msgid "Categories"
 msgstr ""
 
-#: ../templates/admin.html:168 ../templates/admin.html:430
-#: ../templates/base.html:152
+#: ../templates/admin.html:168 ../templates/admin.html:438
+#: ../templates/base.html:153
 msgid "Personal"
 msgstr ""
 
@@ -345,101 +345,105 @@ msgstr ""
 msgid "Google Analytics ID"
 msgstr ""
 
-#: ../templates/admin.html:219 ../templates/admin.html:457
+#: ../templates/admin.html:218
+msgid "Static Files Mirror Site"
+msgstr ""
+
+#: ../templates/admin.html:227 ../templates/admin.html:465
 msgid "Save Settings"
 msgstr ""
 
-#: ../templates/admin.html:223
+#: ../templates/admin.html:231
 msgid "Memcache"
 msgstr ""
 
-#: ../templates/admin.html:225
+#: ../templates/admin.html:233
 msgid "Flush Cache"
 msgstr ""
 
-#: ../templates/admin.html:231
+#: ../templates/admin.html:239
 msgid "New User"
 msgstr ""
 
-#: ../templates/admin.html:237 ../templates/admin.html:322
+#: ../templates/admin.html:245 ../templates/admin.html:330
 msgid "Name"
 msgstr ""
 
-#: ../templates/admin.html:238
+#: ../templates/admin.html:246
 msgid "Active?"
 msgstr ""
 
-#: ../templates/admin.html:239
+#: ../templates/admin.html:247
 msgid "Role"
 msgstr ""
 
-#: ../templates/admin.html:240 ../templates/admin.html:327
+#: ../templates/admin.html:248 ../templates/admin.html:335
 msgid "Action"
 msgstr ""
 
-#: ../templates/admin.html:273 ../templates/admin.html:370
+#: ../templates/admin.html:281 ../templates/admin.html:378
 msgid "New"
 msgstr ""
 
-#: ../templates/admin.html:315
+#: ../templates/admin.html:323
 msgid "New Category"
 msgstr ""
 
-#: ../templates/admin.html:320
+#: ../templates/admin.html:328
 msgid "Hide?"
 msgstr ""
 
-#: ../templates/admin.html:323
+#: ../templates/admin.html:331
 msgid "Sort"
 msgstr ""
 
-#: ../templates/admin.html:324
+#: ../templates/admin.html:332
 msgid "Post per Page"
 msgstr ""
 
-#: ../templates/admin.html:325
+#: ../templates/admin.html:333
 msgid "Order"
 msgstr ""
 
-#: ../templates/admin.html:326
+#: ../templates/admin.html:334
 msgid "Template"
 msgstr ""
 
-#: ../templates/admin.html:441
+#: ../templates/admin.html:449
 msgid "Nickname"
 msgstr ""
 
-#: ../templates/admin.html:448
+#: ../templates/admin.html:456
 msgid "Avatar"
 msgstr ""
 
-#: ../templates/admin.html:464 ../templates/admin.html:475
+#: ../templates/admin.html:472 ../templates/admin.html:483
 msgid "Reset Password"
 msgstr ""
 
-#: ../templates/admin.html:467 ../templates/login.html:34
+#: ../templates/admin.html:475 ../templates/login.html:34
 #: ../templates/login.html:38
 msgid "Password"
 msgstr ""
 
-#: ../templates/base.html:150
+#: ../templates/base.html:151
 msgid "Admin"
 msgstr ""
 
-#: ../templates/base.html:153
+#: ../templates/base.html:154
 msgid "Logout"
 msgstr ""
 
-#: ../templates/base.html:158 ../templates/login.html:15
+#: ../templates/base.html:159 ../templates/login.html:15
 #: ../templates/login.html:55
 msgid "Login"
 msgstr ""
 
-#: ../templates/base.html:162
+#: ../templates/base.html:163
 msgid "RSS"
 msgstr ""
 
-#: ../templates/base.html:181
+#: ../templates/base.html:182
 msgid "Powered by"
 msgstr ""
 
@@ -454,10 +458,4 @@ msgstr ""
 #: ../templates/login.html:48
 msgid "Remember me"
 msgstr ""
-
-#~ msgid "A email will send to your email address to reset your password"
-#~ msgstr ""
-
-#~ msgid "password reset mail sent, pls check your email"
-#~ msgstr ""
 
