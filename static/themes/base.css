@@ -386,6 +386,11 @@ img {
     border-color: #0089e0;
 }
 
+.post .post-title .title {
+    text-decoration: none;
+    font-size: 1.5em;
+}
+
 .post-body img {
     display: inline-block;
     max-width: 100% !important;
