@@ -29,6 +29,7 @@
 {% endblock %}
 
 {% block script %}
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/paste.js"></script>
 <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/moment.min.js"></script>
 <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
@@ -211,7 +212,7 @@ function Editor(md_converter, callback, album_mode) {
             img.attr("title", photo.alt);
             thumb.attr("photo_id", photo.id).css("cursor", "pointer");
             $("a", thumb).click(function(){
-                md_editor.addText("\n![{0}]({1})".format(photo.alt, photo.url));
+                md_editor.addText("\n![{0}]({1})\n".format(photo.alt, photo.url));
             });
             $(".close", thumb).click(function(){
                 $.json_action("photo/delete",
@@ -231,8 +232,7 @@ function Editor(md_converter, callback, album_mode) {
         return thumb;
     };
 
-    var upload_photo = function(file_evt){
-        var data = event.target.result;  //base64 data url
+    var upload_photo = function(data, callback){
         var thumb = new_thumb();
 
         var settings = { binary : $.toJSON(data.replace(/^.+,/,"")) };
@@ -244,6 +244,7 @@ function Editor(md_converter, callback, album_mode) {
             settings,
             function(resp){
                 thumb.show_photo(resp.photo);
+                callback && callback(resp.photo);
             },function(err){
                 show_message(err, true);
                 thumb.remove();
@@ -255,10 +256,25 @@ function Editor(md_converter, callback, album_mode) {
         if(file.size < 8*1000*1000) {
             var reader = new FileReader();
             reader.onload = function(evt){
-                upload_photo(evt);
+                upload_photo(evt.target.result);
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    var enable_paste_image = function($input_elem) {
+        $input_elem.each(function(i, el){
+            var paste = (new $.paste()).appendTo('body')
+                .on('pasteImage', function(ev, data){
+                    show_message("{{ _("Paste Image Uploading ......") }}", false);
+                    upload_photo(data.dataURL, function(photo){
+                        md_editor.addText("\n![{0}]({1})\n".format(photo.alt, photo.url));
+                    });
+                });
+            $(el).on('paste', function(ev){
+                paste.trigger(ev);
+            });
+        });
     };
 
     var init = function(){
@@ -294,6 +310,7 @@ function Editor(md_converter, callback, album_mode) {
             $(document).off('focusin.modal');
         });
 
+        enable_paste_image(editor_elem.find ("#wmd-input"));
     };
 
     var init_alt_editor = function(){
