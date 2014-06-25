@@ -1,6 +1,7 @@
 {% block script %}
     <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/pagedown/Markdown.Converter.js"></script>
     {% if user.is_admin() %}
+    <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/paste.js"></script>
     <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/pagedown/Markdown.Editor.js"></script>
     {% endif %}
     <script type="text/javascript">
@@ -35,6 +36,40 @@
                 show_page();
                 $("textarea", page_editor).focus();
             });
+
+            var upload_photo = function(data, callback){
+                var settings = { binary : $.toJSON(data.replace(/^.+,/,"")) };
+                $.json_action("photo/upload",
+                    settings,
+                    function(resp){
+                        callback && callback(resp.photo);
+                    },function(err){
+                        bootbox.hideAll();
+                        bootbox.alert(err);
+                    }
+                );
+            };
+
+            var enable_paste_image = function($input_elem) {
+                $input_elem.each(function(i, el){
+                    var paste = (new $.paste()).appendTo('body')
+                        .on('pasteImage', function(ev, data){
+                            bootbox.dialog({
+                                message: "{{ _("Paste Image Uploading ......") }}",
+                                closeButton: false
+                            });
+                            upload_photo(data.dataURL, function(photo){
+                                bootbox.hideAll();
+                                md_editor.addText("\n![{0}]({1})\n".format(photo.alt, photo.url));
+                            });
+                        });
+                    $(el).on('paste', function(ev){
+                        paste.trigger(ev);
+                    });
+                });
+            };
+
+            enable_paste_image(page_content);
 
 
             $("#save_page").click(function(){

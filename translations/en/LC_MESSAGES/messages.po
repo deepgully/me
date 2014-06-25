@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-06-21 15:12+0800\n"
+"POT-Creation-Date: 2014-06-25 09:41+0800\n"
 "PO-Revision-Date: 2013-03-24 14:53+0800\n"
 "Last-Translator: Gully Chen <deepgully@gmail.com>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -118,7 +118,7 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ../templates/__comment.html:15 ../templates/_editor.html:402
+#: ../templates/__comment.html:15 ../templates/_editor.html:419
 msgid "Preview"
 msgstr ""
 
@@ -126,7 +126,7 @@ msgstr ""
 msgid "Your Name"
 msgstr ""
 
-#: ../templates/__comment.html:23 ../templates/_editor.html:442
+#: ../templates/__comment.html:23 ../templates/_editor.html:459
 msgid "Submit"
 msgstr ""
 
@@ -159,12 +159,12 @@ msgstr ""
 msgid "Restore"
 msgstr ""
 
-#: ../templates/__comment.html:239 ../templates/_editor.html:152
+#: ../templates/__comment.html:239 ../templates/_editor.html:153
 #: ../templates/admin.html:39
 msgid "please input valid"
 msgstr ""
 
-#: ../templates/__comment.html:244 ../templates/_editor.html:159
+#: ../templates/__comment.html:244 ../templates/_editor.html:160
 #: ../templates/admin.html:45
 msgid "Saving"
 msgstr ""
@@ -186,78 +186,82 @@ msgstr ""
 msgid "Delete post, r u sure?"
 msgstr ""
 
-#: ../templates/_editor.html:66 ../templates/_timeline.html:255
+#: ../templates/_editor.html:67 ../templates/_timeline.html:255
 #: ../templates/base.html:136
 msgid "New Post"
 msgstr ""
 
-#: ../templates/_editor.html:68 ../templates/_photo.html:277
+#: ../templates/_editor.html:69 ../templates/_photo.html:277
 msgid "New Album"
 msgstr ""
 
-#: ../templates/_editor.html:105
+#: ../templates/_editor.html:106
 msgid "Edit Album"
 msgstr ""
 
-#: ../templates/_editor.html:107 ../templates/_editor.html:357
+#: ../templates/_editor.html:108 ../templates/_editor.html:374
 msgid "Edit Post"
 msgstr ""
 
-#: ../templates/_editor.html:111
+#: ../templates/_editor.html:112
 msgid "Loading"
 msgstr ""
 
-#: ../templates/_editor.html:171
+#: ../templates/_editor.html:172
 msgid "Post Saved"
 msgstr ""
 
-#: ../templates/_editor.html:220
+#: ../templates/_editor.html:221
 msgid "Photo Deleted"
 msgstr ""
 
-#: ../templates/_editor.html:318
+#: ../templates/_editor.html:269 ../templates/_text.html:58
+msgid "Paste Image Uploading ......"
+msgstr ""
+
+#: ../templates/_editor.html:335
 msgid "Photo Description Saved"
 msgstr ""
 
-#: ../templates/_editor.html:331
+#: ../templates/_editor.html:348
 msgid "Tips: insert <!--more--> to show excerpt only"
 msgstr ""
 
-#: ../templates/_editor.html:373
+#: ../templates/_editor.html:390
 msgid "Post Title"
 msgstr ""
 
-#: ../templates/_editor.html:379
+#: ../templates/_editor.html:396
 msgid "Add Photo"
 msgstr ""
 
-#: ../templates/_editor.html:391
+#: ../templates/_editor.html:408
 msgid "Photo Description"
 msgstr ""
 
-#: ../templates/_editor.html:401 ../templates/_list.html:231
+#: ../templates/_editor.html:418 ../templates/_list.html:231
 #: ../templates/_photo.html:346 ../templates/_timeline.html:268
 #: ../templates/admin.html:310 ../templates/admin.html:424
 #: ../templates/post.html:106 ../templates/tags.html:229
 msgid "Edit"
 msgstr ""
 
-#: ../templates/_editor.html:418 ../templates/_editor.html:419
+#: ../templates/_editor.html:435 ../templates/_editor.html:436
 #: ../templates/base.html:126
 msgid "Tags"
 msgstr ""
 
-#: ../templates/_editor.html:434 ../templates/_editor.html:435
+#: ../templates/_editor.html:451 ../templates/_editor.html:452
 #: ../templates/_list.html:222 ../templates/_list.html:275
 #: ../templates/_photo.html:295 ../templates/_timeline.html:275
 msgid "Sticky"
 msgstr ""
 
-#: ../templates/_editor.html:438 ../templates/_editor.html:439
+#: ../templates/_editor.html:455 ../templates/_editor.html:456
 msgid "Publish"
 msgstr ""
 
-#: ../templates/_editor.html:441 ../templates/_text.html:81
+#: ../templates/_editor.html:458 ../templates/_text.html:116
 #: ../templates/admin.html:313 ../templates/admin.html:427
 msgid "Cancel"
 msgstr ""
@@ -283,11 +287,11 @@ msgstr ""
 msgid "Hot Photos"
 msgstr ""
 
-#: ../templates/_text.html:57
+#: ../templates/_text.html:92
 msgid "Edit Page"
 msgstr ""
 
-#: ../templates/_text.html:80 ../templates/admin.html:312
+#: ../templates/_text.html:115 ../templates/admin.html:312
 #: ../templates/admin.html:426
 msgid "Save"
 msgstr ""
