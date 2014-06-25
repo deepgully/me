@@ -13,7 +13,7 @@
     <!-- CSS styles -->
     {% set theme = (settings.theme or "default").lower() %}
     <link href="{{ mirror_site }}/static/themes/{{ theme }}/bootstrap.min.css" rel="stylesheet"/>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="{{ mirror_site }}/static/assets/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"/>
 
     <link href="{{ mirror_site }}/static/assets/bootstrap/lightbox/ekko-lightbox.css" rel="stylesheet"/>
     <link href="{{ mirror_site }}/static/assets/bootstrap/lightbox/dark.css" rel="stylesheet"/>
@@ -47,9 +47,9 @@
     </script>
     {% endif %}
 <!-- Script -->
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//ajax.useso.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>window.jQuery || document.write(unescape('%3Cscript src="{{ mirror_site }}/static/assets/jquery/jquery-1.11.1.min.js"%3E%3C/script%3E'))</script>
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="//libs.useso.com/js/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script>$.fn.carousel || document.write(unescape('%3Cscript src="{{ mirror_site }}/static/assets/bootstrap/bootstrap-3.1.1.min.js"%3E%3C/script%3E'))</script>
 
 <script src="{{ mirror_site }}/static/assets/bootstrap/lightbox/ekko-lightbox.js"></script>
