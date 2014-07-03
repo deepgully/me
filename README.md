@@ -182,3 +182,23 @@ ME@deepgully
   3. 搞定, 登陆之后可到管理后台更改网站标题及管理员密码等设置
   
 #### 本地调试 同BAE
+
+
+##七牛云存储设置
+
+0. 申请七牛帐号, 并新建存储空间 https://portal.qiniu.com/tutorial/index 
+
+1. 使用七牛保存上传的图片
+
+> 更改settings.py, 将`Enabled`改为`True`, 并修改`ACCESS_KEY`, `SECRET_KEY`, `BUCKET_NAME` 及 `BUCKET_DOMAIN`
+
+    
+    QINIU_SETTINGS.Enabled = True    
+    
+    if QINIU_SETTINGS.Enabled:
+        QINIU_SETTINGS.ACCESS_KEY = "ef1ZZEwlvUzY-kBsp0jtWOf2rka0c_q8fnKMG8KP"
+        QINIU_SETTINGS.SECRET_KEY = "XMM0GVgToJ3hhmVp9Vm-TDClfUe_IWOanqYSoM3a"
+    
+        QINIU_SETTINGS.BUCKET_NAME = "me-deepgully"
+        QINIU_SETTINGS.BUCKET_DOMAIN = "me-deepgully.qiniudn.com"
+        
