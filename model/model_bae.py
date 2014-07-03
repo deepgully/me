@@ -327,7 +327,7 @@ class DBStats(db.Model, ModelMixin):
 ## Data Models
 ########################################
 class DBSiteSettings(db.Model, ModelMixin):
-    VERSION = 1.2  # update this if tables changed
+    VERSION = 1.3  # update this if tables changed
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -335,7 +335,9 @@ class DBSiteSettings(db.Model, ModelMixin):
     title = db.Column(db.String(512))
     subtitle = db.Column(db.String(128))
     copyright = db.Column(db.String(512), default="")
+    theme = db.Column(db.String(128), default="")
     ga_tracking_id = db.Column(db.String(128))
+    mirror_site = db.Column(db.String(512), default="")    # mirror site for static files
     owner = db.Column(db.String(256))
     inited = db.Column(db.Boolean, default=False)
 
@@ -360,6 +362,14 @@ class DBSiteSettings(db.Model, ModelMixin):
     @property
     def Orders(self):
         return DBCategory.Orders
+
+    @property
+    def Themes(self):
+        return common.BootsWatchThemes
+
+    @property
+    def MirrorSite(self):
+        return self.mirror_site or ""
 
     @classmethod
     def get_site_settings(cls):
@@ -431,6 +441,7 @@ class DBCategory(db.Model, ModelMixin, StatsMixin):
     order = db.Column(db.Enum(*Orders), default=Orders[1])
     template = db.Column(db.Enum(*Templates), default=Templates[0])
     content = db.Column(db.Text)  # for template "Text" only
+    hidden = db.Column(db.Boolean, default=False)
 
     _stats_id = db.Column(db.Integer, db.ForeignKey(DBStats.__tablename__ + '.id', ondelete="SET NULL"))
 
@@ -532,7 +543,8 @@ class DBPost(db.Model, ModelMixin, StatsMixin):
     def to_dict(self):
         res = ModelMixin.to_dict(self)
         res["author"] = self.author.to_dict() if self.author else {}
-        res["category"] = self.category.to_dict() if self.category else {}
+        category = self.category
+        res["category"] = category.to_dict() if category else {}
         res["photos"] = [photo.to_dict() for photo in self.photos if photo]
         res["tags"] = self.tags
         return res

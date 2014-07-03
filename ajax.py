@@ -36,6 +36,7 @@ MSG_NO_PHOTO = T("no photo %(id)s")
 MSG_NO_COMMENT = T("no comment %(id)s")
 MSG_NO_TAG = T("no tag %(name)s")
 
+
 # helper functions
 def _get_method_doc(method_name):
     method = AJAX_METHODS.get(method_name)
@@ -62,7 +63,7 @@ def json_dumps(item):
 
 
 def json_loads(date_str):
-    if len(date_str) in [10,19,24,26]:
+    if len(date_str) in [10, 19, 24, 26]:
         for format_str in JSON_DATETIME_FORMAT:
             try:
                 return datetime.strptime(date_str, format_str)
@@ -76,6 +77,13 @@ def jsonify(*args, **kwargs):
                                                  default=json_dumps,
                                                  indent=None if request.is_xhr else 2),
                                       mimetype='application/json')
+
+
+def format_string(fmt, *seq):
+    res = fmt % seq
+    if isinstance(res, unicode):
+        res = res.encode("utf-8")
+    return res
 
 
 ##############################################################
@@ -113,6 +121,18 @@ def update_site_settings(**settings):
     Returns:
         settings: a dict of settings"""
     dbsettings = apis.get_site_settings()
+
+    # check setting values
+    if "mirror_site" in settings:
+        mirror_site = settings["mirror_site"]
+        if not mirror_site:
+            mirror_site = ""
+        if not mirror_site.startswith("//") and not mirror_site.lower().startswith("http"):
+            mirror_site = "//" + mirror_site
+
+        mirror_site = mirror_site.rstrip("/")
+        settings["mirror_site"] = mirror_site
+
     dbsettings.update(**settings)
     result = {
         "settings": dbsettings
@@ -227,7 +247,7 @@ def get_category(id=None, url=None):
     if id is not None:
         category = apis.Category.get_by_id(id)
     elif url is not None:
-         category = apis.Category.get_by_url(url)
+        category = apis.Category.get_by_url(url)
     else:
         raise Exception(lazy_gettext("pls input id or url"))
 
@@ -247,10 +267,10 @@ def _delete_category_posts_cache(category):
     default_category = apis.Category.default_category()
     for page in range(CATEGORY_CACHE_PAGES+1):
         for public in (True, False):
-            key = CATEGORY_CACHE_KEY % (category.id, page, category.posts_per_page, public)
+            key = format_string(CATEGORY_CACHE_KEY, category.id, page, category.posts_per_page, public)
             memcache.delete(key)
             if category.id != default_category.id:
-                key = CATEGORY_CACHE_KEY % (default_category.id, page, default_category.posts_per_page, public)
+                key = format_string(CATEGORY_CACHE_KEY, default_category.id, page, default_category.posts_per_page, public)
                 memcache.delete(key)
 
 
@@ -290,7 +310,7 @@ def get_posts_by_category(category="", page=1, per_page=10, group_by="", start_c
     }
 
     if page <= CATEGORY_CACHE_PAGES:  # cache only CATEGORY_CACHE_PAGES pages
-        key = CATEGORY_CACHE_KEY % (category.id, page, per_page, get_no_published)
+        key = format_string(CATEGORY_CACHE_KEY, category.id, page, per_page, get_no_published)
         res = memcache.get(key)
 
         if res is None:
@@ -407,7 +427,7 @@ POST_CACHE_KEY = "post_id:%s"
 
 
 def _delete_post_cache(post):
-    key = POST_CACHE_KEY % post.id
+    key = format_string(POST_CACHE_KEY, post.id)
     memcache.delete(key)
 
 
@@ -467,7 +487,7 @@ def get_post(id):
     Returns:
         post: a dict of post"""
 
-    key = POST_CACHE_KEY % id
+    key = format_string(POST_CACHE_KEY, id)
 
     post = memcache.get(key)
     if post is None:
@@ -501,7 +521,7 @@ def get_hot_posts(count=8, order="view_count desc"):
     Returns:
         posts: a list of post"""
 
-    key = HOT_POSTS_CACHE_KEY % (count, order)
+    key = format_string(HOT_POSTS_CACHE_KEY, count, order)
     posts = memcache.get(key)
     if posts is None:
         posts = apis.Post.hot_posts(count, order)
@@ -524,7 +544,7 @@ def get_latest_posts(count=12, order="updated_date desc"):
         order: posts order, default is "updated_date desc"
     Returns:
         posts: a list of post"""
-    key = LATEST_POSTS_CACHE_KEY % (count, order)
+    key = format_string(LATEST_POSTS_CACHE_KEY, count, order)
     posts = memcache.get(key)
     if posts is None:
         posts = apis.Post.latest_posts(count, order)
@@ -540,7 +560,7 @@ COMMENT_CACHE_KEY = "comments_postid:%s"
 
 
 def _delete_comments_cache(post_id):
-    key = COMMENT_CACHE_KEY % post_id
+    key = format_string(COMMENT_CACHE_KEY, post_id)
     memcache.delete(key)
 
 
@@ -554,7 +574,7 @@ def get_comments_by_post(id):
     if not post:
         raise Exception(lazy_gettext(MSG_NO_POST, id=id))
 
-    key = COMMENT_CACHE_KEY % id
+    key = format_string(COMMENT_CACHE_KEY, id)
 
     comments = memcache.get(key)
     if comments is None:
@@ -748,7 +768,7 @@ def delete_comment(id):
     return result
 
 
-TAG_POSTS_CACHE_KEY = "tag_posts_name:%s_page:%d_per_page:%d"
+TAG_POSTS_CACHE_KEY = "tag_posts_name:%s_page:%s_per_page:%s"
 
 
 def get_posts_by_tag(name, page=1, per_page=10):
@@ -766,7 +786,7 @@ def get_posts_by_tag(name, page=1, per_page=10):
     if not tag:
         raise Exception(lazy_gettext(MSG_NO_TAG, name=name))
 
-    key = TAG_POSTS_CACHE_KEY % (tag.name, page, per_page)
+    key = format_string(TAG_POSTS_CACHE_KEY, tag.name, page, per_page)
 
     posts = memcache.get(key)
     if posts is None:
@@ -786,8 +806,7 @@ def get_posts_by_tag(name, page=1, per_page=10):
     return result
 
 
-
-HOT_TAGS_CACHE_KEY = "hot_tags_count:%d"
+HOT_TAGS_CACHE_KEY = "hot_tags_count:%s"
 
 
 def get_hot_tags(count=12):
@@ -798,7 +817,7 @@ def get_hot_tags(count=12):
         tags: a list of tags"""
 
 
-    key = HOT_TAGS_CACHE_KEY % count
+    key = format_string(HOT_TAGS_CACHE_KEY, count)
 
     tags = memcache.get(key)
     if tags is None:
@@ -911,7 +930,7 @@ def dispatch_action(parameters, action):
             result["response"] = res
         else:
             result["status"] = "error"
-            result["error"] = "unsupported method [%s]" % action
+            result["error"] = format_string("unsupported method [%s]", action)
 
     except Exception, e:
         logging.exception("Error in dispatch_action:")

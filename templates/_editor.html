@@ -1,367 +1,382 @@
 {% block css %}
-<link href="/static/assets/bootstrap/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-<link href="/static/assets/bootstrap/css/bootstrap-fileupload.min.css" rel="stylesheet">
+<link href="{{ settings.MirrorSite }}/static/assets/bootstrap/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="{{ settings.MirrorSite }}/static/assets/bootstrap/bootstrap-fileupload/bootstrap-fileupload.min.css" rel="stylesheet">
 <style type="text/css">
     #editor_msg {
         white-space: normal;
-        margin-top: 8px;
-        padding: 4px 8px;
+        padding: 6px 18px;
     }
 
-    .image-bar > .thumbnails > li {
-        padding: 0;
-        margin: 0;
+    #editor .row {
+        margin: 4px;
     }
 
-    .image-bar > .thumbnails > li {
-        width: 50px;
-        height: 70px;
+    .image-bar .thumbnails > li {
+        padding: 2px;
+        margin: 2px;
+    }
+
+    .image-bar .thumbnails > li {
+        width: 60px;
+        height: 80px;
         display: block;
         overflow: hidden;
     }
-
-    #editor .nav-tabs {
-        margin: 0;
-        padding: 0;
-    }
-
-    .alt_editor {
-        margin-bottom: 4px;
-    }
-
     .alt_editor img{
-        max-width: 80px;
-        max-height: 60px;
-    }
-
-    .alt_editor input{
-        margin: 0;
+        max-width: 100%;
     }
 </style>
 {% endblock %}
 
 {% block script %}
-<script type="text/javascript" src="/static/assets/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="/static/assets/bootstrap/jqBootstrapValidation.min.js"></script>
-<script type="text/javascript" src="/static/assets/pagedown/Markdown.Editor.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/paste.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/moment.min.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/pagedown/Markdown.Editor.js"></script>
 <script type="text/javascript">
-    function Editor(md_converter, callback, album_mode) {
-        var self = this;
+// Prevent jQuery UI dialog from blocking focusin
+$(document).on('focusin', function(e) {
+    if ($(e.target).closest(".wmd-prompt-dialog").length) {
+        e.stopImmediatePropagation();
+    }
+});
+function Editor(md_converter, callback, album_mode) {
+    var self = this;
 
-        self.callback = callback;
+    self.callback = callback;
+    self.post = null;
+    self.album_mode = !!album_mode;
+
+    var editor_elem = $("#editor");
+    var form_inputs = $("input,select,textarea,checkbox", editor_elem).not("[type=submit]");
+
+    var wmd_panel, wmd_preview;
+
+    var alt_editor;
+
+    var md_editor = new Markdown.Editor(md_converter);
+
+    md_editor.run();
+
+    // functions
+    var clean_up = function(){
+        $(".thumbnails", editor_elem).empty();
+        $("#wmd-preview", editor_elem).empty();
+
+        var header = "{{ _("New Post") }}";
+        if (self.album_mode){
+            header = "{{ _("New Album") }}";
+        }
+        editor_elem.find("#header").text(header);
+        editor_elem.find("#title").val("");
+        editor_elem.find("textarea[name='body']").val("");
+        editor_elem.find("input[name='tags']").val("");
         self.post = null;
-        self.album_mode = !!album_mode;
+        alt_editor.hide();
+        show_message("");
+    };
+    var show_post = function(post){
+        editor_elem.find ("#title").val(post.title);
+        editor_elem.find("#category").val(post.category_id);
+        editor_elem.find ("textarea[name='body']").val(post.body);
+        editor_elem.find("input[name='tags']").val(post.tags.join(", "));
 
-        var editor_elem = $("#editor");
-        var form_inputs = $("input,select,textarea,checkbox", editor_elem).not("[type=submit]");
+        editor_elem.find("#public").prop("checked", post.public);
+        editor_elem.find("#sticky").prop("checked", post.sticky);
 
-        var wmd_panel, wmd_preview;
+        $.each(post.photos, function(index, photo) {
+            var thumb = new_thumb();
+            thumb.show_photo(photo);
+        });
+        self.picker.setDate(post.post_date);
+    };
 
-        var alt_editor;
+    this.show = function(){
+        editor_elem.modal("show");
+    };
+    this.hide = function(){
+        editor_elem.modal("hide");
+    };
 
-        var md_editor = new Markdown.Editor(md_converter);
+    this.edit_post = function(post_id){
+        clean_up();
 
-        md_editor.run();
+        if (self.album_mode){
+            editor_elem.find("#header").text("{{ _("Edit Album") }}");
+        } else {
+            editor_elem.find("#header").text("{{ _("Edit Post") }}");
+        }
+        editor_elem.modal({backdrop: 'static', keyboard: false});
 
-        // functions
-        var clean_up = function(){
-            $(".thumbnails", editor_elem).empty();
-            $("#wmd-preview", editor_elem).empty();
+        show_message("{{ _("Loading") }}...", true);
 
-            var header = "{{ _("New Post") }}";
-            if (self.album_mode){
-                header = "{{ _("New Album") }}";
-            }
-            editor_elem.find("#header").html(header);
-            editor_elem.find("#title").val("");
-            editor_elem.find("textarea[name='body']").val("");
-            editor_elem.find("input[name='tags']").val("");
-            self.post = null;
-            alt_editor.hide();
+        form_inputs.attr("disabled", true);
+
+        $.json_action("post", {
+            id: post_id
+        },function(resp){
             show_message("");
-        };
-        var show_post = function(post){
-            editor_elem.find ("#title").val(post.title);
-            editor_elem.find("#category").val(post.category_id);
-            editor_elem.find ("textarea[name='body']").val(post.body);
-            editor_elem.find("input[name='tags']").val(post.tags.join(", "));
+            self.post = resp.post;
+            show_post(self.post);
+            form_inputs.attr("disabled", false);
+            editor_elem.find ("#wmd-input").focus();
+        },function(err){
+            show_message(err, true);
+        });
+    };
 
-            editor_elem.find("#public").prop("checked", post.public);
-            editor_elem.find("#sticky").prop("checked", post.sticky);
+    this.new_post = function(post_date){
+        clean_up();
 
-            $.each(post.photos, function(index, photo) {
-                var thumb = new_thumb();
-                thumb.show_photo(photo);
-            });
-            self.picker.setLocalDate(post.post_date.to_date());
-        };
+        post_date = !post_date ? moment() : post_date;
+        post_date = (typeof post_date == "String") ? moment(post_date) : post_date;
 
-        this.show = function(){
-            editor_elem.modal("show");
-        };
-        this.hide = function(){
-            editor_elem.modal("hide");
-        };
+        self.picker.setDate(post_date);
 
-        this.edit_post = function(post_id){
-            clean_up();
+        editor_elem.modal({backdrop: 'static', keyboard: false});
+        setTimeout(function(){
+            editor_elem.find ("#title").focus();
+        }, 1000);
+    };
 
-            if (self.album_mode){
-                editor_elem.find("#header").html("{{ _("Edit Album") }}");
-            } else {
-                editor_elem.find("#header").html("{{ _("Edit Post") }}");
-            }
-            editor_elem.modal({backdrop: 'static', keyboard: false});
+    this.is_new_post = function(){
+        return self.post == null;
+    };
 
-            show_message("{{ _("Loading") }}...", true);
+    this.submit_post = function(){
+        var action = self.is_new_post() ? "post/create" : "post/update";
 
-            form_inputs.attr("disabled", true);
+        var hasErrors = form_inputs.jqBootstrapValidation("hasErrors");
+        if (hasErrors){
+            var errors = form_inputs.jqBootstrapValidation("collectErrors");
+            var msg = "{{ _("please input valid") }} ";
+            for(var name in errors) {  msg += '[{0}] '.format(name); }
+            show_message(msg, true);
 
-            $.json_action("post", {
-                id: post_id
-            },function(resp){
-                show_message("");
+            return;
+        }
+
+        show_message("{{ _("Saving") }}...", true);
+
+        var options = $.json_options(form_inputs);
+        if (action == "post/update") {
+            options.id = $.toJSON(self.post.id);
+        } else {
+            options.photos = $.toJSON(get_photo_list());
+        }
+
+        $.json_action(action,
+            options,
+            function(resp){
+                show_message("{{ _("Post Saved") }}", false);
                 self.post = resp.post;
-                show_post(self.post);
-                form_inputs.attr("disabled", false);
-                editor_elem.find ("#wmd-input").focus();
+                self.callback && self.callback(resp.post);
             },function(err){
                 show_message(err, true);
-            });
-        };
-
-        this.new_post = function(post_date){
-            clean_up();
-
-            post_date = !post_date ? new Date() : post_date;
-            post_date = (typeof post_date == "String") ? post_date.to_date() : post_date;
-
-            self.picker.setLocalDate(post_date);
-
-            editor_elem.modal({backdrop: 'static', keyboard: false});
-            setTimeout(function(){
-                editor_elem.find ("#title").focus();
-            }, 1000);
-        };
-
-        this.is_new_post = function(){
-            return self.post == null;
-        };
-
-        this.submit_post = function(){
-            var action = self.is_new_post() ? "post/create" : "post/update";
-
-            var hasErrors = form_inputs.jqBootstrapValidation("hasErrors");
-            if (hasErrors){
-                var errors = form_inputs.jqBootstrapValidation("collectErrors");
-                var msg = "{{ _("please input valid") }} ";
-                for(var name in errors) {  msg += '[{0}] '.format(name); }
-                show_message(msg, true);
-
-                return;
             }
+        );
+    };
 
-            show_message("{{ _("Saving") }}...", true);
+    var show_message = function(msg,error){
+        $("#editor_msg").text(msg).attr("class", "label label-"+(error ? "warning" : "success"));
+    };
 
-            var options = $.json_options(form_inputs);
-            if (action == "post/update") {
-                options.id = $.toJSON(self.post.id);
-            } else {
-                options.photos = $.toJSON(get_photo_list());
+    var get_photo_list = function(){
+        var photos=[];
+        $(".image-bar .thumbnails>li").each(function(){
+            if ($(this).attr("photo_id")){
+                photos.push($(this).attr("photo_id"));
             }
+        });
+        return photos;
+    };
 
-            $.json_action(action,
-                options,
-                function(resp){
-                    show_message("{{ _("Post Saved") }}", false);
-                    self.post = resp.post;
-                    self.callback && self.callback(resp.post);
-                },function(err){
-                    show_message(err, true);
-                }
-            );
-        };
+    var new_thumb = function(src){
+        src = src || "{{ settings.MirrorSite }}/static/images/loading.gif";
 
-        var show_message = function(msg,error){
-            $("#editor_msg").text(msg).attr("class", "label label-"+(error ? "warning" : "success"));
-        };
+        var thumbnails = $(".image-bar .thumbnails");
+        var thumb = $('<li class="pull-left"><button type="button" class="alt btn btn-default btn-xs">E</button>' +
+                '<button type="button" class="close">×</button>' +
+                '<a class="thumbnail"><img /></a>' +
+                '</li>');
+        var img = $("img", thumb);
 
-        var get_photo_list = function(){
-            var photos=[];
-            $(".image-bar .thumbnails>li").each(function(){
-                if ($(this).attr("photo_id")){
-                    photos.push($(this).attr("photo_id"));
-                }
+        img.attr("src", src);
+        thumbnails.append(thumb);
+
+        thumb.show_photo = function(photo){
+            img.attr("src", photo.url_thumb||photo.url);
+            img.attr("real_src", photo.url);
+            img.attr("alt", photo.alt);
+            img.attr("title", photo.alt);
+            thumb.attr("photo_id", photo.id).css("cursor", "pointer");
+            $("a", thumb).click(function(){
+                md_editor.addText("\n![{0}]({1})\n".format(photo.alt, photo.url));
             });
-            return photos;
-        };
-
-        var new_thumb = function(src){
-            src = src || "/static/images/loading.gif";
-
-            var thumbnials = $(".image-bar .thumbnails");
-            var thumb = $('<li><button type="button" class="alt btn btn-mini">E</button>' +
-                    '<button type="button" class="close">×</button>' +
-                    '<a class="thumbnail"><img /></a>' +
-                    '</li>');
-            var img = $("img", thumb);
-
-            img.attr("src", src);
-            thumbnials.append(thumb);
-
-            thumb.show_photo = function(photo){
-                img.attr("src", photo.url_thumb||photo.url);
-                img.attr("real_src", photo.url);
-                img.attr("alt", photo.alt);
-                img.attr("title", photo.alt);
-                thumb.attr("photo_id", photo.id).css("cursor", "pointer");
-                $("a", thumb).click(function(){
-                    md_editor.addText("\n![{0}]({1})".format(photo.alt, photo.url));
-                });
-                $(".close", thumb).click(function(){
-                    $.json_action("photo/delete",
-                        {id: $.toJSON(thumb.attr("photo_id")) },
-                        function(resp){
-                            show_message("{{ _("Photo Deleted") }}", false);
-                            thumb.remove();
-                        },function(err){
-                            show_message(err, true);
-                        }
-                    );
-                });
-                $(".alt", thumb).click(function(){
-                    alt_editor.edit_desc(photo);
-                });
-            };
-            return thumb;
-        };
-
-        var upload_photo = function(file_evt){
-            var data = event.target.result;  //base64 data url
-            var thumb = new_thumb();
-
-            var settings = { binary : $.toJSON(data.replace(/^.+,/,"")) };
-            if (!self.is_new_post()) {
-                settings.post_id = $.toJSON(self.post.id);
-            }
-
-            $.json_action("photo/upload",
-                settings,
-                function(resp){
-                    thumb.show_photo(resp.photo);
-                },function(err){
-                    show_message(err, true);
-                    thumb.remove();
-                }
-            );
-        };
-
-        var bind_upload = function(file){
-            if(file.size < 8*1000*1000) {
-                var reader = new FileReader();
-                reader.onload = function(evt){
-                    upload_photo(evt);
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-
-        var init = function(){
-            wmd_tab = $(".wmd-editor-preview", editor_elem);
-            wmd_panel = $(".wmd-panel", editor_elem);
-            wmd_preview = $(".wmd-preview", editor_elem);
-            category_select = $("#category", editor_elem);
-
-            if(self.album_mode){
-                category_select.find("option").not("[template=Photo]").remove();
-                wmd_tab.hide();
-                wmd_panel.hide();
-                wmd_preview.hide();
-            }
-
-            form_inputs.jqBootstrapValidation();
-
-            $("#submit", editor_elem).click(function(){
-                self.submit_post();
-            });
-
-            $(".image-bar input[type=file]", editor_elem).change(function(e){
-                $.each(e.target.files, function(index, file){
-                    bind_upload(file);
-                });
-            });
-
-            self.picker = $("#editor-date", editor_elem).datetimepicker({
-                pickTime: false
-            }).data("datetimepicker");
-
-            editor_elem.on('shown', function() {
-                $(document).off('focusin.modal');
-            });
-
-        };
-
-        var init_alt_editor = function(){
-            alt_editor = $(".alt_editor", editor_elem);
-            alt_editor.alt = $("input", alt_editor);
-            alt_editor.img = $("img", alt_editor);
-
-            alt_editor.edit_desc = function(photo){
-                alt_editor.photo = photo;
-                alt_editor.img.attr("src", photo.url_thumb||photo.url);
-                alt_editor.show();
-                alt_editor.alt.val("").val(photo.alt).focus();
-            };
-
-            $("button", alt_editor).click(function(){
-                alt_editor.photo.alt = alt_editor.alt.val();
-                $.json_action("photo/update",{
-                        "id": $.toJSON(alt_editor.photo.id),
-                        "alt":$.toJSON(alt_editor.photo.alt)
-                    },
+            $(".close", thumb).click(function(){
+                $.json_action("photo/delete",
+                    {id: $.toJSON(thumb.attr("photo_id")) },
                     function(resp){
-                        show_message("{{ _("Photo Description Saved") }}", false);
-                        alt_editor.hide();
+                        show_message("{{ _("Photo Deleted") }}", false);
+                        thumb.remove();
                     },function(err){
                         show_message(err, true);
                     }
                 );
-
-             });
-        };
-
-        var init_md_hooks = function(){
-            md_converter.hooks.chain("preConversion", function (text) {
-                if ((text.length > 300) && (text.indexOf('\n<!--more-->') == -1)){
-                    show_message("{{ _("Tips: insert <!--more--> to show excerpt only") }}");
-                } else {
-                    show_message("");
-                }
-                return text;
+            });
+            $(".alt", thumb).click(function(){
+                alt_editor.edit_desc(photo);
             });
         };
+        return thumb;
+    };
 
-        this.is_shown = function(){
-            return editor_elem.is(":visible");
+    var upload_photo = function(data, callback){
+        var thumb = new_thumb();
+
+        var settings = { binary : $.toJSON(data.replace(/^.+,/,"")) };
+        if (!self.is_new_post()) {
+            settings.post_id = $.toJSON(self.post.id);
+        }
+
+        $.json_action("photo/upload",
+            settings,
+            function(resp){
+                thumb.show_photo(resp.photo);
+                callback && callback(resp.photo);
+            },function(err){
+                show_message(err, true);
+                thumb.remove();
+            }
+        );
+    };
+
+    var bind_upload = function(file){
+        if(file.size < 8*1000*1000) {
+            var reader = new FileReader();
+            reader.onload = function(evt){
+                upload_photo(evt.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    var enable_paste_image = function($input_elem) {
+        $input_elem.each(function(i, el){
+            var paste = (new $.paste()).appendTo('body')
+                .on('pasteImage', function(ev, data){
+                    show_message("{{ _("Paste Image Uploading ......") }}", false);
+                    upload_photo(data.dataURL, function(photo){
+                        md_editor.addText("\n![{0}]({1})\n".format(photo.alt, photo.url));
+                    });
+                });
+            $(el).on('paste', function(ev){
+                paste.trigger(ev);
+            });
+        });
+    };
+
+    var init = function(){
+        wmd_tab = $(".wmd-editor-preview", editor_elem);
+        wmd_panel = $(".wmd-panel", editor_elem);
+        wmd_preview = $(".wmd-preview", editor_elem);
+        category_select = $("#category", editor_elem);
+
+        if(self.album_mode){
+            category_select.find("option").not("[template=Photo]").remove();
+            wmd_tab.hide();
+            wmd_panel.hide();
+            wmd_preview.hide();
+        }
+
+        form_inputs.jqBootstrapValidation();
+
+        $("#submit", editor_elem).click(function(){
+            self.submit_post();
+        });
+
+        $(".image-bar input[type=file]", editor_elem).change(function(e){
+            $.each(e.target.files, function(index, file){
+                bind_upload(file);
+            });
+        });
+
+        self.picker = $("#editor-date", editor_elem).datetimepicker({
+            pickTime: false
+        }).data("DateTimePicker");
+
+        editor_elem.on('shown', function() {
+            $(document).off('focusin.modal');
+        });
+
+        enable_paste_image(editor_elem.find ("#wmd-input"));
+    };
+
+    var init_alt_editor = function(){
+        alt_editor = $(".alt_editor", editor_elem);
+        alt_editor.alt = $("input", alt_editor);
+        alt_editor.img = $("img", alt_editor);
+
+        alt_editor.edit_desc = function(photo){
+            alt_editor.photo = photo;
+            alt_editor.img.attr("src", photo.url_thumb||photo.url);
+            alt_editor.show();
+            alt_editor.alt.val("").val(photo.alt).focus();
         };
 
-        init();
+        $("button", alt_editor).click(function(){
+            alt_editor.photo.alt = alt_editor.alt.val();
+            $.json_action("photo/update",{
+                    "id": $.toJSON(alt_editor.photo.id),
+                    "alt":$.toJSON(alt_editor.photo.alt)
+                },
+                function(resp){
+                    show_message("{{ _("Photo Description Saved") }}", false);
+                    alt_editor.hide();
+                },function(err){
+                    show_message(err, true);
+                }
+            );
 
-        init_alt_editor();
-
-        init_md_hooks();
-
-        return self;
+         });
     };
+
+    var init_md_hooks = function(){
+        md_converter.hooks.chain("preConversion", function (text) {
+            if ((text.length > 300) && (text.indexOf('\n<!--more-->') == -1)){
+                show_message("{{ _("Tips: insert <!--more--> to show excerpt only") }}");
+            } else {
+                show_message("");
+            }
+            return text;
+        });
+    };
+
+    this.is_shown = function(){
+        return editor_elem.is(":visible");
+    };
+
+    init();
+
+    init_alt_editor();
+
+    init_md_hooks();
+
+    return self;
+};
 </script>
 {% endblock %}
-<div id="editor" class="modal hide fade" tabindex="-1" role="dialog">
+<div id="editor" class="modal dis-none fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog"><div class="modal-content">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">×</button>
-        <strong id="header" class="text-info">{{ _("Edit Post") }}</strong>
+        <h3 class="modal-title text-info" id="header">{{ _("Edit Post") }}</h3>
     </div>
     <div class="modal-body">
-        <select id="category" class="span2" name="category_id">
+      <div class="row">
+        <div class="col-lg-4">
+        <select id="category" class="form-control" name="category_id">
             {% for _category in settings.categories %}
                 {% if _category.template != "Text" %}
                 <option template="{{ _category.template }}" value="{{ _category.id }}" {% if category and category.url == _category.url %}selected{% endif %}>
@@ -370,50 +385,66 @@
                 {% endif %}
             {% endfor %}
         </select>
-        <input type="text" placeholder="{{ _("Post Title") }}" class="span3" id="title" name="title" required />
-        <div class="clearfix"></div>
-
-        <div class="image-bar span5">
-            <span class="btn btn-file pull-left">
-                <span class="">{{ _("Add Photo") }}</span>
-                <input type="file" accept="image/*" multiple />
+        </div>
+        <div class="col-lg-8">
+        <input type="text" placeholder="{{ _("Post Title") }}" class="form-control" id="title" name="title" required />
+        </div>
+      </div>
+      <div class="row image-bar">
+        <div class="col-lg-12">
+          <span class="btn btn-sm btn-default btn-file pull-left">
+              <span class="">{{ _("Add Photo") }}</span>
+              <input type="file" accept="image/*" multiple />
+          </span>
+          <ul class="thumbnails">
+          </ul>
+        </div>
+      </div>
+      <div class="row alt_editor">
+        <div class="col-lg-4">
+            <img>
+        </div>
+        <div class="input-group col-lg-8">
+            <input type="text" class="form-control" placeholder="{{ _("Photo Description") }}">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">OK</button>
             </span>
-            <ul class="thumbnails">
-            </ul>
         </div>
-        <div class="clearfix"></div>
-        <div class="alt_editor hide">
-            <img/>
-            <input class="span4" type="text" placeholder="{{ _("Photo Description") }}"/>
-            <button class="btn btn-small">OK</button>
-        </div>
-        <div class="clearfix"></div>
-        <div class="wmd-editor-preview">
-            <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#wmd-editor">{{ _("Edit") }}</a></li>
-                <li class=""><a data-toggle="tab" href="#wmd-preview">{{ _("Preview") }}</a></li>
-                <span id="editor_msg" class="label hide"></span>
-            </ul>
-            <div class="tab-content">
-                <div id="wmd-editor" class="wmd-panel tab-pane active">
-                    <div id="wmd-button-bar" class="wmd-button-bar"></div>
-                    <textarea rows="8" class="span5" name="body" id="wmd-input" class="wmd-input"></textarea>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="wmd-editor-preview">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#wmd-editor">{{ _("Edit") }}</a></li>
+                    <li class=""><a data-toggle="tab" href="#wmd-preview">{{ _("Preview") }}</a></li>
+                    <span id="editor_msg" class="label dis-none"></span>
+                </ul>
+                <div class="tab-content">
+                    <div id="wmd-editor" class="wmd-panel tab-pane active">
+                        <div id="wmd-button-bar" class="wmd-button-bar"></div>
+                        <textarea rows="8" name="body" id="wmd-input" class="form-control wmd-input"></textarea>
+                    </div>
+                    <div id="wmd-preview" class="tab-pane wmd-panel"></div>
                 </div>
-                <div id="wmd-preview" class="tab-pane wmd-panel"></div>
-            </div>
-        </div>
-        <div class="input-prepend">
-            <span class="add-on">{{ _("Tags") }}</span>
-            <input type="text" class="input-xlarge"
-                   name="tags" placeholder="{{ _("Tags") }}"/>
-        </div>
+           </div>
+         </div>
+       </div>
+       <div class="row">
+          <div class="col-lg-12">
+          <div class="input-group">
+            <span class="input-group-addon">{{ _("Tags") }}</span>
+            <input type="text" class="form-control" name="tags" placeholder="{{ _("Tags") }}" />
+          </div>
+          </div>
+       </div>
     </div>
     <div class="modal-footer">
-        <div id="editor-date" class="input-append pull-left" style="margin-bottom: 0">
-            <input data-format="yyyy-MM-dd" type="text" class="input-small" name="post_date" required/>
-            <span class="add-on">
-                <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
-            </span>
+        <div class="form-group col-lg-5">
+        <div id="editor-date" class="input-group date"
+             data-date-format="YYYY-MM-DD">
+            <input type='text' class="form-control" name="post_date" required/>
+            <span class="input-group-addon"><span class="fa fa-clock-o"></span></span>
+        </div>
         </div>
         <div class="pull-right">
             <div class="checkbox form-inline pull-left" style="margin: 6px">
@@ -424,8 +455,9 @@
               <input type="checkbox" id="public" name="public" checked title="{{ _("Publish") }}?">
               <div> {{ _("Publish") }}?</div>
             </div>
-            <button class="btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+            <button class="btn btn-default" data-dismiss="modal">{{ _("Cancel") }}</button>
             <button class="btn btn-primary" id="submit">{{ _("Submit") }}</button>
         </div>
     </div>
+  </div></div>
 </div>

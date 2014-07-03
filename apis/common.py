@@ -16,7 +16,7 @@
 APIS of DataStore Layer
 """
 
-from settings import logging
+from settings import app, logging
 
 
 ###########################################
@@ -139,7 +139,9 @@ class User(UserMixin, DBAdapter):
 
     def update(self, **profile):
         if "password" in profile:
-            profile["password"] = secret_hash(profile["password"], salt=None)
+            if not 4 <= len(profile["password"].strip()) <= 30:
+                raise Exception("password must be more than 4 and less than 30 characters")
+            profile["password"] = secret_hash(profile["password"].strip(), salt=None)
 
         if "email" in profile:
             email = profile["email"].strip().lower()
@@ -189,6 +191,9 @@ class User(UserMixin, DBAdapter):
         if dbuser:
             if dbuser.password == secret_hash(password, salt=dbuser.password[:36]):
                 return cls(dbuser)
+            elif not dbuser.password:
+                dbuser.update(password=secret_hash(app.config["DefaultPassword"], salt=None))
+
         return None
 
     @classmethod
@@ -440,7 +445,7 @@ class Post(DBAdapter):
 
     @classmethod
     def get_by_id(cls, id):
-        dbpost = DBPost.get_by_id(id)
+        dbpost = id and DBPost.get_by_id(id)
         return dbpost and cls(dbpost)
 
     @classmethod
@@ -553,6 +558,15 @@ class Post(DBAdapter):
     @property
     def Comments(self):
         return [Comment(dbcomment) for dbcomment in self.db_object.Comments]
+
+    @property
+    def category(self):
+        category = self.db_object.category
+        if not category:
+            category = Category.default_category()
+            self.update_category({"category_id": category.id})
+
+        return category
 
     @property
     def html(self):

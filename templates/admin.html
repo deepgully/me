@@ -1,163 +1,157 @@
 {% extends "base.html" %}
 
-{% block css %}
-<style type="text/css">
-    /* Admin page */
-    .nav-tabs #msg {
-        max-width: 300px;
-        white-space: normal;
-    }
-</style>
-{% endblock %}
-
 {% block script %}
 <script type="text/javascript" src="/static/assets/bootstrap/jqBootstrapValidation.js"></script>
 <script type="text/javascript">
-    /* Document Ready */
-    $(document).ready(function() {
-        var update_settings = function(active_tab, success, error){
-            var form_inputs = $("input,select,textarea", active_tab).not("[type=submit]");
-            var hasErrors = form_inputs.jqBootstrapValidation("hasErrors");
-            if (hasErrors){
-                var errors = form_inputs.jqBootstrapValidation("collectErrors");
-                var msg = "{{ _("please input valid") }} ";
-                for(var name in errors) {  msg += name + " "; }
-                show_message(msg, true);
-                return false;  //return false if validation failed
-            } else {
-                show_message("{{ _("Saving") }}......", true);
-            }
-
-            $.json_action(active_tab.attr("data-target"),
-                    $.json_options(form_inputs),
-                    function(resp){
-                        show_message("{{ _("Saved") }}", false);
-                        success && success(resp);
-                    },function(err){
-                        show_message(err, true);
-                        error && error(err);
-                    }
+/* Document Ready */
+$(document).ready(function() {
+    {% if user.is_owner() %}
+        $("#flush_cache").click(function(){
+            $.json_action("admin/memcache",
+                {action: $.toJSON("flush_all")},
+                function(resp){
+                    show_message("{{ _("Deleted") }}", "success");
+                },function(err){
+                    show_message(err, "danger");
+                }
             );
-            return true;  //return false if validation passed
-        };
-        var show_message = function(msg, error){
-            $("#msg").text(msg).attr("class", "label label-"+(error ? "warning" : "success"));
-        };
-        var show_editor = function(tr, enable){
-            $("input,select,textarea", tr).not("[type=submit]").prop('disabled', !enable);
-            $(".edit", tr).toggle();
-            $(".delete", tr).toggle();
-            $(".save", tr).toggle();
-            $(".cancel", tr).toggle();
+            return false;
+        });
+    {% endif %}
+
+    var show_message = function(msg, style, delay){
+        $.bootstrapGrowl(msg,
+              { type: style || "info",
+                align: 'center',
+                width: 'auto',
+                delay: delay || 2000
+        });
+    };
+
+    $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+
+    var save_settings = function(action, elems, btn, success, error) {
+        var form_inputs = $("input,select,textarea", elems).not("[type=submit]");
+        var hasErrors = form_inputs.jqBootstrapValidation("hasErrors");
+
+        if (hasErrors){
+            var errors = form_inputs.jqBootstrapValidation("collectErrors");
+            var msg = "{{ _("please input valid") }} ";
+            for(var name in errors) {  msg += name + " "; }
+            show_message(msg, "danger");
+            return false;
         }
 
-        $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+        show_message("{{ _("Saving") }}......", "warning");
 
-        $("#avatar").change(function() {
-            $(this).next().attr("src", $(this).val());
-        });
-
-        $("#save_settings").click(function(){
-            var tab_id=$(".tab-pane:visible").attr("id");
-            var active_tab = $("#"+tab_id);
-
-            if (! active_tab.attr("data-target")){
-                return;
+        $.json_action(action,
+            $.json_options($("input,select,textarea", elems).not("[type=submit]")),
+            function(resp){
+                show_message("{{ _("Saved") }}", "success");
+                success && success(resp);
+            },function(err){
+                show_message(err, "danger");
+                error && error(err);
             }
-            update_settings(active_tab);
-        });
+        );
+        return true;
+    };
 
-        ////////////////////////////////////////////////
-        // Edit
-        ////////////////////////////////////////////////
-        $(".edit").click(function(){
-            show_editor($(this).parents("tr"), true);
-        });
-        ////////////////////////////////////////////////
-        // Delete
-        ////////////////////////////////////////////////
-        $(".delete").click(function(){
-            var $this = $(this);
-            bootbox.confirm("{{ _("Are you sure to delete this item?") }}", function(sure){
-                if(sure){
-                    show_message("{{ _("Deleting") }}...", true);
+    $('.bv-form button[type="submit"]').click(function(){
+        var btn = $(this);
+        var form = btn.parents("form");
 
-                    var tr = $this.parents("tr");
-                    var item_id = $("input[name='id']", tr).val();
-
-                    $.json_action($this.attr("data-target"),
-                            {id: $.toJSON(item_id)},
-                            function(resp){
-                                show_message("{{ _("Deleted") }}", false);
-                                tr.remove();
-                            },function(err){
-                                show_message(err, true);
-                            }
-                    );
-                }
-            });
-        });
-        ////////////////////////////////////////////////
-        // Save
-        ////////////////////////////////////////////////
-        $(".save").click(function(){
-            var tr = $(this).parents("tr");
-
-            if (update_settings(tr) ){
-                show_editor(tr, false);
+        save_settings(form.attr("data-action"), form, btn, function(){
+            if (btn.attr("data-refresh") == "true") {
+                window.location.reload();
             }
         });
-        ////////////////////////////////////////////////
-        // Cancel
-        ////////////////////////////////////////////////
-        $(".cancel").click(function(){
-            show_editor($(this).parents("tr"), false);
-        });
 
-
-        ////////////////////////////////////////////////
-        // New
-        ////////////////////////////////////////////////
-        $(".create_btn").click(function(){
-            var tr = $(this).parents("div").find("tr.template");
-            $("input[type=text]", tr).val("");
-            $("input,select,textarea", tr).not("[type=submit]").prop('disabled', false);
-            tr.toggle();
-        });
-        $(".new").click(function(){
-            var tr = $(this).parents("tr");
-
-            update_settings(tr, function(resp){
-                var new_tr = tr.clone();
-                new_tr.removeClass("template").prop("data-target", "category/update");
-                new_tr.css("background-color", "InfoBackground").show();
-                tr.after(new_tr);
-                $("input[type=text]", tr).val("");
-                $("input,select,textarea", new_tr).not("[type=submit]").prop('disabled', true);
-                $(".new", new_tr).remove();
-
-                $("select", new_tr).each(function(index, item){
-                    var $select = $(item);
-                    var $old_select = $("select[name={0}]".format($select.attr("name")), tr);
-                    $select.val($old_select.val());
-                });
-
-            });
-        });
-
-        {% if user.is_owner() %}
-            $("#flush_cache").click(function(){
-                $.json_action("admin/memcache",
-                    {action: $.toJSON("flush_all")},
-                    function(resp){
-                        bootbox.alert("{{ _("Deleted") }}");
-                    },function(err){
-                        bootbox.alert(err);
-                });
-                return false;
-            });
-        {% endif %}
+        return false;
     });
+
+    var show_editor = function(tr, enable){
+        $("input,select,textarea", tr).not("[type=submit]").prop('disabled', !enable);
+        if (enable) {
+             $(".edit", tr).hide();
+            $(".delete", tr).hide();
+            $(".save", tr).show();
+            $(".cancel", tr).show();
+        } else {
+            $(".edit", tr).show();
+            $(".delete", tr).show();
+            $(".save", tr).hide();
+            $(".cancel", tr).hide();
+        }
+    };
+
+    $(".edit").click(function(){
+        show_editor($(this).parents("tr"), true);
+    });
+    $(".cancel").click(function(){
+        show_editor($(this).parents("tr"), false);
+    });
+    $(".save").click(function(){
+        var btn = $(this);
+        var tr = btn.parents("tr");
+        var action = btn.attr("data-action");
+        show_editor(tr, true);
+        save_settings(action, tr, btn, function(){
+            show_editor(tr, false);
+        });
+    });
+
+    $(".create_btn").click(function(){
+        var tr = $(this).parents("div").find("tr.template");
+        $("input[type=text]", tr).val("");
+        $("input,select,textarea", tr).not("[type=submit]").prop('disabled', false);
+        tr.toggle();
+    });
+
+    $(".new").click(function(){
+        var btn = $(this);
+        var tr = btn.parents("tr");
+        var action = btn.attr("data-action");
+
+        save_settings(action, tr, btn, function(){
+            var new_tr = tr.clone();
+            new_tr.removeClass("template");
+            $(".new", new_tr).remove();
+            $("input,select,textarea", new_tr).not("[type=submit]").prop('disabled', true);
+            new_tr.css("background-color", "InfoBackground").show();
+            tr.after(new_tr);
+            $("input[type=text]", tr).val("");
+
+            $("select", new_tr).each(function(index, item){
+                var $select = $(item);
+                var $old_select = $("select[name={0}]".format($select.attr("name")), tr);
+                $select.val($old_select.val());
+            });
+        });
+    });
+
+    $(".delete").click(function(){
+        var btn = $(this);
+        bootbox.confirm("{{ _("Are you sure to delete this item?") }}", function(sure){
+            if(sure){
+                show_message("{{ _("Deleting") }}...", "warning");
+
+                var tr = btn.parents("tr");
+                var item_id = $("input[name='id']", tr).val();
+
+                $.json_action(btn.attr("data-action"),
+                        {id: $.toJSON(item_id)},
+                        function(resp){
+                            show_message("{{ _("Deleted") }}", "success");
+                            tr.remove();
+                        },function(err){
+                            show_message(err, "danger");
+                        }
+                );
+            }
+        });
+    });
+});
 </script>
 {% endblock %}
 
@@ -166,103 +160,116 @@
 {% if user.is_owner() %}
     <li class="active"><a href="#settings" data-toggle="tab">{{ _("Site Settings") }}</a></li>
     <li class=""><a href="#users" data-toggle="tab">{{ _("Users") }}</a></li>
+{% endif %}
+{% if user.is_admin() %}
     <li class=""><a href="#categories" data-toggle="tab">{{ _("Categories") }}</a></li>
 {% endif %}
     <li class="{% if not user.is_owner() %}active{% endif %}"><a href="#personal" data-toggle="tab">
         {{ _("Personal") }}</a>
     </li>
     <li>
-    <a href="#reset_password" data-toggle="tab">
-        {{ _("Reset Password") }}</a>
-    </li>
-    <li class="pull-right">
-        <span id="msg" class="label hide">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                    {% for message in messages %}
-                        {{ message }}
-                    {% endfor %}
-            {% endif %}
-        {% endwith %}
-        </span>
-        <button type="submit" class="btn btn-primary" id="save_settings">{{ _("Save Settings") }}</button>
-    </li>
 </ul>
 <div class="tab-content">
 {% if user.is_owner() %}
-    <div class="tab-pane fade in active"
-         id="settings" data-target="site_settings/update">
-        <form class="form-horizontal">
-            <div class="control-group">
-                    <label class="control-label" for="site_title">{{ _("Site Title") }}</label>
-                <div class="controls">
-                    <input type="text" id="site_title" name="title"
+    <div class="tab-pane fade in active" id="settings">
+        <form class="form-horizontal bv-form" data-action="site_settings/update">
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="site_title">{{ _("Site Title") }}</label>
+                <div class="col-sm-3">
+                    <input type="text" id="site_title" name="title" class="form-control"
                            value="{{ settings.title }}" required/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="site_subtitle">{{ _("Site Subtitle") }}</label>
-                <div class="controls">
-                    <input type="text" id="site_subtitle" name="subtitle"
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="site_subtitle">{{ _("Site Subtitle") }}</label>
+                <div class="col-sm-3">
+                    <input type="text" id="site_subtitle" name="subtitle" class="form-control"
                            value="{{ settings.subtitle }}"/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="site_copyright">{{ _("Copyright") }}</label>
-                <div class="controls">
-                    <input type="text" id="site_copyright" name="copyright"
+            <div class="form-group">
+                {% set cur_theme = (settings.theme or "Flatly").lower() %}
+                <label class="col-sm-2 control-label" for="theme">{{ _("Site Theme") }}</label>
+                <div class="col-sm-2">
+                    <select name="theme" class="form-control">
+                        {% for theme in settings.Themes %}
+                            <option value="{{ theme }}" {% if cur_theme == theme.lower() %}selected{% endif %}>
+                                {{ theme }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="site_copyright">{{ _("Copyright") }}</label>
+                <div class="col-sm-4">
+                    <input type="text" id="site_copyright" name="copyright" class="form-control"
                            value="{{ settings.copyright }}"/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="ga_tracking_id">{{ _("Google Analytics ID") }}</label>
-                <div class="controls">
-                    <input type="text" id="ga_tracking_id" name="ga_tracking_id"
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="ga_tracking_id">{{ _("Google Analytics ID") }}</label>
+                <div class="col-sm-4">
+                    <input type="text" id="ga_tracking_id" name="ga_tracking_id" class="form-control"
                            value="{{ settings.ga_tracking_id or "" }}"/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label">{{ _("Memcache") }}</label>
-                <div class="controls">
-                    <button class="btn btn-danger" id="flush_cache">{{ _("Flush Cache") }}</button>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="mirror_site">{{ _("Static Files Mirror Site") }}</label>
+                <div class="col-sm-4">
+                    <input type="text" id="mirror_site" name="mirror_site" class="form-control"
+                           placeholder="***.qiniudn.com"
+                           value="{{ settings.MirrorSite }}"/>
+                </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-2 col-lg-offset-2">
+                <button type="submit" class="btn btn-primary btn-block" data-refresh="true">{{ _("Save Settings") }}</button>
+              </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">{{ _("Memcache") }}</label>
+                <div class="col-sm-2">
+                    <button class="btn btn-warning btn-block" id="flush_cache">{{ _("Flush Cache") }}</button>
                 </div>
             </div>
         </form>
     </div>
-    <div class="tab-pane fade"
-         id="users">
-        <button class="btn btn-info create_btn">{{ _("New User") }}</button>
+    <div class="tab-pane fade" id="users">
+        <button class="btn btn-success create_btn">{{ _("New User") }}</button>
         <table class="table table-striped">
             <thead>
             <tr>
                 <th>id</th>
                 <th>Email</th>
-                <th>{{ _("Name") }}</th>
+                <th class="col-lg-2">{{ _("Name") }}</th>
                 <th>{{ _("Active?") }}</th>
                 <th>{{ _("Role") }}</th>
                 <th>{{ _("Action") }}</th>
             </tr>
             </thead>
             <tbody>
-                <tr data-target="user/create" class="hide template">
+                <tr class="dis-none template">
                     <td><input type="password" name="password" placeHolder="Password"
-                               title="Password"
-                               class="span2" value="" disabled required/>
+                               title="Password"  class="form-control input-sm"
+                               value="" disabled required/>
                     </td>
                     <td>
                         <input type="email" name="email" placeHolder="Email"
-                               title="Email"
-                               class="span3" value="" disabled required/>
+                               title="Email"  class="form-control input-sm"
+                               value="" disabled required/>
                     </td>
                     <td><input type="text" name="nickname" placeHolder="Name"
-                               title="Name"
-                               class="span2" value="" disabled/>
+                               title="Name"  class="form-control input-sm"
+                               value="" disabled/>
                     </td>
                     <td>
-                        <input type="checkbox" name="active" checked disabled/>
+                        <input type="checkbox" name="active"
+                                class="form-control input-sm"
+                               checked disabled/>
                     </td>
                     <td>
-                        <select name="role" class="span2" disabled>
+                        <select name="role"  class="form-control input-sm" disabled>
                             {% for role in settings.UserRoles %}
                                 <option value="{{ role }}">
                                     {{ role }}
@@ -271,7 +278,7 @@
                         </select>
                     </td>
                     <td>
-                        <button class="btn btn-small new">{{ _("New") }}</button>
+                        <button class="btn btn-sm new" data-action="user/create">{{ _("New") }}</button>
                     </td>
                 </tr>
             {% for user in users %}
@@ -280,18 +287,18 @@
                     <input type="hidden" name="id"
                            value="{{ user.id }}"/>
                 </td>
-                <td><input type="email" name="email"
+                <td><input type="email" name="email"  class="form-control input-sm"
                            value="{{ user.email }}" disabled required/>
                 </td>
-                <td><input type="text" name="nickname" class="span2"
+                <td><input type="text" name="nickname"  class="form-control input-sm"
                            value="{{ user.nickname }}" disabled required/>
                 </td>
                 <td>
-                    <input type="checkbox" name="active"
+                    <input type="checkbox" name="active"  class="form-control input-sm"
                             {% if user.active %}checked{% endif %} disabled/>
                 </td>
                 <td>
-                    <select name="role" class="span2" disabled>
+                    <select name="role"  class="form-control input-sm" disabled>
                         {% for role in settings.UserRoles %}
                             <option value="{{ role }}" {% if user.role == role %}selected{% endif %}>
                                 {{ role }}
@@ -300,165 +307,184 @@
                     </select>
                 </td>
                 <td>
-                    <button class="btn btn-small edit">{{ _("Edit") }}</button>
-                    <button class="btn btn-small delete" data-target="user/delete">{{ _("Delete") }}</button>
-                    <button class="btn btn-small btn-primary hide save">{{ _("Save") }}</button>
-                    <button class="btn btn-small hide cancel">{{ _("Cancel") }}</button>
+                    <button class="btn btn-sm btn-primary edit">{{ _("Edit") }}</button>
+                    <button class="btn btn-sm btn-danger delete" data-action="user/delete">{{ _("Delete") }}</button>
+                    <button class="btn btn-sm btn-success save dis-none" data-action="user/update">{{ _("Save") }}</button>
+                    <button class="btn btn-sm cancel dis-none">{{ _("Cancel") }}</button>
                 </td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
-    <div class="tab-pane fade"
-         id="categories">
-        <button class="btn btn-info create_btn">{{ _("New Category") }}</button>
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th></th>
-                <th>URL</th>
-                <th>{{ _("Name") }}</th>
-                <th>{{ _("Sort") }}</th>
-                <th>{{ _("Post per Page") }}</th>
-                <th>{{ _("Order") }}</th>
-                <th>{{ _("Template") }}</th>
-                <th>{{ _("Action") }}</th>
+{% endif %}
+{% if user.is_admin() %}
+    <div class="tab-pane fade" id="categories">
+    <button class="btn btn-success create_btn">{{ _("New Category") }}</button>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th></th>
+            <th class="">{{ _("Hide?") }}</th>
+            <th class="col-lg-2">URL</th>
+            <th class="col-lg-2">{{ _("Name") }}</th>
+            <th class="col-lg-1">{{ _("Sort") }}</th>
+            <th class="col-lg-1">{{ _("Post per Page") }}</th>
+            <th>{{ _("Order") }}</th>
+            <th>{{ _("Template") }}</th>
+            <th class="col-lg-2">{{ _("Action") }}</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr class="dis-none template">
+                <td>
+                </td>
+                <td>
+                    <input type="checkbox" name="hidden" disabled/>
+                </td>
+                <td><input type="text" name="url" class="form-control input-sm"
+                           value="" />
+                </td>
+                <td><input type="text" name="name" class="form-control input-sm"
+                           value="" required />
+                </td>
+                <td>
+                    <input type="number" name="sort" class="form-control input-sm"
+                           value="0" required />
+                </td>
+                <td>
+                    <input type="number" name="posts_per_page" class="form-control input-sm"
+                           value="5" required />
+                </td>
+                <td>
+                    <select name="order" class="form-control input-sm" >
+                        {% for order in settings.Orders %}
+                            <option value="{{ order }}" selected>
+                                {{ order }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="template" class="form-control input-sm" >
+                        {% for template in settings.Templates %}
+                            <option value="{{ template }}">
+                                {{ template }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-sm new" data-action="category/create">{{ _("New") }}</button>
+                </td>
             </tr>
-            </thead>
-            <tbody>
-                <tr data-target="category/create" class="hide template">
-                    <td>
-                    </td>
-                    <td><input type="text" name="url" class="span2"
-                               value="" />
-                    </td>
-                    <td><input type="text" name="name" class="span2"
-                               value="" required />
-                    </td>
-                    <td>
-                        <input type="number" name="sort" class="span1"
-                               value="0" required />
-                    </td>
-                    <td>
-                        <input type="number" name="posts_per_page" class="span1"
-                               value="5" required />
-                    </td>
-                    <td>
-                        <select name="order" class="span1" >
-                            {% for order in settings.Orders %}
-                                <option value="{{ order }}" selected>
-                                    {{ order }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <select name="template" class="span2" >
-                            {% for template in settings.Templates %}
-                                <option value="{{ template }}">
-                                    {{ template }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-small new">{{ _("New") }}</button>
-                    </td>
-                </tr>
-            {% for category in settings.categories %}
-                <tr data-target="category/update">
-                    <td>
-                        <input type="hidden" name="id"
-                               value="{{ category.id }}"/>
-                    </td>
-                    <td><input type="text" name="url" class="span2"
-                               value="{{ category.url }}" disabled/>
-                    </td>
-                    <td><input type="text" name="name" class="span2"
-                               value="{{ category.name }}" disabled required/>
-                    </td>
-                    <td>
-                        <input type="number" name="sort" class="span1"
-                               value="{{ category.sort }}" disabled required/>
-                    </td>
-                    <td>
-                        <input type="number" name="posts_per_page" class="span1"
-                               value="{{ category.posts_per_page }}" disabled required/>
-                    </td>
-                    <td>
-                        <select name="order" class="span1" disabled>
-                            {% for order in settings.Orders %}
-                                <option value="{{ order }}" {% if category.order == order %}selected{% endif %}>
-                                    {{ order }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <select name="template" class="span2" disabled>
-                            {% for template in settings.Templates %}
-                                <option value="{{ template }}" {% if category.template == template %}selected{% endif %}>
-                                    {{ template }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <button class="btn btn-small edit">{{ _("Edit") }}</button>
-                        <button class="btn btn-small delete" data-target="category/delete">{{ _("Delete") }}</button>
-                        <button class="btn btn-small btn-primary hide save">{{ _("Save") }}</button>
-                        <button class="btn btn-small hide cancel">{{ _("Cancel") }}</button>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
+        {% for category in settings.categories %}
+            <tr>
+                <td>
+                    <input type="hidden" name="id"
+                           value="{{ category.id }}"/>
+                </td>
+                <td>
+                    <input type="checkbox" name="hidden"
+                            {% if category.hidden %}checked{% endif %} disabled/>
+                </td>
+                <td><input type="text" name="url" class="form-control input-sm"
+                           value="{{ category.url }}" disabled/>
+                </td>
+                <td><input type="text" name="name" class="form-control input-sm"
+                           value="{{ category.name }}" disabled required/>
+                </td>
+                <td>
+                    <input type="number" name="sort" class="form-control input-sm"
+                           value="{{ category.sort }}" disabled required/>
+                </td>
+                <td>
+                    <input type="number" name="posts_per_page" class="form-control input-sm"
+                           value="{{ category.posts_per_page }}" disabled required/>
+                </td>
+                <td>
+                    <select name="order" class="form-control input-sm" disabled>
+                        {% for order in settings.Orders %}
+                            <option value="{{ order }}" {% if category.order == order %}selected{% endif %}>
+                                {{ order }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="template" class="form-control input-sm" disabled>
+                        {% for template in settings.Templates %}
+                            <option value="{{ template }}" {% if category.template == template %}selected{% endif %}>
+                                {{ template }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary edit">{{ _("Edit") }}</button>
+                    <button class="btn btn-sm btn-danger delete" data-action="category/delete">{{ _("Delete") }}</button>
+                    <button class="btn btn-sm btn-success save dis-none" data-action="category/update">{{ _("Save") }}</button>
+                    <button class="btn btn-sm cancel dis-none">{{ _("Cancel") }}</button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
         </table>
     </div>
 {% endif %}
-    <div class="tab-pane fade {% if not user.is_owner() %}in active{% endif %}"
-         id="personal"  data-target="user/update">
-        <form class="form-horizontal">
+    <div class="tab-pane fade {% if not user.is_owner() %}in active{% endif %}" id="personal">
+      <form class="form-horizontal bv-form" data-action="user/update">
+           <fieldset>
+            <legend>{{ _("Personal") }}</legend>
             <input type="hidden" id="userid" name="id"
                    value="{{ user.id }}"/>
-            <div class="control-group">
-                <label class="control-label" for="email">Email</label>
-                <div class="controls">
-                    <input type="email" id="email" name="email"
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="email">Email</label>
+                <div class="col-sm-4">
+                    <input type="email" id="email" name="email" class="form-control"
                            value="{{ user.email }}" required/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="nickname">{{ _("Nickname") }}</label>
-                <div class="controls">
-                    <input type="text" id="nickname" name="nickname"
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="nickname">{{ _("Nickname") }}</label>
+                <div class="col-sm-3">
+                    <input type="text" id="nickname" name="nickname" class="form-control"
                            value="{{ user.nickname }}" maxlength="20" required/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="avatar">{{ _("Avatar") }}</label>
-                <div class="controls">
-                    <input type="text" id="avatar" name="avatar"
-                           pattern="http.*"
-                           value="{{ user.avatar }}" class="span7"/>
-                    <img src="{{ user.avatar_url }}" class="avatar32"/>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="avatar">{{ _("Avatar") }}</label>
+                <div class="col-sm-7">
+                    <input type="text" id="avatar" name="avatar" class="form-control"
+                           value="{{ user.avatar }}" placeholder="http://***" pattern="http.+"/>
                 </div>
+                <div class="col-sm-2"><img src="{{ user.avatar_url }}" class="avatar48"/></div>
             </div>
-        </form>
-    </div>
-    <div class="tab-pane fade"
-         id="reset_password"  data-target="user/update">
-        <form class="form-horizontal">
-            <div class="control-group">
-                <input type="hidden" id="user_id" name="id"
-                       value="{{ user.id }}"/>
-                <label class="control-label" for="password">{{ _("Password") }}</label>
-                <div class="controls">
-                    <input type="password" id="password" name="password"
-                           value="" required/>
-                </div>
+            <div class="form-group">
+              <div class="col-sm-2 col-lg-offset-2">
+                <button type="submit" class="btn btn-primary btn-block">{{ _("Save Settings") }}</button>
+              </div>
             </div>
-        </form>
+           </fieldset>
+      </form>
+      <form class="form-horizontal bv-form" data-action="user/update">
+        <fieldset>
+        <legend>{{ _("Reset Password") }}</legend>
+        <div class="form-group">
+            <input type="hidden" id="user_id" name="id" value="{{ user.id }}"/>
+            <label class="col-sm-2 control-label" for="password">{{ _("Password") }}</label>
+            <div class="col-sm-4">
+                <input type="password" id="password" name="password" class="form-control"
+                       minlength="4" maxlength="30" value="" required/>
+            </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-2 col-lg-offset-2">
+            <button type="submit" class="btn btn-primary btn-block">{{ _("Reset Password") }}</button>
+          </div>
+        </div>
+        </fieldset>
+      </form>
     </div>
 </div>
 {% endblock %}

@@ -1,77 +1,10 @@
-<style type="text/css">
-.comment-box {
-
-}
-.comment-title {
-    font-size: 1.4em;
-    font-weight: bold;
-    padding-bottom: 3px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    padding: 10px;
-}
-
-.threads {
-    list-style: none;
-    margin: 0;
-    font-size: 0.95em;
-    padding: 0 10px 20px 10px;
-}
-
-.threads .thread {
-    border-top: 2px #eee solid;
-    min-width: 160px;
-}
-
-.threads .command {
-    padding: 5px;
-}
-
-.threads .user_name {
-    font-size: 0.95em;
-    font-weight: bold;
-}
-
-.threads .date {
-    color: #999;
-}
-
-.threads .comment-content {
-    padding: 5px 10px 5px 10px;
-}
-
-.threads .deleted {
-    text-decoration:line-through;
-}
-
-.comment-input {
-    font-size: 0.9em;
-    padding: 10px;
-}
-.comment-input .nav {
-    margin-bottom: 4px;
-}
-.comment-input textarea {
-    width: 90%;
-    max-width: 90%;
-    margin: 0;
-}
-.comment-input .preview {
-    padding: 10px;
-    background-color: #fff;
-}
-.comment-input .message {
-    margin-top: 8px;
-}
-</style>
-
-<div id="comments-template" class="comment-box hide">
+<div id="comments-template" class="comment-box dis-none">
     <div class="comment-title" title="Click to Collapse">
         <span class="comment-count"></span> {{ _("Comments") }}  <span class="caret"></span>
-        <img class="loading" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        <img class="loading" src="{{ settings.MirrorSite }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
         <div class="pull-right">
-            <button class="btn btn-success btn-small reply-post">
-                <i class="icon-share-alt icon-white"></i>
+            <button class="btn btn-success btn-sm reply-post">
+                <i class="fa fa-reply"></i>
                 {{ _("Reply") }}
             </button>
         </div>
@@ -80,39 +13,42 @@
         <ul class="nav nav-tabs">
             <li class="active"><a name="content" data-toggle="tab" href="#">{{ _("Comment") }}</a></li>
             <li class=""><a name="preview" data-toggle="tab" href="#">{{ _("Preview") }}</a></li>
-            <li class="message"><span class="label hide"></span></li>
-            <li class="pull-right">
-                <div class="input-append">
-                    <input type="text" class="input-small" name="author" placeholder="{{ _("Your Name") }}" required
+            <li class="message"><span class="label dis-none"></span></li>
+            <li class="comment-author pull-right">
+                <span class="input-group">
+                    <input type="text" class="input-sm form-control"
+                           name="author" placeholder="{{ _("Your Name") }}" required
                            {% if user and user.is_user() %}value="{{ user.nickname }}"{% endif %}/>
-                    <button class="btn" type="button" id="submit_comment">{{ _("Submit") }}</button>
-                </div>
+                    <span class="input-group-btn">
+                    <button class="btn btn-default input-sm" type="button" id="submit_comment">{{ _("Submit") }}</button>
+                    </span>
+                </span>
             </li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active content">
-                <textarea rows="1" name="content"
+                <textarea rows="1" name="content" class="form-control"
                           placeholder="{{ _("comment here, support markdown syntax") }}" required></textarea>
             </div>
             <div class="tab-pane preview">
             </div>
         </div>
     </div>
-    <li id="thread_template" class="hide thread">
+    <li id="thread_template" class="dis-none thread">
         <div class="command">
-            <i class="icon-user"></i><span class="user_name"></span>
-            <i class="icon-time"></i><abbr class="date timeago" title=""></abbr>
+            <i class="fa fa-user"></i> <span class="user_name"></span>
+            <i class="fa fa-clock-o"></i> <abbr class="date timeago text-muted" title=""></abbr>
             <div class="pull-right">
-                <button class="stats btn btn-mini" stats_type="Comment" name="like_count" oper="increase"
-                    title="{{ _("Like") }}"><i class="icon-thumbs-up"></i>
-                </button>
-                <button class="stats btn btn-mini" stats_type="Comment" name="unlike_count" oper="increase"
-                    title="{{ _("Unlike") }}"><i class="icon-thumbs-down"></i>
-                </button>
-                <a class="reply-comment" href="javascript:;"><i class="icon-share-alt"></i>{{ _("Reply") }}</a>
+                <a class="stats" stats_type="Comment" name="like_count" oper="increase"
+                    href="javascript:" title="{{ _("Like") }}"><i class="fa fa-thumbs-o-up"></i>
+                </a>&nbsp;
+                <a class="stats" stats_type="Comment" name="unlike_count" oper="increase"
+                    href="javascript:" title="{{ _("Unlike") }}"><i class="fa fa-thumbs-o-down"></i>
+                </a>&nbsp;
+                <a class="reply-comment" href="javascript:" title="{{ _("Reply") }}"><i class="fa fa-reply"></i></a>&nbsp;
                 {% if user.is_admin() %}
-                <button class="delete-comment btn btn-mini" ><i class="icon-trash"></i>{{ _("Delete") }}</button>
-                <button class="restore-comment btn btn-mini" ><i class="icon-repeat"></i>{{ _("Restore") }}</button>
+                <a class="delete-comment" href="javascript:" title="{{ _("Delete") }}"><i class="fa fa-trash-o"></i></a>&nbsp;
+                <a class="restore-comment" href="javascript:" title="{{ _("Restore") }}" ><i class="fa fa-repeat"></i></a>&nbsp;
                 {% endif %}
             </div>
         </div>
@@ -122,9 +58,9 @@
     <ul class="threads">
     </ul>
 </div>
-<script type="text/javascript" src="/static/assets/timeago/jquery.timeago.js"></script>
-<script type="text/javascript" src="/static/assets/timeago/jquery.timeago.{{ g.locale }}.js"></script>
-<script type="text/javascript" src="/static/assets/bootstrap/jqBootstrapValidation.min.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/jquery/timeago/jquery.timeago.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/jquery/timeago/jquery.timeago.{{ g.locale }}.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/bootstrap/jqBootstrapValidation.js"></script>
 <script type="text/javascript">
 function Comment(md2html) {
     var self = this;
@@ -154,7 +90,7 @@ function Comment(md2html) {
                 }, 1000);
 
             },function(err){
-                $(".threads", $box).html(err);
+                $(".threads", $box).text(err);
                 $loading.hide();
             });
     };
@@ -171,12 +107,19 @@ function Comment(md2html) {
     var insert_comment = function(comment){
         var $comment = $("#thread_template", $box).clone();
         $comment.attr("id", "comment_"+comment.id);
-        $(".user_name", $comment).html(comment.author);
+        $(".user_name", $comment).text(comment.author);
         $(".date", $comment).text(comment.created_date.to_date().format());
         $('.timeago', $comment).attr("title", comment.created_date.to_date().format());
         $('.timeago', $comment).timeago();
-        $(".stats[name=like_count]", $comment).html('<i class="icon-thumbs-up"></i>{0}'.format(comment.stats.like_count));
-        $(".stats[name=unlike_count]", $comment).html('<i class="icon-thumbs-down"></i>{0}'.format(comment.stats.unlike_count));
+
+        var $like = $(".stats[name=like_count]", $comment);
+        var $icon = $like.find("i").clone();
+
+        $like.empty().append($icon).append(comment.stats.like_count);
+
+        var $unlike = $(".stats[name=unlike_count]", $comment);
+        $icon = $unlike.find("i").clone();
+        $unlike.empty().append($icon).append(comment.stats.unlike_count);
 
         $(".comment-content", $comment).html(md2html(comment.content));
         $("pre>code", $comment).parent().addClass("prettyprint");
@@ -345,7 +288,6 @@ function Comment(md2html) {
         });
 
         $input_content.focusin(function(){
-            var $this = $(this);
             $(this).attr("rows", 6);
         });
 

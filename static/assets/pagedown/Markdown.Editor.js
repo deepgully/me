@@ -151,6 +151,10 @@
 
         this.addText = function(text) {
             that.uiManager.addText(text);
+        };
+
+        this.addImage = function(link, alt) {
+            that.uiManager.addImage(link, alt);
         }
     }
 
@@ -1191,7 +1195,6 @@
             // want it to be centered.
             dialog.style.marginTop = -(position.getHeight(dialog) / 2) + "px";
             dialog.style.marginLeft = -(position.getWidth(dialog) / 2) + "px";
-
         };
 
         // Why is this in a zero-length timeout?
@@ -1359,6 +1362,36 @@
         }
         this.addText = addText;
 
+        function addImage(link, alt) {
+            inputBox.focus();
+
+            if (undoManager) {
+                undoManager.setCommandMode();
+            }
+            var state = new TextareaState(panels);
+            if (!state) {
+                return;
+            }
+            var chunks = state.getChunks();
+
+            var linkDef = " [999]: " + properlyEncoded(link);
+
+            var num = commandProto.addLinkDef(chunks, linkDef);
+            chunks.startTag = "\n![{0}".format(alt || "");
+            chunks.endTag = "][" + num + "]";
+
+            inputBox.focus();
+            if (chunks) {
+                state.setChunks(chunks);
+            }
+
+            state.restore();
+
+            previewManager.refresh();
+
+        }
+        this.addImage = addImage;
+
         // Perform the button's action.
         function doClick(button) {
 
@@ -1506,7 +1539,7 @@
                 spacer.id = "wmd-spacer" + num + postfix;
                 buttonRow.appendChild(spacer);
                 xPosition += 25;
-            }
+            };
 
             buttons.bold = makeButton("wmd-bold-button", getString("bold"), "0px", bindCommand("doBold"));
             buttons.italic = makeButton("wmd-italic-button", getString("italic"), "-20px", bindCommand("doItalic"));
@@ -2252,15 +2285,15 @@
         chunk.startTag = "----------\n";
         chunk.selection = "";
         chunk.skipLines(2, 1, true);
-    }
+    };
 
     commandProto.doTab = function(chunk, postProcessing) {
         chunk.before = chunk.before + "    ";
         chunk.selection = chunk.selection.replace(/\n/g, "\n    ");
-    }
+    };
 
     commandProto.doUnTab = function(chunk, postProcessing) {
         chunk.before = chunk.before.replace(/(\s{4}$)/g, "");
         chunk.selection = chunk.selection.replace(/^\s{4}/, "").replace(/\n\s{4}/g, "\n");
-    }
+    };
 })();

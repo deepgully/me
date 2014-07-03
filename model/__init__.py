@@ -17,7 +17,7 @@ from settings import RUNTIME_ENV
 
 
 __all__ = [
-    "bind_app",
+    "bind_app", "clean_cache",
     "DBUser", "DBSiteSettings", "DBCategory",
     "DBPost", "DBPhoto", "DBComment", "DBTag",
 ]

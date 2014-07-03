@@ -2,25 +2,15 @@
 
 {% block css %}
     <style type="text/css">
-.slider-bar {
-    max-height: 600px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-.albums-header {
-    font-size: 1.4em;
-    margin-top: 10px;
-    border-bottom: 1px #ccc solid;
+
+.album_view .post-thumbnails {
+    padding: 0;
+    margin: 16px auto 16px auto;
 }
 
-.albums-menu .post-date {
-    color: #aaa;
-    font-style: italic;
-    font-size: 0.9em;
-}
-
-.album_view {
-    margin-top: 15px;
+.album_view .tags {
+    top: auto;
+    bottom: -12px;
 }
 
 .container-list .photo_cmdbar {
@@ -35,18 +25,10 @@
 }
 
 .photo_cmdbar a {
-color: #fff;
-text-decoration: none;
+    color: #fff;
+    text-decoration: none;
 }
 
-.container-list .post {
-    margin: 0;
-    padding: 15px 0 0 0;
-}
-.post-thumbnails {
-    padding: 0;
-    border: none;
-}
 .post-thumbnails .thumbnail {
     width: {{ thumb_size//2-10 }}px;
     margin: 5px;
@@ -54,6 +36,7 @@ text-decoration: none;
     float: left;
     display: block;
     border: 3px #ccc solid;
+    text-align: center;
 }
 .post-thumbnails > .thumbnail:nth-child({{ thumb_size//100 }}n+1) {
     width: {{ thumb_size }}px;
@@ -91,8 +74,7 @@ margin: 6px 5px;
 
 {% block script %}
     {% include "__post_script.html" %}
-<script type="text/javascript" src="/static/assets/jquery.imagesloaded.min.js"></script>
-<script type="text/javascript" src="/static/assets/jquery.masonry.min.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/jquery/jquery.masonry.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
     var $albums_holder = $("#albums-holder");
@@ -113,7 +95,7 @@ $(document).ready(function(){
         bind_images($album_view);
     });
 
-    var masonry = function($container){
+    var masonry = function($container, callback){
         $container.imagesLoaded(function(){
             $container.masonry({
                 // options
@@ -122,15 +104,18 @@ $(document).ready(function(){
                 isAnimated: true,
                 isResizable: true,
                 columnWidth: {{ thumb_size//2 + 10 }}
-                });
+            });
+            bind_images($album_view.find(".post-thumbnails"));
+
+            bind_img_box($album_view.find(".post-thumbnails"), "album", ".post-thumbnails", -1, -1);
         });
     };
 
     var bind_images =function($container){
-        bind_img($container, -1, -1);
+        bind_img_info($container, 150, 120);
         $(".img_info").each(function(index, item){
             var $info = $(item);
-            if ($info.width() < 240){
+            if ($info.width() < 320){
                 $info.hide();
                 $info.parent().hover(function(){
                     $info.show();
@@ -183,19 +168,18 @@ $(document).ready(function(){
 
     // get hot photos
     var $cmdbar_template = $("#cmdbar_template");
-    $.json_action("photos/hot",{'count': 12},function(resp){
+    $.json_action("photos/hot",{'count': 6},function(resp){
         $.each(resp.photos, function(index, photo){
             insert_thumb($album_view.find(".post-thumbnails"), photo);
         });
+
         masonry($album_view.find(".post-thumbnails"));
-        window.setTimeout(function(){
-            bind_images($album_view.find(".post-thumbnails"));
-        }, 2000);
+
     },function(err){
         bootbox.alert(err);
     });
 
-    var $albums_menu = $(".albums-menu");
+    var $albums_menu = $(".list-menu");
 
     var get_album_menu = function(post){
         var $menu = $("#album_"+post.id);
@@ -213,10 +197,10 @@ $(document).ready(function(){
         var $menu = get_album_menu(post);
 
         if (post.public) {
-            $menu.removeClass("muted");
+            $menu.removeClass("text-muted");
             $(".post-hide", $menu).text("").hide();
         } else {
-            $menu.addClass("muted");
+            $menu.addClass("text-muted");
             $(".post-hide", $menu).text("{{ _("Hidden") }}").show();
         }
 
@@ -228,7 +212,7 @@ $(document).ready(function(){
 
         $(".name", $menu).text(post.title);
         $(".badge", $menu).text(post.photos.length);
-        $(".post-date", $menu).html(post.post_date.format("yyyy-MM-dd"));
+        $(".post-date", $menu).text(post.post_date.format("yyyy-MM-dd"));
 
         $menu.unbind("click");
         $menu.click(function(){
@@ -246,78 +230,30 @@ $(document).ready(function(){
     var show_album = function(post){
         var $post = $("#album_template").clone();
 
-        var $tags = $(".tags", $post).empty();
-        $.each(post.tags, function(index, tag){
-            $tags.append('<li><a href="/tags/{0}">{0}</a></li>'.format(tag));
-        });
+        $post = build_post_panel($post, post);
+        $album_view.html($post);
+        $post.show();
 
-        $("input.date_val", $post).val(post.post_date).attr("id", "post_date_"+post.id);
-        $(".post-title .title", $post).text(post.title);
-        $(".post-title img", $post).attr("src", post.author.avatar_url).attr("title", post.author.nickname);
-        $(".post-date", $post).html(post.post_date.format("yyyy-MM-dd"));
-        $(".post-author", $post).text(post.author.nickname);
-        $(".share", $post).html('<i class="icon-share"></i>{0}'.format(post.stats.share_count));
-        $(".share", $post).click(function(){
-            show_share(post);
-        });
-        $(".stats[name=like_count]", $post).html('<i class="icon-thumbs-up"></i>{0}'.format(post.stats.like_count));
-        $(".stats[name=unlike_count]", $post).html('<i class="icon-thumbs-down"></i>{0}'.format(post.stats.unlike_count));
-        $(".comment", $post).html('<i class="icon-comment"></i>{0}'.format(post.stats.comment_count));
+        {% if user.is_admin() %}
+        $(".menu-edit", $post).unbind("click").click(menu_edit);
+
+        var album_delete = function(e){
+            var $post = $(this).parents(".post");
+            menu_delete(e, $post, function(resp){
+                var $menu = get_album_menu(post);
+                $menu.remove();
+            });
+        };
+        $(".menu-delete", $post).unbind("click").click(album_delete);
+        {% endif %}
 
         $.each(post.photos, function(index, photo){
             insert_thumb($post.find(".post-thumbnails"), photo);
         });
-
-        $post.attr("id", "post_{0}".format(post.id));
-        var $comments_panel = $(".comments_panel", $post);
-        $(".cmdbar .comment", $post).click(function(){
-            $comments_panel.show();
-            var comment = new Comment(md2html);
-            comment.show_comments($comments_panel,  post.id);
-        });
-
-        $(".cmdbar .stats", $post).click(function(){
-            var $this = $(this);
-            var $icon = $this.find("i").clone();
-            $.json_action("stats",{
-                stats_type: $.toJSON($this.attr("stats_type")),
-                id: $.toJSON(post.id),
-                oper: $.toJSON($this.attr("oper")),
-                name: $.toJSON($this.attr("name"))
-            },function(resp){
-                $this.empty();
-                $this.append($icon);
-                $this.append(resp.stats[$this.attr("name")]);
-                post.stats = resp.stats;
-            },function(err){
-                bootbox.alert(err);
-            });
-            $this.unbind("click");
-        });
-
-        {% if user.is_admin() %}
-            $(".menu-edit", $post).click(menu_edit);
-
-            var album_delete = function(e){
-                var $post = $(this).parents(".post");
-                menu_delete(e, $post, function(resp){
-                    var $menu = get_album_menu(post);
-                    $menu.remove();
-                });
-            }
-            $(".menu-delete", $post).click(album_delete);
-        {% endif %}
-
-        $album_view.html($post);
-        $post.show();
         masonry($album_view.find(".post-thumbnails"));
-
-        window.setTimeout(function(){
-            bind_images($album_view.find(".post-thumbnails"));
-        }, 2000);
     };
 
-    $("#load-more-post").click(function() {
+    $(".load-more-post").click(function() {
         load_posts(show_album_menu);
     });
 
@@ -338,7 +274,7 @@ $(document).ready(function(){
         };
         editor = new Editor(md_converter, post_callback, true);
         var $new_album = $("#new-post");
-        $new_album.html('<i class="icon-th-large icon-white"></i>{{ _("New Album") }}');
+        $new_album.html('<i class="fa fa-photo"></i> {{ _("New Album") }}');
         $new_album.click(function(){
             editor.new_post(null, true);
         });
@@ -348,82 +284,84 @@ $(document).ready(function(){
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid">
-    {% if user.is_admin() %}
-        {% include "_editor.html" %}
-    {% endif %}
-    <div class="row">
-        <div class="span3 affix slider-bar well">
-            <li class="nav-header albums-header">
-                <a href="">{{ _("Albums") }}</a>
-            </li>
-            <li class="hide" id="album_menu_template">
-                <a href="javascript:;">
-                    <span class="post-sticky hide" title="{{ _("Sticky") }}"></span>
-                    <span class="label post-hide hide"></span>
-                    <span class="name">template</span>
-                    <span class="badge badge-success">0</span>
-                    <br><i class="icon-time"></i><span class="post-date"></span>
-                </a>
-            </li>
-            <ul class="nav nav-list albums-menu">
-            </ul>
-            <p class="text-center">
-                <button id="load-more-post" class="btn btn-block btn-info hide">{{ _("More") }}...</button>
-                <img id="post-loading" class="loading" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
-            </p>
-        </div>
-        <div class="span3" id="albums-holder">
-            <div id="album_template" class="post hide row-fluid active" >
-                <input type="hidden" class="date_val" />
-                <ul class="tags"></ul>
-                <ul class="post-thumbnails"></ul>
-                <div style="clear: both"></div>
-                <div class="post-bottom clearfix">
-                    <i class="icon-time"></i><span class="post-date"></span>
-                    <div class="cmdbar">
-                        <i class="icon-user"></i><span class="post-author"></span>
-                        <button class="share btn btn-mini" title="{{ _("Share") }}"><i class="icon-share"></i></button>
-                        <button class="stats btn btn-mini" stats_type="Post" name="like_count" oper="increase"
-                                title="{{ _("Like") }}"><i class="icon-thumbs-up"></i>
-                        </button>
-                        <button class="stats btn btn-mini" stats_type="Post" name="unlike_count" oper="increase"
-                                title="{{ _("Unlike") }}"><i class="icon-thumbs-down"></i>
-                        </button>
-                        <button class="comment btn btn-mini" title="{{ _("Comment") }}"><i class="icon-comment"></i></button>
-                        {% if user.is_admin() %}
-                            <div class="menu btn-group">
-                                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="javascript:;">
-                                    <i class="icon-download"></i>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="menu-edit" href="javascript:;">{{ _("Edit") }}</a></li>
-                                    <li><a class="menu-delete" href="javascript:;">{{ _("Delete") }}</a></li>
-                                </ul>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="comments_panel hide"></div>
+{% if user.is_admin() %}
+    {% include "_editor.html" %}
+{% endif %}
+<div class="row">
+    <div class="col-lg-3 slider-bar well">
+        <h4><i class="fa fa-picture-o"></i> {{ _("Albums") }}</h4>
+        <li class="dis-none" id="album_menu_template">
+            <a href="javascript:">
+                <span class="post-sticky dis-none" title="{{ _("Sticky") }}"></span>
+                <span class="label label-default post-hide dis-none"></span>
+                <span class="name">template</span>
+                <span class="badge">0</span>
+                <br><i class="fa fa-clock-o text-muted"></i> <span class="post-date text-muted"></span>
+            </a>
+        </li>
+        <ul class="nav nav-pills nav-stacked list-menu">
+        </ul>
+        <p class="text-center">
+            <button class="load-more-post btn btn-block btn-info dis-none">{{ _("More") }}...</button>
+            <img class="post-loading loading" src="{{ settings.MirrorSite }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        </p>
+    </div>
+    <div class="col-lg-3" id="albums-holder">
+    </div>
+    <div class="col-lg-7 album_view container-list">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {{ _("Hot Photos") }}
             </div>
-            <div id="cmdbar_template" class="photo_cmdbar hide">
-                <a class="stats" stats_type="Photo" target_id="" name="like_count" oper="increase"
-                   href="javascript:;" title="{{ _("Like") }}"><i class="icon-thumbs-up icon-white"></i>
-                </a>
-                <a class="stats" stats_type="Photo" target_id="" name="unlike_count" oper="increase"
-                   href="javascript:;" title="{{ _("Unlike") }}"><i class="icon-thumbs-down icon-white"></i>
-                </a>
-            </div>
-        </div>
-        <div class="span7 album_view container-list">
-            <div class="post row-fluid">
-                <li class="nav-header albums-header">
-                    {{ _("Hot Photos") }}
-                </li>
-                <ul class="post-thumbnails"></ul>
-            </div>
+            <ul class="post-thumbnails"></ul>
         </div>
     </div>
+</div>
+<!-- Start Post Template -->
+<div id="album_template" class="post dis-none active panel panel-default" >
+    <input type="hidden" class="date_val" />
+    <div class="panel-heading">
+        <div class="tags"></div>
+        <small>
+        <i class="fa fa-clock-o"></i> <span class="post-date"></span>
+        <span class="cmdbar pull-right">
+            <i class="fa fa-user"></i> <span class="post-author"></span>&nbsp;
+            <button class="share btn btn-default btn-xs" title="{{ _("Share") }}">
+                <i class="fa fa-share"></i></button>
+            <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="increase"
+                title="{{ _("Like") }}"><i class="fa fa-thumbs-o-up"></i>
+            </button>
+            <button class="stats btn btn-default btn-xs" stats_type="Post" name="unlike_count" oper="increase"
+                title="{{ _("Unlike") }}"><i class="fa fa-thumbs-o-down"></i>
+            </button>
+            <button class="comment btn btn-default btn-xs" title="{{ _("Comment") }}">
+                <i class="fa fa-comment-o"></i></button>
+            &nbsp;
+            {% if user.is_admin() %}
+            <div class="menu btn-group">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                    <i class="fa fa-toggle-down text-default"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="menu-edit" href="javascript:;">{{ _("Edit") }}</a></li>
+                    <li><a class="menu-delete" href="javascript:;">{{ _("Delete") }}</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </span>
+        </small>
+        <div class="comments_panel dis-none"></div>
+    </div>
+    <ul class="post-thumbnails"></ul>
+</div>
+<!-- End Album Template -->
+<div id="cmdbar_template" class="photo_cmdbar dis-none">
+    &nbsp;<a class="stats" stats_type="Photo" target_id="" name="like_count" oper="increase"
+       href="javascript:;" title="{{ _("Like") }}"><i class="fa fa-thumbs-up"></i>
+    </a>&nbsp;
+    <a class="stats" stats_type="Photo" target_id="" name="unlike_count" oper="increase"
+       href="javascript:;" title="{{ _("Unlike") }}"><i class="fa fa-thumbs-down"></i>
+    </a>&nbsp;
 </div>
 {% include "__comment.html" %}
 {% endblock %}

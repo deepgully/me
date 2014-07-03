@@ -14,12 +14,13 @@
 # limitations under the License.
 
 import uuid
-from hashlib import sha256
 from hmac import HMAC
+from hashlib import sha256
+from functools import wraps
 
 from urllib import unquote as _unquote
 
-from settings import app, logging
+from settings import app, logging, QINIU_SETTINGS
 
 
 ############################################
@@ -38,6 +39,19 @@ def secret_hash(source, salt=None, key=app.secret_key):
 
 def unquote(s):
     return unicode(_unquote(s.encode("utf-8")), "utf-8")
+
+
+def fail_safe_func(func, fail_safe=True):
+    @wraps(func)
+    def fail_safe(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            logging.exception("error in func call [%s]" % func.__name__)
+            if not fail_safe:
+                raise
+
+    return fail_safe
 
 
 ############################################
@@ -72,33 +86,106 @@ def get_img_type(binary):
         return ImageMime.UNKNOWN, ""
 
 
-def save_photo(binary):
-    from tools import save_file
+if QINIU_SETTINGS.Enabled:
+    from datetime import datetime
+    from qiniu import io, rs, fop, conf
+    from settings import THUMB_SIZE
 
+    conf.ACCESS_KEY = QINIU_SETTINGS.ACCESS_KEY
+    conf.SECRET_KEY = QINIU_SETTINGS.SECRET_KEY
+
+    def save_file_qiniu(binary, filename, mime="application/octet-stream"):
+
+        today = datetime.now().strftime("%Y/%m/%d/")
+        filename = today + filename
+
+        policy = rs.PutPolicy(QINIU_SETTINGS.BUCKET_NAME)
+        uptoken = policy.token()
+
+        extra = io.PutExtra()
+        extra.mime_type = mime
+
+        res, err = io.put(uptoken, filename, binary, extra)
+        if err is not None:
+            raise Exception("Qiniu save file [%s] error: %s res: %s" % (filename, err, res))
+
+        url = rs.make_base_url(QINIU_SETTINGS.BUCKET_DOMAIN, filename)
+
+        iv = fop.ImageView()
+        iv.mode = 2
+        iv.width = THUMB_SIZE[0]
+        url_thumb = iv.make_request(url)
+
+        return url, url_thumb
+
+    def delete_file_qiniu(file_path):
+        from urlparse import urlsplit
+
+        res = urlsplit(file_path)
+
+        hostname, path, query_str = res.hostname, res.path, res.query
+
+        if query_str.strip():
+            return  # can not delete fop url
+
+        bucket, host = hostname.split(".", 1)   # assume it's qiniu sub-domain
+
+        if host.lower() != "qiniudn.com":   # it's not qiniu domain
+            if hostname.lower() != QINIU_SETTINGS.BUCKET_DOMAIN.lower():
+                raise Exception("can not delete file not in domain %s" % QINIU_SETTINGS.BUCKET_DOMAIN)
+
+            # it's same domain, use bucket in settings
+            bucket = QINIU_SETTINGS.BUCKET_NAME
+
+        _, key = path.split("/", 1)
+
+        ret, err = rs.Client().delete(bucket, key)
+        if err is not None:
+            raise Exception("Qiniu delete file [%s] error: %s res: %s" % (file_path, err, res))
+
+
+def save_photo(binary):
     mime, ext = get_img_type(binary)
     if mime == ImageMime.UNKNOWN:
         raise Exception("unsupported image format")
 
-    filename = str(uuid.uuid1()) + ext
-    url, real_file = save_file(binary, filename, mime_type=mime)
+    rand_str = str(uuid.uuid1())
+    filename = rand_str + ext
 
-    url_thumb = real_file_thumb = ""
-    try:
-        import StringIO
-        from PIL import Image
-        from settings import THUMB_SIZE
+    if QINIU_SETTINGS.Enabled:
+        url, url_thumb = save_file_qiniu(binary, filename, mime)
 
-        im = Image.open(StringIO.StringIO(binary))
-        thumb = StringIO.StringIO()
-        thumb_filename = str(uuid.uuid1()) + "_thumb" + ext
-        im.thumbnail(THUMB_SIZE)
-        thumb.name = thumb_filename
-        im.save(thumb)
-        url_thumb, real_file_thumb = save_file(thumb.getvalue(), thumb_filename, mime_type=mime)
-    except:
-        logging.exception("save thumb error")
+        return url, url, url_thumb, url_thumb, mime
 
-    return url, real_file, url_thumb, real_file_thumb, mime
+    else:
+        from tools import save_file
+
+        url, real_file = save_file(binary, filename, mime_type=mime)
+
+        url_thumb = real_file_thumb = ""
+        try:
+            import StringIO
+
+            from PIL import Image
+            from settings import THUMB_SIZE
+
+            im = Image.open(StringIO.StringIO(binary))
+            im.thumbnail(THUMB_SIZE, Image.ANTIALIAS)
+
+            thumb = StringIO.StringIO()
+            thumb.name = filename
+            im.save(thumb)
+            binary = thumb.getvalue()
+            thumb.close()
+
+            mime, ext = get_img_type(binary)
+            thumb_filename = rand_str + "_thumb" + ext
+
+            url_thumb, real_file_thumb = save_file(binary, thumb_filename, mime_type=mime)
+        except:
+            logging.exception("save thumb error")
+
+        return url, real_file, url_thumb, real_file_thumb, mime
 
 
 ######################################

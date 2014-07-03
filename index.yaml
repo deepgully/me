@@ -30,6 +30,23 @@ indexes:
 - kind: DBPost
   properties:
   - name: category_id
+  - name: public
+  - name: sticky
+    direction: desc
+  - name: post_date
+
+- kind: DBPost
+  properties:
+  - name: category_id
+  - name: public
+  - name: sticky
+    direction: desc
+  - name: post_date
+    direction: desc
+
+- kind: DBPost
+  properties:
+  - name: category_id
   - name: sticky
     direction: desc
   - name: post_date
@@ -52,6 +69,13 @@ indexes:
   - name: public
   - name: post_date
     direction: desc
+
+- kind: DBPost
+  properties:
+  - name: public
+  - name: sticky
+    direction: desc
+  - name: post_date
 
 - kind: DBPost
   properties:

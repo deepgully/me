@@ -32,11 +32,12 @@ def render_template(template_name_or_list, **context):
     })
     return flask_render_template(template_name_or_list, **context)
 
+
 ############################################
 ## Users
 ############################################
 from settings import login_manager, lazy_gettext
-from flask.ext.login import login_required,logout_user
+from flask.ext.login import login_required, logout_user
 from flask.ext.login import login_user as _login_user
 
 login_manager.anonymous_user = Anonymous
@@ -65,6 +66,7 @@ def login_user(email, password, remember=False):
 from settings import babel
 from flask import request
 from translations.config import LANGUAGES
+
 
 @babel.localeselector
 def get_locale():

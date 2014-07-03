@@ -1,0 +1,29 @@
+/* Pages */
+.post.active {
+    border-color: #d9230f;
+}
+
+.post.active .tags a {
+    background:#d9230f;
+}
+
+.post.active .tags a:before {
+    border-color:transparent #d9230f transparent transparent;
+}
+
+.tags a:hover{background: #d9230f;}
+
+.tags a:hover:before{border-color:transparent #d9230f transparent transparent;}
+
+.container-timeline .post.active:before {
+    border-color:transparent #d9230f transparent transparent;/
+}
+.container-timeline .post.active:after {
+    background: #d9230f;
+}
+.container-timeline .post.active .post-date {
+    color: #d9230f;
+}
+.container-timeline .post.active .post-category {
+    border-bottom: 20px solid #d9230f;
+}

@@ -1,0 +1,29 @@
+/* Pages */
+.post.active {
+    border-color: rgb(24, 188, 156);
+}
+.post.active .tags a {
+    background:rgb(24, 188, 156);
+}
+
+.post.active .tags a:before {
+    border-color:transparent rgb(24, 188, 156) transparent transparent;
+}
+
+.tags a:hover{background:rgb(24, 188, 156);}
+
+.tags a:hover:before{border-color:transparent rgb(24, 188, 156) transparent transparent;}
+
+
+.container-timeline .post.active:before {
+    border-color:transparent rgb(24, 188, 156) transparent transparent;/
+}
+.container-timeline .post.active:after {
+    background: rgb(24, 188, 156);
+}
+.container-timeline .post.active .post-date {
+    color: rgb(24, 188, 156);
+}
+.container-timeline .post.active .post-category {
+    border-bottom: 20px solid rgb(24, 188, 156);
+}

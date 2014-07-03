@@ -13,12 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from settings import RUNTIME_ENV
+from settings import RUNTIME_ENV, QINIU_SETTINGS
 
 __all__ = [
-    "secret_hash", "unquote", "save_photo", "delete_file",
+    "secret_hash", "unquote", "save_photo", "delete_file", "make_blob_file_header",
+    "fail_safe_func",
 ]
 
 from common import *
 
 exec("from tools_%s import *" % RUNTIME_ENV.split("_")[0]) in locals()
+
+if QINIU_SETTINGS.Enabled:
+    delete_file = delete_file_qiniu

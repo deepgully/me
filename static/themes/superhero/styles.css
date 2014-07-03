@@ -1,0 +1,30 @@
+/* Pages */
+
+.post.active {
+    border: solid 1px #df691a;
+}
+
+.post.active .tags a {
+    background: #df691a;
+}
+
+.post.active .tags a:before {
+    border-color:transparent #df691a transparent transparent;
+}
+
+.tags a:hover{background: #df691a;}
+
+.tags a:hover:before{border-color:transparent #df691a transparent transparent;}
+
+.container-timeline .post.active:before {
+    border-color:transparent #df691a transparent transparent;/
+}
+.container-timeline .post.active:after {
+    background: #df691a;
+}
+.container-timeline .post.active .post-date {
+    color: #df691a;
+}
+.container-timeline .post.active .post-category {
+    border-bottom: 20px solid #df691a;
+}

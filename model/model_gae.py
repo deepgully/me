@@ -343,13 +343,15 @@ class DBStats(BaseModel):
 
 # DataStore Models
 class DBSiteSettings(BaseModel, StatsMixin):
-    VERSION = 1.2  # update this if tables changed
+    VERSION = 1.3  # update this if tables changed
 
     version = db.FloatProperty(default=0.0)
     title = db.StringProperty()
     subtitle = db.StringProperty()
     copyright = db.StringProperty(default="")
+    theme = db.StringProperty(default="")
     ga_tracking_id = db.StringProperty()
+    mirror_site = db.StringProperty(default="")    # mirror site for static files
     owner = db.StringProperty()
     inited = db.BooleanProperty(default=False)
 
@@ -370,6 +372,14 @@ class DBSiteSettings(BaseModel, StatsMixin):
     @property
     def Orders(self):
         return DBCategory.Orders
+
+    @property
+    def Themes(self):
+        return common.BootsWatchThemes
+
+    @property
+    def MirrorSite(self):
+        return self.mirror_site or ""
 
     @classmethod
     def get_site_settings(cls):
@@ -432,6 +442,7 @@ class DBCategory(BaseModel, StatsMixin):
     order = db.StringProperty(choices=Orders, default=Orders[1])
     template = db.StringProperty(choices=Templates, default=Templates[0])
     content = db.TextProperty(default="")  # for template "Text" only
+    hidden = db.BooleanProperty(default=False)
 
     _stats_id = db.StringProperty()
 
@@ -513,9 +524,9 @@ class DBPost(BaseModel, StatsMixin):
     def to_dict(self):
         res = BaseModel.to_dict(self)
         author = self.author
-        res["author"] = author.to_dict() if author else ""
+        res["author"] = author.to_dict() if author else {}
         category = self.category
-        res["category"] = category.to_dict() if category else ""
+        res["category"] = category.to_dict() if category else {}
         res["photos"] = [photo.to_dict() for photo in self.photos if photo]
         res["tags"] = self.tags
         return res

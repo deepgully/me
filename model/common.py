@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+BootsWatchThemes = ["Default", "Amelia", "Cerulean", "Cosmo", "Cyborg",
+                    "Darkly", "Flatly", "Journal", "Lumen",
+                    "Readable", "Simplex", "Slate", "Spacelab", "Superhero",
+                    "United", "Yeti",]
+
 UserRoles = ["User", "Admin", "Owner"]
 
 Templates = ["Timeline", "List", "Photo", "Text"]

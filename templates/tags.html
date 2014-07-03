@@ -1,30 +1,11 @@
 {% extends "base.html" %}
 
 {% block css %}
-    <link href="/static/assets/google-code-prettify/desert.css" rel="stylesheet"/>
-    <style type="text/css">
-        .slider-bar {
-            max-height: 600px;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-        .menu-header {
-            font-size: 1.4em;
-            margin-top: 10px;
-            border-bottom: 1px #ccc solid;
-        }
-        .list-menu .post-date {
-            color: #aaa;
-            font-style: italic;
-            font-size: 0.9em;
-        }
-
-    </style>
+<link href="{{ settings.MirrorSite }}/static/assets/google-code-prettify/desert.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block script %}
-    <script type="text/javascript" src="/static/assets/google-code-prettify/prettify.js"></script>
-    <script type="text/javascript" src="/static/assets/jquery.imagesloaded.min.js"></script>
+    <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/google-code-prettify/prettify.js"></script>
     <script type="text/javascript">
     $(document).ready(function(){
         var $container = $(".container-list");
@@ -33,47 +14,15 @@
             post.post_date = post.post_date.to_date();
             post.updated_date = post.updated_date.to_date();
 
-            var $post = get_post_div(post);
-
             show_list_menu(post);
 
-            var $tags = $(".tags", $post).empty();
-            $.each(post.tags, function(index, tag){
-                $tags.append('<li><a href="/tags/{0}">{0}</a></li>'.format(tag));
-            });
+            var $post = get_post_div(post);
 
-            $("input.date_val", $post).val(post.post_date.format("yyyy-MM-dd")).attr("id", "post_date_"+post.id);
-            $(".post-title .title", $post).text(post.title).attr("href", "/post/{0}".format(post.id));
-            $(".post-title img", $post).attr("src", post.author.avatar_url).attr("title", post.author.nickname);
-            $(".post-body", $post).html(md2html_short(post.body));
-            $(".post-date", $post).html(post.post_date.format("yyyy-MM-dd"));
-            $(".post-author", $post).text(post.author.nickname);
-            $(".post-viewed", $post).html(post.stats.view_count);
-            $(".share", $post).html('<i class="icon-share"></i>{0}'.format(post.stats.share_count));
-            $(".share", $post).unbind("click");
-            $(".share", $post).click(function(){
-                show_share(post);
-            });
-            $(".stats[name=like_count]", $post).html('<i class="icon-thumbs-up"></i>{0}'.format(post.stats.like_count));
-            $(".stats[name=unlike_count]", $post).html('<i class="icon-thumbs-down"></i>{0}'.format(post.stats.unlike_count));
-            $(".comment", $post).html('<i class="icon-comment"></i>{0}'.format(post.stats.comment_count));
+            $post = build_post_panel($post, post);
 
-            var $btn_more = $(".post-body more", $post);
-            $btn_more.html('<button class="btn btn-small btn-block"> {{ _("Full Article") }}</button>');
-            $btn_more.click(function(){
-                $(".post-body", $post).html(md2html(post.body));
-                $("pre>code", $post).parent().addClass("prettyprint");
-                prettyPrint();
-            });
+            build_thumbnails($(".post-thumbnails", $post), post, "thumbnails_"+post.id, ".post-thumbnails");
 
-            $("pre>code", $post).parent().addClass("prettyprint");
-            prettyPrint();
-
-            $post.imagesLoaded(function(){
-                bind_img($(".post-body",$post));
-            });
-
-            build_thumbnails($(".post-thumbnails", $post), post);
+            build_post_body($post, post);
 
             reset_scroll();
             $post.show();
@@ -117,11 +66,6 @@
                     });
                     $this.unbind("click");
                 });
-
-                {% if user.is_admin() %}
-                $(".menu-edit", $post).click(menu_edit);
-                $(".menu-delete", $post).click(menu_delete);
-                {% endif %}
             }
             return $post;
         };
@@ -142,7 +86,7 @@
 
             $("a", $menu).attr("href", "#post_"+post.id);
             $(".name", $menu).text(post.title);
-            $(".post-date", $menu).html(post.post_date.format("yyyy-MM-dd"));
+            $(".post-date", $menu).text(post.post_date.format("yyyy-MM-dd"));
 
             $menu.unbind("click");
             $menu.click(function(){
@@ -159,29 +103,31 @@
                     "is_last_page" : {% if pager.is_last_page %}true{% else %}false{% endif %}
         };
 
-        load_posts = function(callback){
+        var load_posts = function(callback){
+            var $load_more_post = $(".load-more-post");
+            var $post_loading = $(".post-loading");
             if (pager.is_last_page){
-                $("#load-more-post").remove();
+                $load_more_post.remove();
                 return;
             }
-            $("#load-more-post").hide();
-            $("#post-loading").show();
+            $load_more_post.hide();
+            $post_loading.show();
             $.json_action("tag/posts",
                 {'name':$.toJSON('{{ tag.name }}'),
                  'page':  $.toJSON(pager.cur_page + 1),
-                 'per_page': $.toJSON(pager.per_page),
+                 'per_page': $.toJSON(pager.per_page)
                 },
                 function(resp){
                     pager = resp.pager;
-                    $("#post-loading").fadeOut(1000);
+                    $post_loading.fadeOut(1000);
                     $.each(resp.posts, function(index, post){
                         callback(post);
                     });
-                    pager.is_last_page ? $("#load-more-post").remove() : $("#load-more-post").show();
+                    pager.is_last_page ? $load_more_post.remove() : $load_more_post.show();
                 },function(err){
                     bootbox.alert(err);
-                    $("#load-more-post").show();
-                    $("#post-loading").fadeOut(1000);
+                    $load_more_post.show();
+                    $post_loading.fadeOut(1000);
             });
         };
 
@@ -233,14 +179,12 @@
         };
         resize_list_holder();
 
-        var $album_view = $(".album_view");
-
         $(window).resize(function() {
-            bind_img($container);
             resize_list_holder();
+            bind_img_info($(".post-body", $container), 200, 150);
         });
 
-        $("#load-more-post").click(function() {
+        $(".load-more-post").click(function() {
             load_posts(show_post);
         });
 
@@ -262,86 +206,94 @@
 {% endblock %}
 
 {% block body %}
-    {% include "__post_script.html" %}
-    <div class="container-fluid">
-        {% if user.is_admin() %}
-            <!-- Editor -->
-            {% include "_editor.html" %}
-        {% endif %}
-        <!-- Post Template -->
-        <div id="post_template" class="post hide" >
-            <input type="hidden" class="date_val" />
-            <div class="post-title">
-                <span class=""><img src="" class="avatar32"/></span>
-                <a href="" class="title"></a>
-                {% if user.is_admin() %}
-                <div class="menu btn-group pull-right">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                        <i class="icon-download"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="menu-edit" href="javascript:;">{{ _("Edit") }}</a></li>
-                        <li><a class="menu-delete" href="javascript:;">{{ _("Delete") }}</a></li>
-                    </ul>
-                </div>
-                {% endif %}
-            </div>
-            <ul class="tags"></ul>
-            <div class="post-body">
-            </div>
-            <ul class="post-thumbnails hide"></ul>
-            <div style="clear: both"></div>
-            <div class="post-bottom clearfix">
-                <i class="icon-time"></i><span class="post-date"></span>
-                <div class="cmdbar">
-                    <i class="icon-user"></i><span class="post-author">
-                    </span>
-                    <i class="icon-eye-open"></i><span class="post-viewed">
-                    </span>
-                    <button class="share btn btn-mini" title="{{ _("Share") }}"><i class="icon-share"></i></button>
-                    <button class="stats btn btn-mini" stats_type="Post" name="like_count" oper="increase"
-                        title="{{ _("Like") }}"><i class="icon-thumbs-up"></i>
-                    </button>
-                    <button class="stats btn btn-mini" stats_type="Post" name="unlike_count" oper="increase"
-                        title="{{ _("Unlike") }}"><i class="icon-thumbs-down"></i>
-                    </button>
-                    <button class="comment btn btn-mini" title="{{ _("Comment") }}"><i class="icon-comment"></i></button>
-                </div>
-            </div>
-            <div class="comments_panel hide"></div>
-        </div>
-        <!-- End Post Template -->
-    <!-- Menu and Posts -->
-    <div class="row">
-        <div class="span3 affix slider-bar well">
-            <li class="nav-header">
-                <i class="icon-tag"></i> {{ tag.name }} ({{ tag.post_count }})
-            </li>
-            <li class="hide" id="list_menu_template">
-                <a href="javascript:;" class="">
-                    <span class="name">template</span>
-                    <br><i class="icon-time"></i><span class="post-date"></span>
+{% include "__post_script.html" %}
+<div class="row">
+    {% if user.is_admin() %}
+      <!-- Editor -->
+      {% include "_editor.html" %}
+    {% endif %}
+    <!-- Post Template -->
+    <div id="post_template" class="post dis-none panel panel-default">
+      <input type="hidden" class="date_val" />
+      <div class="panel-heading">
+          <div class="post-title">
+            <span class=""><img src="" class="avatar avatar32"/></span>
+            <span class="label label-default post-hide dis-none"></span>
+            <a href="" class="title"></a>
+            {% if user.is_admin() %}
+            <div class="menu btn-group pull-right">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                    <h4><i class="fa fa-toggle-down text-default"></i></h4>
                 </a>
-            </li>
-            <ul class="nav nav-list list-menu">
-            </ul>
-            <p class="text-center">
-                <button id="load-more-post" class="btn btn-block btn-info hide">{{ _("More") }}...</button>
-                <img id="post-loading" class="loading" src="/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
-            </p>
+                <ul class="dropdown-menu">
+                    <li><a class="menu-edit" href="javascript:;">{{ _("Edit") }}</a></li>
+                    <li><a class="menu-delete" href="javascript:;">{{ _("Delete") }}</a></li>
+                </ul>
+            </div>
+            {% endif %}
+            <div class="pull-right">
+                <div class="tags"></div>
+            </div>
         </div>
-        <div class="span3 list-holder">
+      </div>
+      <div class="panel-body">
+        <div class="post-body">
         </div>
-        <div class="container-fluid container-list span6">
-        </div>
-        <div class="clearfix"></div>
-        <!-- Loading -->
-        <div class="span3 list-holder">
-        </div>
-
-        </div>
+        <div class="post-thumbnails dis-none"></div>
+        <div style="clear: both"></div>
+      </div>
+      <div class="panel-footer">
+          <small>
+          <i class="fa fa-clock-o"></i> <span class="post-date"></span>
+          <span class="cmdbar pull-right">
+            <i class="fa fa-user"></i> <span class="post-author"></span>&nbsp;
+            <i class="fa fa-eye"></i> <span class="post-viewed"></span>&nbsp;
+            <button class="share btn btn-default btn-xs" title="{{ _("Share") }}">
+                <i class="fa fa-share"></i></button>
+            <button class="stats btn btn-default btn-xs" stats_type="Post" name="like_count" oper="increase"
+                title="{{ _("Like") }}"><i class="fa fa-thumbs-o-up"></i>
+            </button>
+            <button class="stats btn btn-default btn-xs" stats_type="Post" name="unlike_count" oper="increase"
+                title="{{ _("Unlike") }}"><i class="fa fa-thumbs-o-down"></i>
+            </button>
+            <button class="comment btn btn-default btn-xs" title="{{ _("Comment") }}">
+                <i class="fa fa-comment-o"></i></button>
+          </span>
+          <div class="clearfix"></div>
+          </small>
+      </div>
+      <div class="comments_panel dis-none"></div>
     </div>
-    <!-- End Menu and Posts -->
-    <!-- Comments -->
-    {% include "__comment.html" %}
+    <!-- End Post Template -->
+
+<!-- Menu and Posts -->
+    <div class="col-lg-3 slider-bar well">
+        <h4><i class="fa fa-tags"></i> {{ tag.name }} ({{ tag.post_count }})</h4>
+        <li class="dis-none" id="list_menu_template">
+            <a href="javascript:;" class="">
+                <span class="name">template</span>
+                <br><i class="fa fa-clock-o text-muted"></i> <span class="post-date text-muted"></span>
+            </a>
+        </li>
+        <ul class="nav nav-pills nav-stacked list-menu">
+        </ul>
+        <p class="text-center">
+            <button class="load-more-post btn btn-block btn-info dis-none">{{ _("More") }}...</button>
+            <img class="post-loading loading" src="{{ settings.MirrorSite }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        </p>
+    </div>
+    <div class="col-lg-3 list-holder">
+    </div>
+    <div class="col-lg-7">
+        <div class="container-list"></div>
+        <p class="text-center">
+            <button class="load-more-post btn btn-block btn-info dis-none">{{ _("More") }}...</button>
+            <img class="post-loading loading" src="{{ settings.MirrorSite }}/static/images/posts_loading.gif" alt="{{ _("loading") }}..."/>
+        </p>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<!-- End Menu and Posts -->
+<!-- Comments -->
+{% include "__comment.html" %}
 {% endblock %}
