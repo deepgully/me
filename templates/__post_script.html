@@ -4,6 +4,7 @@
 {% block script %}
 <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/pagedown/Markdown.Converter.js"></script>
 <script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/pagedown/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="{{ settings.MirrorSite }}/static/assets/pagedown/Markdown.Extra.js"></script>
 <script type="text/javascript">
     var editor = null;
 
@@ -11,6 +12,9 @@
     md_converter.hooks.chain("postConversion", function (text) {
         // convert player links
         return $.create_player(text);
+    });
+    Markdown.Extra.init(md_converter, {
+        table_class: "table table-hover table-striped"
     });
     var md2html = md_converter.makeHtml;
 
@@ -26,6 +30,9 @@
             text = text.slice(0, pos) + " ......\n\n<more></more>";
         }
         return text;
+    });
+    Markdown.Extra.init(md_short_converter, {
+        table_class: "table table-hover table-striped"
     });
     var md2html_short = md_short_converter.makeHtml;
 
