@@ -27,8 +27,11 @@
     // <img src="url..." optional width  optional height  optional alt  optional title
     var img_white = /^(<img\ssrc="(https?:\/\/|\/)[-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\)]+"(\swidth="\d{1,3}")?(\sheight="\d{1,3}")?(\salt="[^"<>]*")?(\stitle="[^"<>]*")?\s?\/?>)$/i;
 
+    // <i class="fa fa-..."></i> or <span class="glyphicon glyphicon-..."></span>
+    var icon_white = /^(<i\sclass="fa fa-[-A-Za-z0-9_]+">|<\/i>)|(<span\sclass="glyphicon glyphicon-[-A-Za-z0-9_]+">|<\/span>)$/i;
+
     function sanitizeTag(tag) {
-        if (tag.match(basic_tag_whitelist) || tag.match(a_white) || tag.match(img_white))
+        if (tag.match(basic_tag_whitelist) || tag.match(a_white) || tag.match(img_white) || tag.match(icon_white))
             return tag;
         else
             return "";
