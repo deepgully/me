@@ -9,6 +9,9 @@
 {% endblock %}
 
 {% block body %}
+
+{% if post.public or user.is_admin() %}
+
 {% include "__post_script.html" %}
 <script type="text/javascript">
     $(document).ready(function(){
@@ -87,6 +90,7 @@
 {% if user.is_admin() %}
 {% include "_editor.html" %}
 {% endif %}
+
 <div class="row container-list">
   <div class="col-lg-offset-2 col-lg-8">
     <div class="post panel panel-default" id="post_{{ post.id }}">
@@ -156,7 +160,12 @@
         <div id="comments" class="">
         </div>
     </div>
+
   </div>
 </div>
 {% include "__comment.html" %}
+
+{% else %}
+    <h1>{{ _("Error") }} {{ _("Page not found") }}</h1>
+{% endif %}
 {% endblock %}

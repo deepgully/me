@@ -89,7 +89,7 @@ def index(category_url=None):
         _category = apis.Category.get_by_url(category_url)
         if not _category:
             from ajax import MSG_NO_CATEGORY
-            raise Exception(gettext(MSG_NO_CATEGORY, id=category_url))
+            raise Exception(MSG_NO_CATEGORY % {'id': category_url})
 
         pager = {
             "cur_page": 0,
@@ -111,7 +111,7 @@ def tags(tag_name):
         tag = apis.Tag.get_tag_by_name(unquote(tag_name))
         if not tag:
             from ajax import MSG_NO_TAG
-            raise Exception(gettext(MSG_NO_TAG, name=tag_name))
+            raise Exception(MSG_NO_TAG % {'name': tag_name})
     except:
         abort(404)
 
@@ -127,10 +127,20 @@ def tags(tag_name):
 def post(postid):
     try:
         post = apis.Post.get_by_id(postid)
+        if not post:
+            from ajax import MSG_NO_POST
+            raise Exception(MSG_NO_POST % {"id": postid})
+
+        if not post.public:
+            user = apis.User.get_current_user()
+            if not user.is_admin():
+                raise Exception("not auth post %s" % postid)
+
     except Exception,e:
         from settings import logging
         logging.exception("post not found")
         abort(404)
+
     post.stats.increase("view_count")
     return render_template("post.html", post=post, category=post.category)
 
