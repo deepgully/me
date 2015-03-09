@@ -253,7 +253,9 @@ elif RUNTIME_ENV == "sae":
     application = sae.create_wsgi_app(app)
 
 elif RUNTIME_ENV == "local":
-    app.run(debug=True)
+    application = app
+    if __name__ == "__main__":
+        app.run(debug=True)
 
 elif RUNTIME_ENV in ("gae", "gae_dev"):
     application = app
