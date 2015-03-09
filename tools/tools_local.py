@@ -18,7 +18,7 @@ from datetime import datetime
 
 
 ############################################
-## Mail
+# Mail
 ############################################
 def send_mail(body, address, fromaddr=None, subject=None, **kwargs):
     if not isinstance(address, (list, tuple, set)):
@@ -31,7 +31,7 @@ def send_mail(body, address, fromaddr=None, subject=None, **kwargs):
 
 
 ############################################
-## Images
+# Images
 ############################################
 def save_file(binary, filename, public=True, mime_type="application/octet-stream"):
     today = datetime.now().strftime("%Y/%m/%d/")
@@ -57,4 +57,17 @@ def delete_file(file_path):
     if os.path.isfile(file_path):
         os.remove(file_path)
 
+
+############################################
+# memcache
+############################################
+from settings import app, ENABLE_MEMCACHE
+
+if ENABLE_MEMCACHE:
+    try:
+        import memcache as memcache_lib
+        memcache = memcache_lib.Client(app.config['MEMCACHE_SERVERS'])
+    except:
+        # can not init memcache server, use dummy memcache on local
+        pass
 

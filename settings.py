@@ -27,7 +27,7 @@ import logging
 __version__ = "2"
 
 ######################################
-## Global environment
+# Global environment
 ######################################
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -70,7 +70,7 @@ from flask import Flask
 
 
 ######################################
-## Application
+# Application
 ######################################
 app = Flask(__name__)
 
@@ -131,7 +131,7 @@ elif RUNTIME_ENV == "sae":
 
 
 ######################################
-## Database
+# Database
 ######################################
 if RUNTIME_ENV in ("bae", "sae"):
     app.secret_key = const.ACCESS_KEY + const.SECRET_KEY
@@ -164,7 +164,7 @@ if RUNTIME_ENV in ("bae", "sae", "local"):
 
 
 ######################################
-## User
+# User
 ######################################
 from flask.ext.login import LoginManager
 
@@ -173,7 +173,7 @@ login_manager.init_app(app)
 
 
 #####################################
-## Mail
+# Mail
 #####################################
 if RUNTIME_ENV in ("bae", "sae"):
     pass
@@ -194,7 +194,7 @@ elif RUNTIME_ENV in ("gae", "gae_dev"):
     pass
 
 #####################################
-## Image Upload
+# Image Upload
 #####################################
 if RUNTIME_ENV in ("bae",):
     import pybcs
@@ -244,7 +244,7 @@ app.config["THUMB_SIZE"] = THUMB_SIZE
 
 
 ######################################
-## i18n
+# i18n
 ######################################
 from flask.ext.babel import Babel
 from flask.ext.babel import gettext, lazy_gettext
@@ -258,7 +258,7 @@ def T(string):
 
 
 ######################################
-## memcache
+# memcache
 ######################################
 ENABLE_MEMCACHE = True
 if RUNTIME_ENV in ("bae",):
@@ -267,5 +267,6 @@ if RUNTIME_ENV in ("bae",):
 elif RUNTIME_ENV in ("sae",):
     ENABLE_MEMCACHE = True   # enbale memcache for SAE
 
-
+elif RUNTIME_ENV in ("local",):
+    app.config['MEMCACHE_SERVERS'] = ["127.0.0.1:11211", ]
 
