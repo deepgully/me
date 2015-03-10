@@ -66,7 +66,9 @@ from settings import app, ENABLE_MEMCACHE
 if ENABLE_MEMCACHE:
     try:
         import memcache as memcache_lib
-        memcache = memcache_lib.Client(app.config['MEMCACHE_SERVERS'])
+        mc_client = memcache_lib.Client(app.config['MEMCACHE_SERVERS'])
+        if mc_client.set("me_memcache_testing", ""):
+            memcache = mc_client
     except:
         # can not init memcache server, use dummy memcache on local
         pass
