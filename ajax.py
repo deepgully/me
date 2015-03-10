@@ -16,6 +16,7 @@
 AJAX functions
 """
 
+import re
 import base64
 from datetime import datetime
 
@@ -79,11 +80,11 @@ def jsonify(*args, **kwargs):
                                       mimetype='application/json')
 
 
-def format_string(fmt, *seq):
+def format_key(fmt, *seq):
     res = fmt % seq
     if isinstance(res, unicode):
         res = res.encode("utf-8")
-    return res
+    return re.sub(r"\s", "_", res)
 
 
 ##############################################################
@@ -267,10 +268,10 @@ def _delete_category_posts_cache(category):
     default_category = apis.Category.default_category()
     for page in range(CATEGORY_CACHE_PAGES+1):
         for public in (True, False):
-            key = format_string(CATEGORY_CACHE_KEY, category.id, page, category.posts_per_page, public)
+            key = format_key(CATEGORY_CACHE_KEY, category.id, page, category.posts_per_page, public)
             memcache.delete(key)
             if category.id != default_category.id:
-                key = format_string(CATEGORY_CACHE_KEY, default_category.id, page, default_category.posts_per_page, public)
+                key = format_key(CATEGORY_CACHE_KEY, default_category.id, page, default_category.posts_per_page, public)
                 memcache.delete(key)
 
 
@@ -310,7 +311,7 @@ def get_posts_by_category(category="", page=1, per_page=10, group_by="", start_c
     }
 
     if page <= CATEGORY_CACHE_PAGES:  # cache only CATEGORY_CACHE_PAGES pages
-        key = format_string(CATEGORY_CACHE_KEY, category.id, page, per_page, get_no_published)
+        key = format_key(CATEGORY_CACHE_KEY, category.id, page, per_page, get_no_published)
         res = memcache.get(key)
 
         if res is None:
@@ -427,7 +428,7 @@ POST_CACHE_KEY = "post_id:%s"
 
 
 def _delete_post_cache(post):
-    key = format_string(POST_CACHE_KEY, post.id)
+    key = format_key(POST_CACHE_KEY, post.id)
     memcache.delete(key)
 
 
@@ -487,7 +488,7 @@ def get_post(id):
     Returns:
         post: a dict of post"""
 
-    key = format_string(POST_CACHE_KEY, id)
+    key = format_key(POST_CACHE_KEY, id)
 
     post = memcache.get(key)
     if post is None:
@@ -521,7 +522,7 @@ def get_hot_posts(count=8, order="view_count desc"):
     Returns:
         posts: a list of post"""
 
-    key = format_string(HOT_POSTS_CACHE_KEY, count, order)
+    key = format_key(HOT_POSTS_CACHE_KEY, count, order)
     posts = memcache.get(key)
     if posts is None:
         posts = apis.Post.hot_posts(count, order)
@@ -544,7 +545,7 @@ def get_latest_posts(count=12, order="updated_date desc"):
         order: posts order, default is "updated_date desc"
     Returns:
         posts: a list of post"""
-    key = format_string(LATEST_POSTS_CACHE_KEY, count, order)
+    key = format_key(LATEST_POSTS_CACHE_KEY, count, order)
     posts = memcache.get(key)
     if posts is None:
         posts = apis.Post.latest_posts(count, order)
@@ -560,7 +561,7 @@ COMMENT_CACHE_KEY = "comments_postid:%s"
 
 
 def _delete_comments_cache(post_id):
-    key = format_string(COMMENT_CACHE_KEY, post_id)
+    key = format_key(COMMENT_CACHE_KEY, post_id)
     memcache.delete(key)
 
 
@@ -574,7 +575,7 @@ def get_comments_by_post(id):
     if not post:
         raise Exception(lazy_gettext(MSG_NO_POST, id=id))
 
-    key = format_string(COMMENT_CACHE_KEY, id)
+    key = format_key(COMMENT_CACHE_KEY, id)
 
     comments = memcache.get(key)
     if comments is None:
@@ -786,7 +787,7 @@ def get_posts_by_tag(name, page=1, per_page=10):
     if not tag:
         raise Exception(lazy_gettext(MSG_NO_TAG, name=name))
 
-    key = format_string(TAG_POSTS_CACHE_KEY, tag.name, page, per_page)
+    key = format_key(TAG_POSTS_CACHE_KEY, tag.name, page, per_page)
 
     posts = memcache.get(key)
     if posts is None:
@@ -817,7 +818,7 @@ def get_hot_tags(count=12):
         tags: a list of tags"""
 
 
-    key = format_string(HOT_TAGS_CACHE_KEY, count)
+    key = format_key(HOT_TAGS_CACHE_KEY, count)
 
     tags = memcache.get(key)
     if tags is None:
@@ -930,7 +931,7 @@ def dispatch_action(parameters, action):
             result["response"] = res
         else:
             result["status"] = "error"
-            result["error"] = format_string("unsupported method [%s]", action)
+            result["error"] = format_key("unsupported method [%s]", action)
 
     except Exception, e:
         logging.exception("Error in dispatch_action:")
