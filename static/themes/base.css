@@ -555,7 +555,18 @@ img {
     }
 }
 @media (max-width: 768px) {
+    .container-timeline {
+         width: 100%;
+    }
+    .container-timeline .timeline-year {
+        left: -10px;
+    }
+    body {
+        padding-top: 0px;
+    }
+}
+@media (max-width: 520px) {
     .container-timeline .post {
-
+        width: 100%;
     }
 }

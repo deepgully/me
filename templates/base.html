@@ -91,6 +91,14 @@ $(document).ready(function() {
             right_arrow_class: '.fa .fa-chevron-right .glyphicon-chevron-right'
         });
     });
+
+    $(window).resize(function() {
+      if($(window).width() <= 768) {
+        $(".navbar").removeClass("navbar-fixed-top").addClass("navbar-top");
+      } else {
+        $(".navbar").removeClass("navbar-top").addClass("navbar-fixed-top");
+      }
+    }).trigger("resize");
 });
 </script>
 {% block script %}
