@@ -5,7 +5,7 @@ ME@deepgully
 `ME@deepgully` is a open source blog system based on Python&Flask, support GAE(Google AppEngine), BAE(Baidu AppEngine) and SAE(Sina AppEngine)
  
  * Demo on GAE: http://me.deepgully.com
- * Demo on BAE: http://deepgully2.duapp.com
+ * Demo on VPS: http://demo.deepgully.com
  * Demo on SAE: http://deepgully.sinaapp.com
 
 ##主要功能 Features
@@ -13,10 +13,10 @@ ME@deepgully
  1. 响应式页面,自动适应不同设备   
  Responsive design,adaptive on different devices
  2. 4种模版可选 4 Templates
-    1. [Timeline](http://demo.me.deepgully.com/): 时间线 
-    2. [List](http://demo.me.deepgully.com/list): 列表显示, 普通Blog的显示方式 
-    3. [Photo](http://demo.me.deepgully.com/photo): 相册模式, 只显示图片
-    4. [Text](http://demo.me.deepgully.com/text): 文本格式,自定义页面 
+    1. [Timeline](http://demo.deepgully.com/): 时间线 
+    2. [List](http://demo.deepgully.com/list): 列表显示, 普通Blog的显示方式 
+    3. [Photo](http://demo.deepgully.com/photo): 相册模式, 只显示图片
+    4. [Text](http://demo.deepgully.com/text): 文本格式,自定义页面 
  3. 基于 **Markdown** 格式, 增强的 **Markdown** 在线编辑器 [Markdown格式说明][http://wowubuntu.com/markdown/], 实时预览    
  Based on  **Markdown**, enhancement Markdown online editor
  4. 代码高亮支持(包括评论里的代码)   
