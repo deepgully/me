@@ -22,7 +22,7 @@ from datetime import datetime
 
 from flask import current_app, request, json, url_for
 
-from settings import T, lazy_gettext, logging
+from settings import T, lazy_gettext, logging, RUNTIME_ENV
 import apis
 
 from tools import memcache
@@ -939,3 +939,17 @@ def dispatch_action(parameters, action):
         result["status"] = "error"
     return result
 
+
+# GAE Files API was deprecated, use blobstore
+if RUNTIME_ENV in ("gae", "gae_dev"):
+    from settings import BLOB_UPLOAD_URL
+    from google.appengine.ext import blobstore
+
+    @apis.User.requires_site_admin
+    def get_upload_url():
+        upload_url = blobstore.create_upload_url(BLOB_UPLOAD_URL)
+        return {
+            "upload_url": upload_url
+        }
+
+    AJAX_METHODS["photo/upload_url"] = get_upload_url

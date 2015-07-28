@@ -315,6 +315,15 @@ class Photo(DBAdapter):
         return photo
 
     @classmethod
+    def create_photo_with_url(cls, url, real_file, mime,  **settings):
+        dbphoto = DBPhoto.create(url=url, mime=mime, real_file=real_file)
+        dbphoto.save()
+        _ = dbphoto.stats  # init stats
+        photo = cls(dbphoto)
+        photo.update(**settings)
+        return photo
+
+    @classmethod
     def delete_file(cls, real_file, failsafe=True):
         try:
             delete_file(real_file)

@@ -250,7 +250,8 @@ Date.prototype.format = function(format) {
             if ($img.attr("real_src")){
                 src = $img.attr("real_src");
             }
-            if(src.endsWith("==") || src.endsWith("==/") || src.match(/\.ggpht\.com\/\S+/g)) {
+            if(src.endsWith("==") || src.endsWith("==/") || src.match(/\.ggpht\.com\/\S+/g)
+                || src.match(/\.googleusercontent\.com\/\S+/g)) {
                 if (! src.match(/(=s\d+)$/g)) {
                     src = src+"=s0";
                 }

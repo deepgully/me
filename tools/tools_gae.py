@@ -63,6 +63,7 @@ def delete_file(file_path):
 
     blobstore.delete(file_path)
 
+
 def make_blob_file_header(blob_key_or_info, content_type=None, save_as=None):
     from google.appengine.ext import blobstore
     # Response headers.
@@ -87,7 +88,6 @@ def make_blob_file_header(blob_key_or_info, content_type=None, save_as=None):
             headers['Content-Type'] = blob_info.content_type
         else:
             headers['Content-Type'] = ''
-
 
     def send_attachment(filename):
         if isinstance(filename, unicode):

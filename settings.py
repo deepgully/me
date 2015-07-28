@@ -220,7 +220,9 @@ elif RUNTIME_ENV in ("local",):
 
 elif RUNTIME_ENV in ("gae", "gae_dev"):
     BLOB_SERVING_URL = "/_files"
+    BLOB_UPLOAD_URL = "/_upload"
     app.config["BLOB_SERVING_URL"] = BLOB_SERVING_URL
+    app.config["BLOB_UPLOAD_URL"] = BLOB_UPLOAD_URL
 
 
 QINIU_SETTINGS = MagicDict()

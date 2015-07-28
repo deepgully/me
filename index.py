@@ -160,7 +160,7 @@ def share():
 
 
 @app.route('/json/<path:action>', methods=['GET', 'POST'])
-def json(action):
+def _json(action):
     return jsonify(dispatch_action(request.values, action))
 
 
@@ -226,12 +226,15 @@ def admin():
 
 # GAE blob store Serving
 if RUNTIME_ENV in ("gae", "gae_dev"):
-    from settings import BLOB_SERVING_URL
+    import re
+    from settings import BLOB_SERVING_URL, BLOB_UPLOAD_URL
 
     @app.route("%s/<blob_key>" % BLOB_SERVING_URL, methods=['GET'])
     def send_blob(blob_key):
         from flask import make_response
         from tools import make_blob_file_header
+
+        blob_key = re.sub("(=s\d+)$", "", blob_key)
 
         headers = make_blob_file_header(blob_key)
         headers["Content-Type"] = "image/jpeg"
@@ -239,6 +242,56 @@ if RUNTIME_ENV in ("gae", "gae_dev"):
         response = make_response()
         response.headers.extend(headers)
         return response
+
+    def get_photo_url(blob_key):
+        try:
+            # get serving url for images
+            from google.appengine.api import images
+            url = images.get_serving_url(blob_key)
+        except:
+            url = "%s/%s" % (BLOB_SERVING_URL, str(blob_key))
+
+        return url
+
+    def get_blob_info_list(_request):
+        if len(_request.files) == 0:
+            raise Exception("no file uploaded")
+
+        post_id = _request.values.get("post_id", "")
+        blob_infos = []
+        for key, value in _request.files.iteritems():
+            if not isinstance(value, unicode):
+                blob_key = value.mimetype_params["blob-key"]
+                photo_url = get_photo_url(blob_key)
+                blob_info = {
+                    "real_file": blob_key,
+                    "url": photo_url,
+                    "mime": "image/jpeg",
+                    "url_thumb": photo_url,
+                    "real_file_thumb": blob_key,
+                    "post_id": post_id,
+                }
+                blob_infos.append(blob_info)
+        return blob_infos
+
+    @app.route(BLOB_UPLOAD_URL, methods=['POST'])
+    def upload_handler():
+        result = {}
+        try:
+            blob_infos = get_blob_info_list(request)
+            if not blob_infos:
+                raise Exception("can not get blob info")
+
+            photos = [apis.Photo.create_photo_with_url(**info) for info in blob_infos]
+            result["status"] = "ok"
+            result["photos"] = photos
+        except Exception, e:
+            from settings import logging
+            logging.exception("error in upload_handler:")
+            result["error"] = unicode(e)
+            result["status"] = "error"
+
+        return jsonify(result)
 
 
 ########################################

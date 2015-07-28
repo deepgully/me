@@ -251,7 +251,56 @@ function Editor(md_converter, callback, album_mode) {
             }
         );
     };
-
+{% set enable_GAE_blobstore = not config["QINIU"].Enabled and config["RUNTIME_ENV"] in ("gae", "gae_dev") %}
+{% if enable_GAE_blobstore %}
+    var start_gae_upload = function(files, callback) {
+        $.json_action("photo/upload_url", {},
+            function(resp){
+                upload_photo_gae(resp.upload_url, files, callback);
+            },function(err){
+                show_message(err, true);
+        });
+    };
+    var upload_photo_gae = function(upload_url, files, callback) {
+        var thumbs = [];
+        var data = new FormData();
+        if (self.post != null) {
+            data.append("post_id", self.post.id);
+        }
+        $.each(files, function(i, file) {
+            data.append('file-'+i, file);
+            thumbs.push(new_thumb());
+        });
+        $.ajax({
+            url: upload_url,
+            type: "POST",
+            data: data,
+            cache: false,
+            processData: false, // Don't process the files
+            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+            success: function(data, textStatus, jqXHR) {
+                if (data.status == "ok") {
+                    $.each(data.photos, function(i, photo) {
+                        var thumb = thumbs.pop();
+                        thumb.show_photo(photo);
+                    });
+                    callback && callback(data.photos);
+                } else {
+                    show_message(data.error, true);
+                }
+                $.each(thumbs, function(i, thumb) {
+                    thumb.remove();
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                show_message(textStatus, true);
+                $.each(thumbs, function(i, thumb) {
+                    thumb.remove();
+                });
+            }
+        });
+    };
+{% endif %}
     var bind_upload = function(file){
         if(file.size < 8*1000*1000) {
             var reader = new FileReader();
@@ -263,6 +312,7 @@ function Editor(md_converter, callback, album_mode) {
     };
 
     var enable_paste_image = function($input_elem) {
+        {% if not enable_GAE_blobstore %}
         $input_elem.each(function(i, el){
             var paste = (new $.paste()).appendTo('body')
                 .on('pasteImage', function(ev, data){
@@ -275,6 +325,7 @@ function Editor(md_converter, callback, album_mode) {
                 paste.trigger(ev);
             });
         });
+        {% endif %}
     };
 
     var init = function(){
@@ -297,9 +348,13 @@ function Editor(md_converter, callback, album_mode) {
         });
 
         $(".image-bar input[type=file]", editor_elem).change(function(e){
+          {% if enable_GAE_blobstore %}
+            start_gae_upload(e.target.files);
+          {% else %}
             $.each(e.target.files, function(index, file){
-                bind_upload(file);
+                bind_upload(file, index);
             });
+          {% endif %}
         });
 
         self.picker = $("#editor-date", editor_elem).datetimepicker({
