@@ -96,10 +96,17 @@ function Editor(md_converter, callback, album_mode) {
         editor_elem.modal("show");
     };
     this.hide = function(){
+        is_running = false;
         editor_elem.modal("hide");
     };
 
+    var is_running = false;
+
     this.edit_post = function(post_id){
+        if (is_running) {
+            return false;
+        }
+        is_running = true;
         clean_up();
 
         if (self.album_mode){
@@ -116,12 +123,14 @@ function Editor(md_converter, callback, album_mode) {
         $.json_action("post", {
             id: post_id
         },function(resp){
+            is_running = false;
             show_message("");
             self.post = resp.post;
             show_post(self.post);
             form_inputs.attr("disabled", false);
             editor_elem.find ("#wmd-input").focus();
         },function(err){
+            is_running = false;
             show_message(err, true);
         });
     };
