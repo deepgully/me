@@ -173,7 +173,7 @@
         var resize_list_holder = function(){
             if ($slider_bar.css("position") === "fixed"){
                 $list_holder.height($slider_bar.height()/2+40);
-                $list_holder.outerWidth($slider_bar.outerWidth()+20);
+                $list_holder.outerWidth($slider_bar.outerWidth());
             } else {
                 $list_holder.height(0);
             }
