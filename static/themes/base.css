@@ -548,6 +548,9 @@ img {
     .slider-bar {
         position: fixed;
     }
+    .modal-dialog {
+        width: 800px;
+    }
 }
 @media (max-width: 992px) {
     .slider-bar {
