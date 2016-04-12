@@ -138,7 +138,7 @@ function Comment(md2html) {
             {% endif %}
         }
 
-        $(".reply-comment", $comment).click(function(){
+        $(".reply-comment", $comment).unbind("click").click(function(){
             self.parent_id = comment.id;
             self.show_message("");
             $(".comment-content:first", $comment).after($(".comment-input", $box));
@@ -146,7 +146,7 @@ function Comment(md2html) {
             $input_content.focus();
         });
 
-        $(".stats", $comment).click(function(){
+        $(".stats", $comment).unbind("click").click(function(){
             var $this = $(this);
             var $icon = $this.find("i").clone();
             $.json_action("stats",{
@@ -165,7 +165,7 @@ function Comment(md2html) {
         });
 
         {% if user.is_admin() %}
-            $(".delete-comment", $comment).click(function(){
+            $(".delete-comment", $comment).unbind("click").click(function(){
                 $.json_action("comment/delete",
                         {id: $.toJSON(comment.id)},
                         function(resp){
@@ -178,7 +178,7 @@ function Comment(md2html) {
                         }
                 );
             });
-            $(".restore-comment", $comment).click(function(){
+            $(".restore-comment", $comment).unbind("click").click(function(){
                 $.json_action("comment/update",
                         {id: $.toJSON(comment.id),
                          deleted: $.toJSON(false)},
@@ -276,14 +276,14 @@ function Comment(md2html) {
         $input_name = $('.comment-input input[name="author"]', $box);
         $preview = $('.comment-input .preview', $box);
 
-        $(".reply-post", $box).click(function(){
+        $(".reply-post", $box).unbind("click").click(function(){
             self.parent_id = -1;
             $(".comment-title", $box).after($(".comment-input", $box));
             show_tab("content");
             $input_content.focus();
         });
 
-        $(".comment-title", $box).click(function(){
+        $(".comment-title", $box).unbind("click").click(function(){
             $threads.toggle();
         });
 
@@ -291,7 +291,7 @@ function Comment(md2html) {
             $(this).attr("rows", 6);
         });
 
-        $('a[data-toggle="tab"]', $box).click(function (e) {
+        $('a[data-toggle="tab"]', $box).unbind("click").click(function (e) {
             e.preventDefault();
             var active_tab = $(e.target).attr("name");
             if ( active_tab === "preview"){
@@ -300,7 +300,7 @@ function Comment(md2html) {
             show_tab(active_tab);
         });
 
-        $("#submit_comment", $box).click(function(){
+        $("#submit_comment", $box).unbind("click").click(function(){
             submit_comment();
         });
     };

@@ -138,7 +138,7 @@ $(document).ready(function(){
         $cmdbar.find(".stats[name=unlike_count]>i").after(photo.stats.unlike_count);
         $th.append($cmdbar);
 
-        $(".photo_cmdbar .stats", $th).click(function(){
+        $(".photo_cmdbar .stats", $th).unbind("click").click(function(){
             var $this = $(this);
             var $icon = $this.find("i").clone();
             $.json_action("stats",{
@@ -214,8 +214,7 @@ $(document).ready(function(){
         $(".badge", $menu).text(post.photos.length);
         $(".post-date", $menu).text(post.post_date.format("yyyy-MM-dd"));
 
-        $menu.unbind("click");
-        $menu.click(function(){
+        $menu.unbind("click").click(function(){
             $albums_menu.find("li").removeClass("active");
             $menu.addClass("active");
             show_album(post);
@@ -253,7 +252,7 @@ $(document).ready(function(){
         masonry($album_view.find(".post-thumbnails"));
     };
 
-    $(".load-more-post").click(function() {
+    $(".load-more-post").unbind("click").click(function() {
         load_posts(show_album_menu);
     });
 

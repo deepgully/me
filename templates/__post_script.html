@@ -100,8 +100,7 @@
         var $share = $(".share", $post);
         var $icon = $share.find("i").clone();
         $share.empty().append($icon, post.stats.share_count);
-        $share.unbind("click");
-        $share.click(function(){
+        $share.unbind("click").click(function(){
             show_share(post);
         });
 
@@ -118,13 +117,13 @@
         $comment.empty().append($icon, post.stats.comment_count);
 
         var $comments_panel = $(".comments_panel", $post);
-        $(".cmdbar .comment", $post).click(function(){
+        $(".cmdbar .comment", $post).unbind("click").click(function(){
             $comments_panel.show();
             var comment = new Comment(md2html);
             comment.show_comments($comments_panel,  post.id);
         });
 
-        $(".cmdbar .stats", $post).click(function(){
+        $(".cmdbar .stats", $post).unbind("click").click(function(){
             var $this = $(this);
             var $icon = $this.find("i").clone();
             $.json_action("stats",{
@@ -144,8 +143,8 @@
         });
 
         {% if user.is_admin() %}
-        $(".menu-edit", $post).click(menu_edit);
-        $(".menu-delete", $post).click(menu_delete);
+        $(".menu-edit", $post).unbind("click").click(menu_edit);
+        $(".menu-delete", $post).unbind("click").click(menu_delete);
         {% endif %}
 
         return $post;
@@ -158,7 +157,7 @@
 
         var $btn_more = $("more", $post_body);
         $btn_more.html('<button class="btn btn-default btn-sm btn-block"> {{ _("Full Article") }}</button>');
-        $btn_more.click(function(){
+        $btn_more.unbind("click").click(function(){
             $post_body.html(md2html(post.body));
             $("pre>code", $post_body).parent().addClass("prettyprint");
             prettyPrint();

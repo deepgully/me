@@ -63,13 +63,13 @@
 
                 $post.attr("id", "post_{0}".format(post.id));
                 var $comments_panel = $(".comments_panel", $post);
-                $(".cmdbar .comment", $post).click(function(){
+                $(".cmdbar .comment", $post).unbind("click").click(function(){
                     $comments_panel.show();
                     var comment = new Comment(md2html);
                     comment.show_comments($comments_panel,  post.id);
                 });
 
-                $(".cmdbar .stats", $post).click(function(){
+                $(".cmdbar .stats", $post).unbind("click").click(function(){
                     var $this = $(this);
                     var $icon = $this.find("i").clone();
                     $.json_action("stats",{
@@ -123,8 +123,7 @@
             $(".name", $menu).text(post.title);
             $(".post-date", $menu).text(post.post_date.format("yyyy-MM-dd"));
 
-            $menu.unbind("click");
-            $menu.click(function(){
+            $menu.unbind("click").click(function(){
                 active_menu($menu);
                 return false;
             });
@@ -185,7 +184,7 @@
             bind_img_info($(".post-body", $container), 200, 150);
         });
 
-        $(".load-more-post").click(function() {
+        $(".load-more-post").unbind("click").click(function() {
             load_posts(show_post);
         });
 
@@ -198,7 +197,7 @@
             show_post(post_data, true);
         };
         editor = new Editor(md_converter, post_callback);
-        $("#new-post").click(function(){
+        $("#new-post").unbind("click").click(function(){
             editor.new_post();
         });
         {% endif %}

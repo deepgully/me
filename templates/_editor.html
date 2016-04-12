@@ -220,10 +220,10 @@ function Editor(md_converter, callback, album_mode) {
             img.attr("alt", photo.alt);
             img.attr("title", photo.alt);
             thumb.attr("photo_id", photo.id).css("cursor", "pointer");
-            $("a", thumb).click(function(){
+            $("a", thumb).unbind("click").click(function(){
                 md_editor.addText("\n![{0}]({1})\n".format(photo.alt, photo.url));
             });
-            $(".close", thumb).click(function(){
+            $(".close", thumb).unbind("click").click(function(){
                 $.json_action("photo/delete",
                     {id: $.toJSON(thumb.attr("photo_id")) },
                     function(resp){
@@ -234,7 +234,7 @@ function Editor(md_converter, callback, album_mode) {
                     }
                 );
             });
-            $(".alt", thumb).click(function(){
+            $(".alt", thumb).unbind("click").click(function(){
                 alt_editor.edit_desc(photo);
             });
         };
@@ -352,7 +352,7 @@ function Editor(md_converter, callback, album_mode) {
 
         form_inputs.jqBootstrapValidation();
 
-        $("#submit", editor_elem).click(function(){
+        $("#submit", editor_elem).unbind("click").click(function(){
             self.submit_post();
         });
 
@@ -389,7 +389,7 @@ function Editor(md_converter, callback, album_mode) {
             alt_editor.alt.val("").val(photo.alt).focus();
         };
 
-        $("button", alt_editor).click(function(){
+        $("button", alt_editor).unbind("click").click(function(){
             alt_editor.photo.alt = alt_editor.alt.val();
             $.json_action("photo/update",{
                     "id": $.toJSON(alt_editor.photo.id),
