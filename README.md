@@ -8,7 +8,7 @@ ME@deepgully
  * Demo on VPS: http://demo.deepgully.com
  * Demo on SAE: http://deepgully.sinaapp.com
 
-##主要功能 Features
+## 主要功能 Features
 
  1. 响应式页面,自动适应不同设备   
  Responsive design,adaptive on different devices
@@ -31,9 +31,9 @@ ME@deepgully
  Support GAE, BAE and SAE
 
 
-##安装说明 Install
+## 安装说明 Install
 
-##在GAE上安装`ME@deepgully`
+## 在GAE上安装`ME@deepgully`
 
 #### 准备工作
 
@@ -77,7 +77,7 @@ ME@deepgully
 
 
 
-##在BAE上安装`ME@deepgully`
+## 在BAE上安装`ME@deepgully`
 
 #### 准备工作
 
@@ -141,7 +141,7 @@ ME@deepgully
         #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://test:123456@test_server:3306/%s' % LOCAL_DATABASE
      
   
-##在SAE上安装`ME@deepgully`
+## 在SAE上安装`ME@deepgully`
 
 #### 准备工作
 
@@ -184,7 +184,7 @@ ME@deepgully
 #### 本地调试 同BAE
 
 
-##七牛云存储设置
+## 七牛云存储设置
 
 0. 申请七牛帐号, 并新建存储空间 https://portal.qiniu.com/tutorial/index 
 
@@ -201,4 +201,4 @@ ME@deepgully
     
         QINIU_SETTINGS.BUCKET_NAME = "me-deepgully"
         QINIU_SETTINGS.BUCKET_DOMAIN = "me-deepgully.qiniudn.com"
-        
+       
